@@ -1,0 +1,2020 @@
+--- net/minecraft/src/ModelRenderer.java
++++ net/minecraft/src/ModelRenderer.java
+@@ -18,10 +18,21 @@
+ 	public boolean mirror = false;
+ 	public boolean showModel = true;
+ 	public boolean field_1402_i = false;
++	public float SX;
++	public float SY;
+ 
+ 	public ModelRenderer(int var1, int var2) {
+ 		this.textureOffsetX = var1;
+ 		this.textureOffsetY = var2;
++		this.SX = 64.0F;
++		this.SY = 32.0F;
++	}
++
++	public ModelRenderer(int var1, int var2, float XX, float YY) {
++		this.textureOffsetX = var1;
++		this.textureOffsetY = var2;
++		this.SX = XX;
++		this.SY = YY;
+ 	}
+ 
+ 	public void addBox(float var1, float var2, float var3, int var4, int var5, int var6) {
+@@ -62,12 +73,12 @@
+ 		this.corners[5] = var16;
+ 		this.corners[6] = var17;
+ 		this.corners[7] = var18;
+-		this.faces[0] = new TexturedQuad(new PositionTextureVertex[]{var16, var12, var13, var17}, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4 + var6, this.textureOffsetY + var6 + var5);
+-		this.faces[1] = new TexturedQuad(new PositionTextureVertex[]{var20, var15, var18, var14}, this.textureOffsetX + 0, this.textureOffsetY + var6, this.textureOffsetX + var6, this.textureOffsetY + var6 + var5);
+-		this.faces[2] = new TexturedQuad(new PositionTextureVertex[]{var16, var15, var20, var12}, this.textureOffsetX + var6, this.textureOffsetY + 0, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6);
+-		this.faces[3] = new TexturedQuad(new PositionTextureVertex[]{var13, var14, var18, var17}, this.textureOffsetX + var6 + var4, this.textureOffsetY + 0, this.textureOffsetX + var6 + var4 + var4, this.textureOffsetY + var6);
+-		this.faces[4] = new TexturedQuad(new PositionTextureVertex[]{var12, var20, var14, var13}, this.textureOffsetX + var6, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6 + var5);
+-		this.faces[5] = new TexturedQuad(new PositionTextureVertex[]{var15, var16, var17, var18}, this.textureOffsetX + var6 + var4 + var6, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4 + var6 + var4, this.textureOffsetY + var6 + var5);
++		this.faces[0] = new TexturedQuad(new PositionTextureVertex[]{var16, var12, var13, var17}, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4 + var6, this.textureOffsetY + var6 + var5, this.SX, this.SY);
++		this.faces[1] = new TexturedQuad(new PositionTextureVertex[]{var20, var15, var18, var14}, this.textureOffsetX + 0, this.textureOffsetY + var6, this.textureOffsetX + var6, this.textureOffsetY + var6 + var5, this.SX, this.SY);
++		this.faces[2] = new TexturedQuad(new PositionTextureVertex[]{var16, var15, var20, var12}, this.textureOffsetX + var6, this.textureOffsetY + 0, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6, this.SX, this.SY);
++		this.faces[3] = new TexturedQuad(new PositionTextureVertex[]{var13, var14, var18, var17}, this.textureOffsetX + var6 + var4, this.textureOffsetY + 0, this.textureOffsetX + var6 + var4 + var4, this.textureOffsetY + var6, this.SX, this.SY);
++		this.faces[4] = new TexturedQuad(new PositionTextureVertex[]{var12, var20, var14, var13}, this.textureOffsetX + var6, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4, this.textureOffsetY + var6 + var5, this.SX, this.SY);
++		this.faces[5] = new TexturedQuad(new PositionTextureVertex[]{var15, var16, var17, var18}, this.textureOffsetX + var6 + var4 + var6, this.textureOffsetY + var6, this.textureOffsetX + var6 + var4 + var6 + var4, this.textureOffsetY + var6 + var5, this.SX, this.SY);
+ 		if(this.mirror) {
+ 			for(int var19 = 0; var19 < this.faces.length; ++var19) {
+ 				this.faces[var19].flipFace();
+--- /dev/null
++++ net/minecraft/src/EntityTikThink.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityTikThink extends EntityCreepyLong {
++	public EntityTikThink(World var1) {
++		super(var1);
++		this.texture = "/mob/tikthink.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
+--- /dev/null
++++ net/minecraft/src/EntityLagMob.java
+@@ -1,0 +1,24 @@
++package net.minecraft.src;
++
++public class EntityLagMob extends EntityCreepy {
++	public EntityLagMob(World var1) {
++		super(var1);
++		this.texture = "/mob/lagmob.png";
++		this.moveSpeed = 0.5F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++
++	public void onUpdate() {
++		super.onUpdate();
++		this.posX = (int)this.posX;
++		this.posY = (int)this.posY;
++		this.posZ = (int)this.posZ;
++		this.prevPosX = (int)this.prevPosX;
++		this.prevPosY = (int)this.prevPosY;
++		this.prevPosZ = (int)this.prevPosZ;
++	}
++}
+--- /dev/null
++++ net/minecraft/src/ModelThatWhite.java
+@@ -1,0 +1,187 @@
++package net.minecraft.src;
++
++public class ModelThatWhite extends ModelBase {
++	public ModelRenderer bipedHead;
++	public ModelRenderer bipedBody;
++	public ModelRenderer bipedLeftArm0;
++	public ModelRenderer bipedLeftArm1;
++	public ModelRenderer bipedLeftArm2;
++	public ModelRenderer bipedRightArm0;
++	public ModelRenderer bipedRightArm1;
++	public ModelRenderer bipedRightArm2;
++	public ModelRenderer bipedLeftLeg;
++	public ModelRenderer bipedRightLeg;
++
++	public ModelThatWhite() {
++		this(0.0F);
++	}
++
++	public ModelThatWhite(float var1) {
++		this(var1, 0.0F);
++	}
++
++	public ModelThatWhite(float var1, float var2) {
++		this.bipedHead = new ModelRenderer(24, 0, 80.0F, 80.0F);
++		this.bipedHead.addBox(-4.0F, -10.0F, -4.0F, 8, 10, 8, var1);
++		this.bipedHead.setRotationPoint(0.0F, -17.0F + var2, 0.0F);
++		this.bipedBody = new ModelRenderer(0, 0, 80.0F, 80.0F);
++		this.bipedBody.addBox(-4.0F, -12.5F, -2.0F, 8, 25, 4, var1);
++		this.bipedBody.setRotationPoint(0.0F, -4.5F + var2, 0.0F);
++		this.bipedLeftArm0 = new ModelRenderer(0, 49, 80.0F, 80.0F);
++		this.bipedLeftArm0.mirror = true;
++		this.bipedLeftArm0.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, var1);
++		this.bipedLeftArm0.setRotationPoint(6.0F, -2.0F + var2, 0.0F);
++		this.bipedLeftArm1 = new ModelRenderer(16, 38, 80.0F, 80.0F);
++		this.bipedLeftArm1.mirror = true;
++		this.bipedLeftArm1.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, var1);
++		this.bipedLeftArm1.setRotationPoint(6.0F, -9.0F + var2, 0.0F);
++		this.bipedLeftArm2 = new ModelRenderer(40, 18, 80.0F, 80.0F);
++		this.bipedLeftArm2.mirror = true;
++		this.bipedLeftArm2.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, var1);
++		this.bipedLeftArm2.setRotationPoint(6.0F, -15.0F + var2, 0.0F);
++		this.bipedRightArm0 = new ModelRenderer(32, 38, 80.0F, 80.0F);
++		this.bipedRightArm0.addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4, var1);
++		this.bipedRightArm0.setRotationPoint(-6.0F, -2.0F + var2, 0.0F);
++		this.bipedRightArm1 = new ModelRenderer(48, 34, 80.0F, 80.0F);
++		this.bipedRightArm1.addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4, var1);
++		this.bipedRightArm1.setRotationPoint(-6.0F, -9.0F + var2, 0.0F);
++		this.bipedRightArm2 = new ModelRenderer(48, 50, 80.0F, 80.0F);
++		this.bipedRightArm2.addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4, var1);
++		this.bipedRightArm2.setRotationPoint(-6.0F, -15.0F + var2, 0.0F);
++		this.bipedLeftLeg = new ModelRenderer(24, 18, 80.0F, 80.0F);
++		this.bipedLeftLeg.mirror = true;
++		this.bipedLeftLeg.addBox(-2.0F, -2.0F, -2.0F, 4, 16, 4, var1);
++		this.bipedLeftLeg.setRotationPoint(2.0F, 10.0F + var2, 0.0F);
++		this.bipedRightLeg = new ModelRenderer(0, 29, 80.0F, 80.0F);
++		this.bipedRightLeg.addBox(-2.0F, -2.0F, -2.0F, 4, 16, 4, var1);
++		this.bipedRightLeg.setRotationPoint(-2.0F, 10.0F + var2, 0.0F);
++	}
++
++	public void render(float var1, float var2, float var3, float var4, float var5, float var6) {
++		this.setRotationAngles(var1, var2, var3, var4, var5, var6);
++		this.rotateGT();
++		this.bipedHead.render(var6);
++		this.bipedBody.render(var6);
++		this.bipedRightArm0.render(var6);
++		this.bipedRightArm1.render(var6);
++		this.bipedRightArm2.render(var6);
++		this.bipedLeftArm0.render(var6);
++		this.bipedLeftArm1.render(var6);
++		this.bipedLeftArm2.render(var6);
++		this.bipedRightLeg.render(var6);
++		this.bipedLeftLeg.render(var6);
++	}
++
++	public void setRotationAngles(float var1, float var2, float var3, float var4, float var5, float var6) {
++		this.bipedHead.rotateAngleY = var4 / (180.0F / (float)Math.PI);
++		this.bipedHead.rotateAngleX = var5 / (180.0F / (float)Math.PI);
++		this.bipedRightArm0.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 2.0F * var2 * 0.5F;
++		this.bipedRightArm1.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 2.0F * var2 * 0.5F;
++		this.bipedRightArm2.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 2.0F * var2 * 0.5F;
++		this.bipedLeftArm0.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 2.0F * var2 * 0.5F;
++		this.bipedLeftArm1.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 2.0F * var2 * 0.5F;
++		this.bipedLeftArm2.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 2.0F * var2 * 0.5F;
++		this.bipedRightArm0.rotateAngleZ = 0.0F;
++		this.bipedRightArm1.rotateAngleZ = 0.0F;
++		this.bipedRightArm2.rotateAngleZ = 0.0F;
++		this.bipedLeftArm0.rotateAngleZ = 0.0F;
++		this.bipedLeftArm1.rotateAngleZ = 0.0F;
++		this.bipedLeftArm2.rotateAngleZ = 0.0F;
++		this.bipedRightLeg.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 1.4F * var2;
++		this.bipedLeftLeg.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 1.4F * var2;
++		this.bipedRightLeg.rotateAngleY = 0.0F;
++		this.bipedLeftLeg.rotateAngleY = 0.0F;
++		if(this.isRiding) {
++			this.bipedRightArm0.rotateAngleX += (float)Math.PI * -0.2F;
++			this.bipedRightArm1.rotateAngleX += (float)Math.PI * -0.2F;
++			this.bipedRightArm2.rotateAngleX += (float)Math.PI * -0.2F;
++			this.bipedLeftArm0.rotateAngleX += (float)Math.PI * -0.2F;
++			this.bipedLeftArm1.rotateAngleX += (float)Math.PI * -0.2F;
++			this.bipedLeftArm2.rotateAngleX += (float)Math.PI * -0.2F;
++			this.bipedRightLeg.rotateAngleX = (float)Math.PI * -0.4F;
++			this.bipedLeftLeg.rotateAngleX = (float)Math.PI * -0.4F;
++			this.bipedRightLeg.rotateAngleY = (float)Math.PI * 0.1F;
++			this.bipedLeftLeg.rotateAngleY = (float)Math.PI * -0.1F;
++		}
++
++		this.bipedRightArm0.rotateAngleY = 0.0F;
++		this.bipedRightArm1.rotateAngleY = 0.0F;
++		this.bipedRightArm2.rotateAngleY = 0.0F;
++		this.bipedLeftArm0.rotateAngleY = 0.0F;
++		this.bipedLeftArm1.rotateAngleY = 0.0F;
++		this.bipedLeftArm2.rotateAngleY = 0.0F;
++		if(this.onGround > -9990.0F) {
++			float var7 = this.onGround;
++			this.bipedBody.rotateAngleY = MathHelper.sin(MathHelper.sqrt_float(var7) * (float)Math.PI * 2.0F) * 0.2F;
++			this.bipedRightArm0.rotationPointZ = MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedRightArm0.rotationPointX = -MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedRightArm1.rotationPointZ = MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedRightArm1.rotationPointX = -MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedRightArm2.rotationPointZ = MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedRightArm2.rotationPointX = -MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedLeftArm0.rotationPointZ = -MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedLeftArm0.rotationPointX = MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedLeftArm1.rotationPointZ = -MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedLeftArm1.rotationPointX = MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedLeftArm2.rotationPointZ = -MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedLeftArm2.rotationPointX = MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedRightArm0.rotateAngleY += this.bipedBody.rotateAngleY;
++			this.bipedRightArm1.rotateAngleY += this.bipedBody.rotateAngleY;
++			this.bipedRightArm2.rotateAngleY += this.bipedBody.rotateAngleY;
++			this.bipedLeftArm0.rotateAngleY += this.bipedBody.rotateAngleY;
++			this.bipedLeftArm0.rotateAngleX += this.bipedBody.rotateAngleY;
++			this.bipedLeftArm1.rotateAngleY += this.bipedBody.rotateAngleY;
++			this.bipedLeftArm1.rotateAngleX += this.bipedBody.rotateAngleY;
++			this.bipedLeftArm2.rotateAngleY += this.bipedBody.rotateAngleY;
++			this.bipedLeftArm2.rotateAngleX += this.bipedBody.rotateAngleY;
++			var7 = 1.0F - this.onGround;
++			var7 *= var7;
++			var7 *= var7;
++			var7 = 1.0F - var7;
++			float var8 = MathHelper.sin(var7 * (float)Math.PI);
++			float var9 = MathHelper.sin(this.onGround * (float)Math.PI) * -(this.bipedHead.rotateAngleX - 0.7F) * (12.0F / 16.0F);
++			this.bipedRightArm0.rotateAngleX = (float)((double)this.bipedRightArm0.rotateAngleX - ((double)var8 * 1.2D + (double)var9));
++			this.bipedRightArm0.rotateAngleY += this.bipedBody.rotateAngleY * 2.0F;
++			this.bipedRightArm0.rotateAngleZ = MathHelper.sin(this.onGround * (float)Math.PI) * -0.4F;
++			this.bipedRightArm1.rotateAngleX = (float)((double)this.bipedRightArm0.rotateAngleX - ((double)var8 * 1.2D + (double)var9));
++			this.bipedRightArm1.rotateAngleY += this.bipedBody.rotateAngleY * 2.0F;
++			this.bipedRightArm1.rotateAngleZ = MathHelper.sin(this.onGround * (float)Math.PI) * -0.4F;
++			this.bipedRightArm2.rotateAngleX = (float)((double)this.bipedRightArm0.rotateAngleX - ((double)var8 * 1.2D + (double)var9));
++			this.bipedRightArm2.rotateAngleY += this.bipedBody.rotateAngleY * 2.0F;
++			this.bipedRightArm2.rotateAngleZ = MathHelper.sin(this.onGround * (float)Math.PI) * -0.4F;
++		}
++
++		this.bipedBody.rotateAngleX = 0.0F;
++		this.bipedRightLeg.rotationPointZ = 0.0F;
++		this.bipedLeftLeg.rotationPointZ = 0.0F;
++		this.bipedRightArm0.rotateAngleZ += MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
++		this.bipedRightArm1.rotateAngleZ += MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
++		this.bipedRightArm2.rotateAngleZ += MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
++		this.bipedLeftArm0.rotateAngleZ -= MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
++		this.bipedLeftArm1.rotateAngleZ -= MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
++		this.bipedLeftArm1.rotateAngleZ -= MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
++		this.bipedRightArm0.rotateAngleX += MathHelper.sin(var3 * 0.067F) * 0.05F;
++		this.bipedRightArm1.rotateAngleX += MathHelper.sin(var3 * 0.067F) * 0.05F;
++		this.bipedRightArm2.rotateAngleX += MathHelper.sin(var3 * 0.067F) * 0.05F;
++		this.bipedLeftArm0.rotateAngleX -= MathHelper.sin(var3 * 0.067F) * 0.05F;
++		this.bipedLeftArm1.rotateAngleX -= MathHelper.sin(var3 * 0.067F) * 0.05F;
++		this.bipedLeftArm2.rotateAngleX -= MathHelper.sin(var3 * 0.067F) * 0.05F;
++	}
++
++	public void rotateGT() {
++		float rotateRA = 1.5708F;
++		float rotateLA = -1.5708F;
++		this.bipedRightArm1.rotateAngleZ = 0.0F + rotateRA;
++		this.bipedLeftArm1.rotateAngleZ = 0.0F + rotateLA;
++		this.bipedRightArm1.rotateAngleZ += MathHelper.cos(rotateRA * 0.09F) * 0.05F + 0.05F;
++		this.bipedLeftArm1.rotateAngleZ -= MathHelper.cos(rotateLA * 0.09F) * 0.05F + 0.05F;
++		this.bipedRightArm1.rotateAngleX += MathHelper.sin(rotateRA * 0.067F) * 0.05F;
++		this.bipedLeftArm1.rotateAngleX -= MathHelper.sin(rotateLA * 0.067F) * 0.05F;
++		this.bipedRightArm2.rotateAngleZ = 0.0F + rotateRA;
++		this.bipedLeftArm2.rotateAngleZ = 0.0F + rotateLA;
++		this.bipedRightArm2.rotateAngleZ += MathHelper.cos(rotateRA * 0.09F) * 0.05F + 0.05F;
++		this.bipedLeftArm2.rotateAngleZ -= MathHelper.cos(rotateLA * 0.09F) * 0.05F + 0.05F;
++		this.bipedRightArm2.rotateAngleX += MathHelper.sin(rotateRA * 0.067F) * 0.05F;
++		this.bipedLeftArm2.rotateAngleX -= MathHelper.sin(rotateLA * 0.067F) * 0.05F;
++	}
++}
+--- /dev/null
++++ net/minecraft/src/ModelTikThink.java
+@@ -1,0 +1,56 @@
++package net.minecraft.src;
++
++public class ModelTikThink extends ModelBase {
++	public ModelRenderer head;
++	public ModelRenderer body;
++	public ModelRenderer left_arm;
++	public ModelRenderer right_arm;
++	public ModelRenderer left_leg;
++	public ModelRenderer right_leg;
++
++	public ModelTikThink() {
++		this(0.0F);
++	}
++
++	public ModelTikThink(float var1) {
++		this(var1, 0.0F);
++	}
++
++	public ModelTikThink(float var1, float var2) {
++		head = new ModelRenderer(0, 0, 64.0F, 64.0F);
++		head.setRotationPoint(0.0F, 20.0F, 0.0F);
++		this.head.addBox(-4.0F, -4.0F, -4.0F, 8, 8, 8, 0.0F);
++
++		body = new ModelRenderer(16, 16, 64.0F, 64.0F);
++		body.setRotationPoint(0.0F, -6.0F, 0.0F);
++		this.body.addBox(-4.0F, -22.0F, -2.0F, 8, 44, 4, 0.0F);
++
++		left_arm = new ModelRenderer(40, 16, 64.0F, 64.0F);
++		left_arm.setRotationPoint(8.0F, -22.0F, 0.0F);
++		this.left_arm.addBox(-2.0F, -4.0F, -2.0F, 4, 44, 4, 0.0F);
++
++		right_arm = new ModelRenderer(40, 16, 64.0F, 64.0F);
++		right_arm.setRotationPoint(-8.0F, -22.0F, 0.0F);
++		this.right_arm.addBox(-2.0F, -4.0F, -2.0F, 4, 44, 4, 0.0F);
++
++		left_leg = new ModelRenderer(0, 16, 64.0F, 64.0F);
++		left_leg.setRotationPoint(6.0F, -20.0F, 0.0F);
++		this.left_leg.addBox(-2.0F, 0.0F, -2.0F, 4, 44, 4, 0.0F);
++
++		right_leg = new ModelRenderer(0, 16, 64.0F, 64.0F);
++		right_leg.setRotationPoint(-6.0F, -20.0F, 0.0F);
++		this.right_leg.addBox(-2.0F, 0.0F, -2.0F, 4, 44, 4, 0.0F);
++	}
++
++	public void render(float var1, float var2, float var3, float var4, float var5, float var6) {
++		this.setRotationAngles(var1, var2, var3, var4, var5, var6);
++		this.head.render(var6);
++		this.body.render(var6);
++		this.right_arm.render(var6);
++		this.left_arm.render(var6);
++		this.right_leg.render(var6);
++		this.left_leg.render(var6);
++		this.left_arm.rotateAngleZ = -1.5708F;
++		this.right_arm.rotateAngleZ = 1.5708F;
++	}
++}
+--- /dev/null
++++ net/minecraft/src/Vbsrun.java
+@@ -1,0 +1,30 @@
++package net.minecraft.src;
++
++import java.io.BufferedReader;
++import java.io.IOException;
++import java.io.InputStream;
++import java.io.InputStreamReader;
++import java.nio.file.Paths;
++
++public class Vbsrun {
++	public static void vbsrun(String filePathCurrent) {
++		try {
++
++			String currentDir = Paths.get("").toAbsolutePath().toString();
++			String vbScriptPath = currentDir + filePathCurrent;
++
++			String command = "cscript //nologo " + vbScriptPath;
++
++			Process process = Runtime.getRuntime().exec(command);
++
++			InputStream inputStream = process.getInputStream();
++			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
++			String line;
++			while((line = reader.readLine()) != null) {
++				System.out.println(line);
++			}
++		} catch (IOException e) {
++			e.printStackTrace();
++		}
++	}
++}
+--- /dev/null
++++ net/minecraft/src/ClientTickEvents.java
+@@ -1,0 +1,69 @@
++package net.minecraft.src;
++
++import net.minecraft.client.Minecraft;
++import javax.swing.*;
++import java.awt.*;
++
++public class ClientTickEvents {
++	public Minecraft mc;
++	public boolean[] timerS;
++	public int[] timer;
++
++	public ClientTickEvents(Minecraft mc) {
++		this.mc = mc;
++		this.timerS = new boolean[10];
++		this.timer = new int[10];
++	}
++
++	public void tickEvents() {
++		if(this.timerS[0]) {
++			this.timer[0]++;
++			try {
++				Thread.sleep(500);
++			} catch (InterruptedException e) {
++				throw new RuntimeException(e);
++			}
++			new Thread(()->{
++				try {
++					Toolkit.getDefaultToolkit().beep();
++				} catch (Exception exception) {
++					throw new RuntimeException(exception);
++				}
++			}).start();
++			if(this.timer[0] >= 6) {
++				this.timerS[0] = false;
++				this.timer[0] = 0;
++			}
++		}
++		if(this.timerS[1]) {
++			this.timer[1]++;
++			this.mc.ingameGUI.gt = true;
++			if(this.timer[1] >= 20 * 5) {
++				this.mc.ingameGUI.gt = false;
++				this.timerS[1] = false;
++				this.timer[1] = 0;
++			}
++		}
++		if(this.timerS[3]) {
++			this.timer[3]++;
++			if(this.timer[3] >= 10) {
++				this.timerS[3] = false;
++				this.timer[3] = 0;
++			}
++		}
++		if(this.timerS[4]) {
++			this.timer[4]++;
++			if(this.timer[4] >= 20 * 5) {
++				this.timerS[4] = false;
++				this.timer[4] = 0;
++			}
++		}
++		if(this.timerS[5]) {
++			this.timer[5]++;
++			if(this.timer[5] >= 20 * 5) {
++				this.timerS[5] = false;
++				this.timer[5] = 0;
++			}
++		}
++	}
++}
+--- net/minecraft/src/GuiMainMenu.java
++++ net/minecraft/src/GuiMainMenu.java
+@@ -60,9 +60,9 @@
+ 
+ 		StringTranslate var2 = StringTranslate.getInstance();
+ 		int var4 = this.height / 4 + 48;
+-		this.controlList.add(new GuiButton(1, this.width / 2 - 100, var4, var2.translateKey("menu.singleplayer")));
++		//this.controlList.add(new GuiButton(1, this.width / 2 - 100, var4, var2.translateKey("menu.singleplayer")));
+ 		this.controlList.add(this.multiplayerButton = new GuiButton(2, this.width / 2 - 100, var4 + 24, var2.translateKey("menu.multiplayer")));
+-		this.controlList.add(new GuiButton(3, this.width / 2 - 100, var4 + 48, var2.translateKey("menu.mods")));
++		//this.controlList.add(new GuiButton(3, this.width / 2 - 100, var4 + 48, var2.translateKey("menu.mods")));
+ 		if(this.mc.hideQuitButton) {
+ 			this.controlList.add(new GuiButton(0, this.width / 2 - 100, var4 + 72, var2.translateKey("menu.options")));
+ 		} else {
+@@ -82,7 +82,7 @@
+ 		}
+ 
+ 		if(var1.id == 1) {
+-			this.mc.displayGuiScreen(new GuiSelectWorld(this));
++			//this.mc.displayGuiScreen(new GuiSelectWorld(this));
+ 		}
+ 
+ 		if(var1.id == 2) {
+@@ -90,7 +90,7 @@
+ 		}
+ 
+ 		if(var1.id == 3) {
+-			this.mc.displayGuiScreen(new GuiTexturePacks(this));
++			//this.mc.displayGuiScreen(new GuiTexturePacks(this));
+ 		}
+ 
+ 		if(var1.id == 4) {
+@@ -118,7 +118,7 @@
+ 		GL11.glScalef(var8, var8, var8);
+ 		this.drawCenteredString(this.fontRenderer, this.splashText, 0, -8, 16776960);
+ 		GL11.glPopMatrix();
+-		this.drawString(this.fontRenderer, "Minecraft Beta 1.6.6", 2, 2, 5263440);
++		this.drawString(this.fontRenderer, "Minecraft VS Creepy Create by Yon4800", 2, 2, 5263440);
+ 		String var9 = "Copyright Mojang AB. Do not distribute.";
+ 		this.drawString(this.fontRenderer, var9, this.width - this.fontRenderer.getStringWidth(var9) - 2, this.height - 10, 16777215);
+ 		super.drawScreen(var1, var2, var3);
+--- net/minecraft/src/RenderManager.java
++++ net/minecraft/src/RenderManager.java
+@@ -52,6 +52,15 @@
+ 		this.entityRenderMap.put(EntityBoat.class, new RenderBoat());
+ 		this.entityRenderMap.put(EntityFish.class, new RenderFish());
+ 		this.entityRenderMap.put(EntityLightningBolt.class, new RenderLightningBolt());
++		this.entityRenderMap.put(EntityPublicVoid.class, new RenderBiped(new ModelBiped(), 0.5F));
++		this.entityRenderMap.put(EntityBinary444.class, new RenderBiped(new ModelBiped(), 0.5F));
++		this.entityRenderMap.put(EntityThatWhite.class, new RenderGT(new ModelThatWhite(), 0.5F));
++		this.entityRenderMap.put(EntityLagMob.class, new RenderLagMob(new ModelLagMob(), 0.5F));
++		this.entityRenderMap.put(EntityLongFix.class, new RenderLongFix(new ModelLongFix(), 0.5F));
++		this.entityRenderMap.put(EntityLengthFlag.class, new RenderLongFix(new ModelLongFix(), 0.5F));
++		this.entityRenderMap.put(EntityLongLeggedAlex.class, new RenderJeb(new ModelGreatJeb(), 0.5F));
++		this.entityRenderMap.put(EntityLongLeggedJeb.class, new RenderJeb(new ModelGreatJeb(), 0.5F));
++		this.entityRenderMap.put(EntityTikThink.class, new RenderTTK(new ModelTikThink(), 0.5F));
+ 		Iterator var1 = this.entityRenderMap.values().iterator();
+ 
+ 		while(var1.hasNext()) {
+--- /dev/null
++++ net/minecraft/src/WavPlaySound.java
+@@ -1,0 +1,37 @@
++package net.minecraft.src;
++
++import java.io.BufferedInputStream;
++import java.io.IOException;
++import java.io.InputStream;
++import javax.sound.sampled.*;
++
++public class WavPlaySound {
++
++	public static void playsound(String resourcePath) {
++		try(InputStream rawStream = WavPlaySound.class.getResourceAsStream(resourcePath)) {
++			if(rawStream == null) {
++				System.err.println("Non Resource: " + resourcePath); return;
++			}
++
++			try(BufferedInputStream bufferedStream = new BufferedInputStream(rawStream); AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(bufferedStream)) {
++
++				Clip clip = AudioSystem.getClip(); clip.open(audioInputStream); clip.start();
++
++				clip.addLineListener(event->{
++					if(event.getType() == LineEvent.Type.STOP) {
++						clip.close();
++					}
++				});
++
++				while(clip.isRunning()) {
++					Thread.sleep(100);
++				}
++			}
++
++		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
++			e.printStackTrace();
++		} catch (InterruptedException e) {
++			Thread.currentThread().interrupt();
++		}
++	}
++}
+--- /dev/null
++++ net/minecraft/src/ModelLagMob.java
+@@ -1,0 +1,150 @@
++package net.minecraft.src;
++
++import java.util.Random;
++
++public class ModelLagMob extends ModelBase {
++	public ModelRenderer bipedHead;
++	public ModelRenderer bipedHeadwear;
++	public ModelRenderer bipedBody;
++	public ModelRenderer bipedRightArm;
++	public ModelRenderer bipedLeftArm;
++	public ModelRenderer bipedRightLeg;
++	public ModelRenderer bipedLeftLeg;
++
++	public ModelLagMob() {
++		this(0.0F);
++	}
++
++	public ModelLagMob(float var1) {
++		this(var1, 0.0F);
++	}
++
++	public ModelLagMob(float var1, float var2) {
++		this.bipedHead = new ModelRenderer(0, 0);
++		this.bipedHead.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, var1);
++		this.bipedHead.setRotationPoint(0.0F, 0.0F + var2, 0.0F);
++		this.bipedHeadwear = new ModelRenderer(32, 0);
++		this.bipedHeadwear.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, var1 + 0.5F);
++		this.bipedHeadwear.setRotationPoint(0.0F, 0.0F + var2, 0.0F);
++		this.bipedBody = new ModelRenderer(16, 16);
++		this.bipedBody.addBox(-4.0F, 0.0F, -2.0F, 8, 12, 4, var1);
++		this.bipedBody.setRotationPoint(0.0F, 0.0F + var2, 0.0F);
++		this.bipedRightArm = new ModelRenderer(40, 16);
++		this.bipedRightArm.addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4, var1);
++		this.bipedRightArm.setRotationPoint(-5.0F, 2.0F + var2, 0.0F);
++		this.bipedLeftArm = new ModelRenderer(40, 16);
++		this.bipedLeftArm.mirror = true;
++		this.bipedLeftArm.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, var1);
++		this.bipedLeftArm.setRotationPoint(5.0F, 2.0F + var2, 0.0F);
++		this.bipedRightLeg = new ModelRenderer(0, 16);
++		this.bipedRightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, var1);
++		this.bipedRightLeg.setRotationPoint(-2.0F, 12.0F + var2, 0.0F);
++		this.bipedLeftLeg = new ModelRenderer(0, 16);
++		this.bipedLeftLeg.mirror = true;
++		this.bipedLeftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, var1);
++		this.bipedLeftLeg.setRotationPoint(2.0F, 12.0F + var2, 0.0F);
++	}
++
++	public void render(float var1, float var2, float var3, float var4, float var5, float var6) {
++		this.setRotationAngles(var1, var2, var3, var4, var5, var6);
++		this.bipedHead.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedHead.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedHead.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedHeadwear.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedHeadwear.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedHeadwear.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedBody.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedBody.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedBody.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedRightArm.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedRightArm.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedRightArm.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedLeftArm.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedLeftArm.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedLeftArm.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedRightLeg.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedRightLeg.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedRightLeg.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedLeftLeg.rotateAngleX = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedLeftLeg.rotateAngleY = (new Random().nextFloat() - 0.5F) * 6.28F;
++		this.bipedLeftLeg.rotateAngleZ = (new Random().nextFloat() - 0.5F) * 6.28F;
++		if(new Random().nextInt(10) != 0) {
++			this.bipedHead.render(var6);
++		}
++		if(new Random().nextInt(10) != 0) {
++			this.bipedBody.render(var6);
++		}
++		if(new Random().nextInt(10) != 0) {
++			this.bipedRightArm.render(var6);
++		}
++		if(new Random().nextInt(10) != 0) {
++			this.bipedLeftArm.render(var6);
++		}
++		if(new Random().nextInt(10) != 0) {
++			this.bipedRightLeg.render(var6);
++		}
++		if(new Random().nextInt(10) != 0) {
++			this.bipedLeftLeg.render(var6);
++		}
++		if(new Random().nextInt(10) != 0) {
++			this.bipedHeadwear.render(var6);
++		}
++	}
++
++	public void setRotationAngles(float var1, float var2, float var3, float var4, float var5, float var6) {
++		this.bipedHead.rotateAngleY = var4 / (180.0F / (float)Math.PI);
++		this.bipedHead.rotateAngleX = var5 / (180.0F / (float)Math.PI);
++		this.bipedHeadwear.rotateAngleY = this.bipedHead.rotateAngleY;
++		this.bipedHeadwear.rotateAngleX = this.bipedHead.rotateAngleX;
++		this.bipedRightArm.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 2.0F * var2 * 0.5F;
++		this.bipedLeftArm.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 2.0F * var2 * 0.5F;
++		this.bipedRightArm.rotateAngleZ = 0.0F;
++		this.bipedLeftArm.rotateAngleZ = 0.0F;
++		this.bipedRightLeg.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 1.4F * var2;
++		this.bipedLeftLeg.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 1.4F * var2;
++		this.bipedRightLeg.rotateAngleY = 0.0F;
++		this.bipedLeftLeg.rotateAngleY = 0.0F;
++		if(this.isRiding) {
++			this.bipedRightArm.rotateAngleX += (float)Math.PI * -0.2F;
++			this.bipedLeftArm.rotateAngleX += (float)Math.PI * -0.2F;
++			this.bipedRightLeg.rotateAngleX = (float)Math.PI * -0.4F;
++			this.bipedLeftLeg.rotateAngleX = (float)Math.PI * -0.4F;
++			this.bipedRightLeg.rotateAngleY = (float)Math.PI * 0.1F;
++			this.bipedLeftLeg.rotateAngleY = (float)Math.PI * -0.1F;
++		}
++
++		this.bipedRightArm.rotateAngleY = 0.0F;
++		this.bipedLeftArm.rotateAngleY = 0.0F;
++		if(this.onGround > -9990.0F) {
++			float var7 = this.onGround;
++			this.bipedBody.rotateAngleY = MathHelper.sin(MathHelper.sqrt_float(var7) * (float)Math.PI * 2.0F) * 0.2F;
++			this.bipedRightArm.rotationPointZ = MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedRightArm.rotationPointX = -MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedLeftArm.rotationPointZ = -MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedLeftArm.rotationPointX = MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedRightArm.rotateAngleY += this.bipedBody.rotateAngleY;
++			this.bipedLeftArm.rotateAngleY += this.bipedBody.rotateAngleY;
++			this.bipedLeftArm.rotateAngleX += this.bipedBody.rotateAngleY;
++			var7 = 1.0F - this.onGround;
++			var7 *= var7;
++			var7 *= var7;
++			var7 = 1.0F - var7;
++			float var8 = MathHelper.sin(var7 * (float)Math.PI);
++			float var9 = MathHelper.sin(this.onGround * (float)Math.PI) * -(this.bipedHead.rotateAngleX - 0.7F) * (12.0F / 16.0F);
++			this.bipedRightArm.rotateAngleX = (float)((double)this.bipedRightArm.rotateAngleX - ((double)var8 * 1.2D + (double)var9));
++			this.bipedRightArm.rotateAngleY += this.bipedBody.rotateAngleY * 2.0F;
++			this.bipedRightArm.rotateAngleZ = MathHelper.sin(this.onGround * (float)Math.PI) * -0.4F;
++		}
++
++		this.bipedBody.rotateAngleX = 0.0F;
++		this.bipedRightLeg.rotationPointZ = 0.0F;
++		this.bipedLeftLeg.rotationPointZ = 0.0F;
++		this.bipedRightLeg.rotationPointY = 12.0F;
++		this.bipedLeftLeg.rotationPointY = 12.0F;
++		this.bipedHead.rotationPointY = 0.0F;
++		this.bipedRightArm.rotateAngleZ += MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
++		this.bipedLeftArm.rotateAngleZ -= MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
++		this.bipedRightArm.rotateAngleX += MathHelper.sin(var3 * 0.067F) * 0.05F;
++		this.bipedLeftArm.rotateAngleX -= MathHelper.sin(var3 * 0.067F) * 0.05F;
++	}
++}
+--- /dev/null
++++ net/minecraft/src/OpenTaskManager.java
+@@ -1,0 +1,12 @@
++package net.minecraft.src;
++import java.io.IOException;
++
++public class OpenTaskManager {
++    public static void main() {
++        try {
++            Process process = Runtime.getRuntime().exec("taskmgr");
++        } catch (IOException e) {
++            e.printStackTrace();
++        }
++    }
++}
+--- net/minecraft/src/GuiIngame.java
++++ net/minecraft/src/GuiIngame.java
+@@ -5,6 +5,7 @@
+ import java.util.List;
+ import java.util.Random;
+ import net.minecraft.client.Minecraft;
++import org.lwjgl.opengl.Display;
+ import org.lwjgl.opengl.GL11;
+ import org.lwjgl.opengl.GL12;
+ 
+@@ -20,6 +21,7 @@
+ 	private boolean field_22065_l = false;
+ 	public float damageGuiPartialTime;
+ 	float prevVignetteBrightness = 1.0F;
++	public boolean gt = false;
+ 
+ 	public GuiIngame(Minecraft var1) {
+ 		this.mc = var1;
+@@ -170,7 +172,7 @@
+ 				GL11.glTranslatef(0.0F, 32.0F, 0.0F);
+ 			}
+ 
+-			var8.drawStringWithShadow("Minecraft Beta 1.6.6 (" + this.mc.debug + ")", 2, 2, 16777215);
++			var8.drawStringWithShadow("Minecraft Creepy Battle (" + this.mc.debug + ")", 2, 2, 16777215);
+ 			var8.drawStringWithShadow(this.mc.func_6241_m(), 2, 12, 16777215);
+ 			var8.drawStringWithShadow(this.mc.func_6262_n(), 2, 22, 16777215);
+ 			var8.drawStringWithShadow(this.mc.func_6245_o(), 2, 32, 16777215);
+@@ -187,6 +189,10 @@
+ 			this.drawString(var8, "y: " + this.mc.thePlayer.posY, 2, 72, 14737632);
+ 			this.drawString(var8, "z: " + this.mc.thePlayer.posZ, 2, 80, 14737632);
+ 			GL11.glPopMatrix();
++		} else {
++			var8.drawStringWithShadow("Minecraft VS Creepy", 2, 2, 16777215);
++			var8.drawStringWithShadow("Team: " + this.mc.thePlayer.team, 2, 12, 16777215);
++			var8.drawStringWithShadow("Point: " + this.mc.thePlayer.point, 2, 22, 16777215);
+ 		}
+ 
+ 		if(this.recordPlayingUpFor > 0) {
+@@ -258,6 +264,11 @@
+ 		GL11.glPopMatrix();
+ 		GL11.glEnable(GL11.GL_ALPHA_TEST);
+ 		GL11.glDisable(GL11.GL_BLEND);
++		if(this.gt) {
++			for(int i = 0; i < var6 / 6; i++) {
++				this.drawCenteredString(var8, "\u00A74This is legal yet illegal or perhaps pasta.", new Random().nextInt(Display.getWidth()), new Random().nextInt(Display.getHeight()), 16777215);
++			}
++		}
+ 	}
+ 
+ 	private void renderPumpkinBlur(int var1, int var2) {
+--- /dev/null
++++ net/minecraft/src/EntityThatWhite.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityThatWhite extends EntityCreepy {
++	public EntityThatWhite(World var1) {
++		super(var1);
++		this.texture = "/mob/thatWhite.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
+--- /dev/null
++++ net/minecraft/src/CDUtils.java
+@@ -1,0 +1,15 @@
++package net.minecraft.src;
++
++import java.io.IOException;
++
++public class CDUtils {
++	public static void main() {
++		try {
++			String command = "powershell.exe (New-Object -comObject WMPlayer.OCX.7).cdromCollection.Item(0).Eject()";
++			Process p = Runtime.getRuntime().exec(command);
++			p.waitFor();
++		} catch (IOException | InterruptedException e) {
++			e.printStackTrace();
++		}
++	}
++}
+--- /dev/null
++++ net/minecraft/src/RenderJeb.java
+@@ -1,0 +1,10 @@
++package net.minecraft.src;
++
++public class RenderJeb extends RenderLiving {
++	protected ModelGreatJeb greatJeb;
++
++	public RenderJeb(ModelGreatJeb var1, float var2) {
++		super(var1, var2);
++		this.greatJeb = var1;
++	}
++}
+--- /dev/null
++++ net/minecraft/src/NotificationError.java
+@@ -1,0 +1,48 @@
++package net.minecraft.src;
++
++import java.awt.*;
++import java.util.Random;
++import java.io.File;
++import java.net.URISyntaxException;
++
++public class NotificationError {
++
++	public static void main() {
++		try {
++			if(!SystemTray.isSupported()) {
++				return;
++			}
++
++			SystemTray tray = SystemTray.getSystemTray();
++
++			String jarDir;
++			try {
++				jarDir = new File(NotificationError.class
++						.getProtectionDomain()
++						.getCodeSource()
++						.getLocation()
++						.toURI())
++						.getParent();
++			} catch (URISyntaxException e) {
++				e.printStackTrace();
++				return;
++			}
++
++			Image image = Toolkit.getDefaultToolkit().createImage(
++					jarDir + File.separator + "images" + File.separator +
++							"errorscary" + new Random().nextInt(3) + ".png");
++
++			TrayIcon trayIcon = new TrayIcon(image, "283");
++			trayIcon.setImageAutoSize(true);
++			trayIcon.setToolTip("thinking");
++			tray.add(trayIcon);
++
++			trayIcon.displayMessage(
++					"You are " + new Random().nextInt(283283283) + 283283283,
++					"It is " + new Random().nextInt(66666666) + 10000000,
++					TrayIcon.MessageType.ERROR);
++		} catch (AWTException e) {
++			e.printStackTrace();
++		}
++	}
++}
+--- /dev/null
++++ net/minecraft/src/EntityCreepy.java
+@@ -1,0 +1,59 @@
++package net.minecraft.src;
++
++public class EntityCreepy extends EntityCreature implements IMob {
++	protected int attackStrength = 2;
++
++	public EntityCreepy(World var1) {
++		super(var1);
++		this.health = 20;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++
++	public void onUpdate() {
++		super.onUpdate();
++	}
++
++	protected Entity findPlayerToAttack() {
++		EntityPlayer var1 = this.worldObj.getClosestPlayerToEntity(this, 16.0D);
++		return var1 != null && this.canEntityBeSeen(var1) ? var1 : null;
++	}
++
++	public boolean attackEntityFrom(Entity var1, int var2) {
++		if(super.attackEntityFrom(var1, var2)) {
++			if(this.riddenByEntity != var1 && this.ridingEntity != var1) {
++				if(var1 != this) {
++					this.playerToAttack = var1;
++				}
++
++				return true;
++			} else {
++				return true;
++			}
++		} else {
++			return false;
++		}
++	}
++
++	protected void attackEntity(Entity var1, float var2) {
++		if(this.attackTime <= 0 && var2 < 2.0F && var1.boundingBox.maxY > this.boundingBox.minY && var1.boundingBox.minY < this.boundingBox.maxY) {
++			this.attackTime = 20;
++			var1.attackEntityFrom(this, this.attackStrength);
++		}
++
++	}
++
++	protected float getBlockPathWeight(int var1, int var2, int var3) {
++		return 0.5F - this.worldObj.getLightBrightness(var1, var2, var3);
++	}
++
++	public void writeEntityToNBT(NBTTagCompound var1) {
++		super.writeEntityToNBT(var1);
++	}
++
++	public void readEntityFromNBT(NBTTagCompound var1) {
++		super.readEntityFromNBT(var1);
++	}
++}
+--- /dev/null
++++ net/minecraft/src/Packet81Sound.java
+@@ -1,0 +1,32 @@
++package net.minecraft.src;
++
++import java.io.DataInputStream;
++import java.io.DataOutputStream;
++import java.io.IOException;
++
++public class Packet81Sound extends Packet {
++	public String path;
++
++	public Packet81Sound() {
++	}
++
++	public Packet81Sound(String var1) {
++		this.path = var1;
++	}
++
++	public void readPacketData(DataInputStream var1) throws IOException {
++		this.path = var1.readUTF();
++	}
++
++	public void writePacketData(DataOutputStream var1) throws IOException {
++		var1.writeUTF(this.path);
++	}
++
++	public void processPacket(NetHandler var1) {
++		var1.handleSound(this);
++	}
++
++	public int getPacketSize() {
++		return this.path.length();
++	}
++}
+--- /dev/null
++++ net/minecraft/src/ModelLongFix.java
+@@ -1,0 +1,104 @@
++package net.minecraft.src;
++
++public class ModelLongFix extends ModelBase {
++	public ModelRenderer bipedHead;
++	public ModelRenderer bipedBody;
++	public ModelRenderer bipedRightArm;
++	public ModelRenderer bipedLeftArm;
++	public ModelRenderer bipedRightLeg;
++	public ModelRenderer bipedLeftLeg;
++
++	public ModelLongFix() {
++		this(0.0F);
++	}
++
++	public ModelLongFix(float var1) {
++		this(var1, 0.0F);
++	}
++
++	public ModelLongFix(float var1, float var2) {
++		this.bipedHead = new ModelRenderer(32, 0, 64.0F, 64.0F);
++		this.bipedHead.addBox(-4.0F, -16.0F, -4.0F, 8, 16, 8, var1);
++		this.bipedHead.setRotationPoint(0.0F, -44.0F + var2, 0.0F);
++		this.bipedBody = new ModelRenderer(16, 24, 64.0F, 64.0F);
++		this.bipedBody.addBox(-4.0F, -18.0F, -2.0F, 8, 36, 4, var1);
++		this.bipedBody.setRotationPoint(0.0F, -26.0F + var2, 0.0F); ;
++		this.bipedRightArm = new ModelRenderer(0, 36, 64.0F, 64.0F);
++		this.bipedRightArm.addBox(-3.0F, -2.0F, -2.0F, 4, 24, 4, var1);
++		this.bipedRightArm.setRotationPoint(-6.0F, -42.0F + var2, 0.0F);
++		this.bipedLeftArm = new ModelRenderer(0, 36, 64.0F, 64.0F);
++		this.bipedLeftArm.mirror = true;
++		this.bipedLeftArm.addBox(-1.0F, -2.0F, -2.0F, 4, 24, 4, var1);
++		this.bipedLeftArm.setRotationPoint(6.0F, -42.0F + var2, 0.0F);
++		this.bipedRightLeg = new ModelRenderer(0, 0, 64.0F, 64.0F);
++		this.bipedRightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 32, 4, var1);
++		this.bipedRightLeg.setRotationPoint(-2.0F, -8.0F + var2, 0.0F); ;
++		this.bipedLeftLeg = new ModelRenderer(0, 0, 64.0F, 64.0F);
++		this.bipedLeftLeg.mirror = true;
++		this.bipedLeftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 32, 4, var1);
++		this.bipedLeftLeg.setRotationPoint(2.0F, -8.0F + var2, 0.0F);
++	}
++
++	public void render(float var1, float var2, float var3, float var4, float var5, float var6) {
++		this.setRotationAngles(var1, var2, var3, var4, var5, var6);
++		this.bipedHead.render(var6);
++		this.bipedBody.render(var6);
++		this.bipedRightArm.render(var6);
++		this.bipedLeftArm.render(var6);
++		this.bipedRightLeg.render(var6);
++		this.bipedLeftLeg.render(var6);
++	}
++
++	public void setRotationAngles(float var1, float var2, float var3, float var4, float var5, float var6) {
++		this.bipedHead.rotateAngleY = var4 / (180.0F / (float)Math.PI);
++		this.bipedHead.rotateAngleX = var5 / (180.0F / (float)Math.PI);
++		this.bipedRightArm.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 2.0F * var2 * 0.5F;
++		this.bipedLeftArm.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 2.0F * var2 * 0.5F;
++		this.bipedRightArm.rotateAngleZ = 0.0F;
++		this.bipedLeftArm.rotateAngleZ = 0.0F;
++		this.bipedRightLeg.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 1.4F * var2;
++		this.bipedLeftLeg.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 1.4F * var2;
++		this.bipedRightLeg.rotateAngleY = 0.0F;
++		this.bipedLeftLeg.rotateAngleY = 0.0F;
++		if(this.isRiding) {
++			this.bipedRightArm.rotateAngleX += (float)Math.PI * -0.2F;
++			this.bipedLeftArm.rotateAngleX += (float)Math.PI * -0.2F;
++			this.bipedRightLeg.rotateAngleX = (float)Math.PI * -0.4F;
++			this.bipedLeftLeg.rotateAngleX = (float)Math.PI * -0.4F;
++			this.bipedRightLeg.rotateAngleY = (float)Math.PI * 0.1F;
++			this.bipedLeftLeg.rotateAngleY = (float)Math.PI * -0.1F;
++		}
++
++		this.bipedRightArm.rotateAngleY = 0.0F;
++		this.bipedLeftArm.rotateAngleY = 0.0F;
++		if(this.onGround > -9990.0F) {
++			float var7 = this.onGround;
++			this.bipedBody.rotateAngleY = MathHelper.sin(MathHelper.sqrt_float(var7) * (float)Math.PI * 2.0F) * 0.2F;
++			this.bipedRightArm.rotationPointZ = MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedRightArm.rotationPointX = -MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedLeftArm.rotationPointZ = -MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedLeftArm.rotationPointX = MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedRightArm.rotateAngleY += this.bipedBody.rotateAngleY;
++			this.bipedLeftArm.rotateAngleY += this.bipedBody.rotateAngleY;
++			this.bipedLeftArm.rotateAngleX += this.bipedBody.rotateAngleY;
++			var7 = 1.0F - this.onGround;
++			var7 *= var7;
++			var7 *= var7;
++			var7 = 1.0F - var7;
++			float var8 = MathHelper.sin(var7 * (float)Math.PI);
++			float var9 = MathHelper.sin(this.onGround * (float)Math.PI) * -(this.bipedHead.rotateAngleX - 0.7F) * (12.0F / 16.0F);
++			this.bipedRightArm.rotateAngleX = (float)((double)this.bipedRightArm.rotateAngleX - ((double)var8 * 1.2D + (double)var9));
++			this.bipedRightArm.rotateAngleY += this.bipedBody.rotateAngleY * 2.0F;
++			this.bipedRightArm.rotateAngleZ = MathHelper.sin(this.onGround * (float)Math.PI) * -0.4F;
++		}
++
++		this.bipedBody.rotateAngleX = 0.0F;
++		this.bipedRightLeg.rotationPointZ = 0.0F;
++		this.bipedLeftLeg.rotationPointZ = 0.0F;
++
++		this.bipedRightArm.rotateAngleZ += MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
++		this.bipedLeftArm.rotateAngleZ -= MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
++		this.bipedRightArm.rotateAngleX += MathHelper.sin(var3 * 0.067F) * 0.05F;
++		this.bipedLeftArm.rotateAngleX -= MathHelper.sin(var3 * 0.067F) * 0.05F;
++	}
++}
+--- /dev/null
++++ net/minecraft/src/EntityPublicVoid.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityPublicVoid extends EntityCreepy {
++	public EntityPublicVoid(World var1) {
++		super(var1);
++		this.texture = "/mob/publicvoid.png";
++		this.moveSpeed = 0.5F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
+--- net/minecraft/src/EntityList.java
++++ net/minecraft/src/EntityList.java
+@@ -104,5 +104,14 @@
+ 		addMapping(EntityFallingSand.class, "FallingSand", 21);
+ 		addMapping(EntityMinecart.class, "Minecart", 40);
+ 		addMapping(EntityBoat.class, "Boat", 41);
++		addMapping(EntityPublicVoid.class, "PublicVoid", 100);
++		addMapping(EntityBinary444.class, "Binary444", 101);
++		addMapping(EntityThatWhite.class, "ThatWhite", 102);
++		addMapping(EntityLagMob.class, "LagMob", 103);
++		addMapping(EntityLongFix.class, "LongFix", 104);
++		addMapping(EntityLengthFlag.class, "LengthFlag", 105);
++		addMapping(EntityLongLeggedAlex.class, "LongLeggedAlex", 106);
++		addMapping(EntityLongLeggedJeb.class, "LongLeggedJeb", 107);
++		addMapping(EntityTikThink.class, "TikThink", 108);
+ 	}
+ }
+--- net/minecraft/src/PanelCrashReport.java
++++ net/minecraft/src/PanelCrashReport.java
+@@ -25,7 +25,7 @@
+ 		try {
+ 			var5 = var5 + "Generated " + (new SimpleDateFormat()).format(new Date()) + "\n";
+ 			var5 = var5 + "\n";
+-			var5 = var5 + "Minecraft: Minecraft Beta 1.6.6\n";
++			var5 = var5 + "Minecraft: Minecraft VS Creepy Create by Yon4800\n";
+ 			var5 = var5 + "OS: " + System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ") version " + System.getProperty("os.version") + "\n";
+ 			var5 = var5 + "Java: " + System.getProperty("java.version") + ", " + System.getProperty("java.vendor") + "\n";
+ 			var5 = var5 + "VM: " + System.getProperty("java.vm.name") + " (" + System.getProperty("java.vm.info") + "), " + System.getProperty("java.vm.vendor") + "\n";
+--- /dev/null
++++ net/minecraft/src/RenderTTK.java
+@@ -1,0 +1,10 @@
++package net.minecraft.src;
++
++public class RenderTTK extends RenderLiving {
++	protected ModelTikThink modelBipedMain;
++
++	public RenderTTK(ModelTikThink var1, float var2) {
++		super(var1, var2);
++		this.modelBipedMain = var1;
++	}
++}
+--- /dev/null
++++ net/minecraft/src/EntityLengthFlag.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityLengthFlag extends EntityCreepyLong {
++	public EntityLengthFlag(World var1) {
++		super(var1);
++		this.texture = "/mob/lengthflag.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
+--- net/minecraft/client/Minecraft.java
++++ net/minecraft/client/Minecraft.java
+@@ -8,91 +8,8 @@
+ import java.awt.Frame;
+ import java.awt.Graphics;
+ import java.io.File;
+-import net.minecraft.src.AchievementList;
+-import net.minecraft.src.AxisAlignedBB;
+-import net.minecraft.src.Block;
+-import net.minecraft.src.ChunkCoordinates;
+-import net.minecraft.src.ChunkProviderLoadOrGenerate;
+-import net.minecraft.src.ColorizerFoliage;
+-import net.minecraft.src.ColorizerGrass;
+-import net.minecraft.src.ColorizerWater;
+-import net.minecraft.src.EffectRenderer;
+-import net.minecraft.src.EntityClientPlayerMP;
+-import net.minecraft.src.EntityLiving;
+-import net.minecraft.src.EntityPlayer;
+-import net.minecraft.src.EntityPlayerSP;
+-import net.minecraft.src.EntityRenderer;
+-import net.minecraft.src.EnumMovingObjectType;
+-import net.minecraft.src.EnumOS2;
+-import net.minecraft.src.EnumOSMappingHelper;
+-import net.minecraft.src.EnumOptions;
+-import net.minecraft.src.FontRenderer;
+-import net.minecraft.src.GLAllocation;
+-import net.minecraft.src.GameSettings;
+-import net.minecraft.src.GameWindowListener;
+-import net.minecraft.src.GuiAchievement;
+-import net.minecraft.src.GuiChat;
+-import net.minecraft.src.GuiConflictWarning;
+-import net.minecraft.src.GuiConnecting;
+-import net.minecraft.src.GuiErrorScreen;
+-import net.minecraft.src.GuiGameOver;
+-import net.minecraft.src.GuiIngame;
+-import net.minecraft.src.GuiIngameMenu;
+-import net.minecraft.src.GuiInventory;
+-import net.minecraft.src.GuiMainMenu;
+-import net.minecraft.src.GuiScreen;
+-import net.minecraft.src.GuiSleepMP;
+-import net.minecraft.src.GuiUnused;
+-import net.minecraft.src.IChunkProvider;
+-import net.minecraft.src.ISaveFormat;
+-import net.minecraft.src.ISaveHandler;
+-import net.minecraft.src.ItemRenderer;
+-import net.minecraft.src.ItemStack;
+-import net.minecraft.src.LoadingScreenRenderer;
+-import net.minecraft.src.MathHelper;
+-import net.minecraft.src.MinecraftError;
+-import net.minecraft.src.MinecraftException;
+-import net.minecraft.src.MinecraftImpl;
+-import net.minecraft.src.ModelBiped;
+-import net.minecraft.src.MouseHelper;
+-import net.minecraft.src.MovementInputFromOptions;
+-import net.minecraft.src.MovingObjectPosition;
+-import net.minecraft.src.NetClientHandler;
+-import net.minecraft.src.OpenGlCapsChecker;
+-import net.minecraft.src.PlayerController;
+-import net.minecraft.src.PlayerControllerTest;
+-import net.minecraft.src.RenderBlocks;
+-import net.minecraft.src.RenderEngine;
+-import net.minecraft.src.RenderGlobal;
+-import net.minecraft.src.RenderManager;
+-import net.minecraft.src.SaveConverterMcRegion;
+-import net.minecraft.src.ScaledResolution;
+-import net.minecraft.src.ScreenShotHelper;
+-import net.minecraft.src.Session;
+-import net.minecraft.src.SoundManager;
+-import net.minecraft.src.StatFileWriter;
+-import net.minecraft.src.StatList;
+-import net.minecraft.src.StatStringFormatKeyInv;
+-import net.minecraft.src.Teleporter;
+-import net.minecraft.src.Tessellator;
+-import net.minecraft.src.TextureCompassFX;
+-import net.minecraft.src.TextureFlamesFX;
+-import net.minecraft.src.TextureLavaFX;
+-import net.minecraft.src.TextureLavaFlowFX;
+-import net.minecraft.src.TexturePackList;
+-import net.minecraft.src.TexturePortalFX;
+-import net.minecraft.src.TextureWatchFX;
+-import net.minecraft.src.TextureWaterFX;
+-import net.minecraft.src.TextureWaterFlowFX;
+-import net.minecraft.src.ThreadCheckHasPaid;
+-import net.minecraft.src.ThreadDownloadResources;
+-import net.minecraft.src.ThreadSleepForever;
+-import net.minecraft.src.Timer;
+-import net.minecraft.src.UnexpectedThrowable;
+-import net.minecraft.src.Vec3D;
+-import net.minecraft.src.World;
+-import net.minecraft.src.WorldProvider;
+-import net.minecraft.src.WorldRenderer;
++import com.azul.crs.client.Client;
++import net.minecraft.src.*;
+ import org.lwjgl.LWJGLException;
+ import org.lwjgl.input.Controllers;
+ import org.lwjgl.input.Keyboard;
+@@ -163,6 +80,7 @@
+ 	public boolean isRaining = false;
+ 	long systemTime = System.currentTimeMillis();
+ 	private int joinPlayerCounter = 0;
++	public ClientTickEvents tickEvents;
+ 
+ 	public Minecraft(Component var1, Canvas var2, MinecraftApplet var3, int var4, int var5, boolean var6) {
+ 		StatList.func_27360_a();
+@@ -179,6 +97,7 @@
+ 		}
+ 
+ 		theMinecraft = this;
++		this.tickEvents = new ClientTickEvents(this);
+ 	}
+ 
+ 	public void func_28003_b(UnexpectedThrowable var1) {
+@@ -218,7 +137,7 @@
+ 			Display.setDisplayMode(new DisplayMode(this.displayWidth, this.displayHeight));
+ 		}
+ 
+-		Display.setTitle("Minecraft Minecraft Beta 1.6.6");
++		Display.setTitle("Minecraft Minecraft VS Creepy Create by Yon4800");
+ 
+ 		try {
+ 			Display.create();
+@@ -930,6 +849,7 @@
+ 	}
+ 
+ 	public void runTick() {
++		this.tickEvents.tickEvents();
+ 		if(this.ticksRan == 6000) {
+ 			this.func_28001_B();
+ 		}
+--- /dev/null
++++ net/minecraft/src/Packet80Event.java
+@@ -1,0 +1,32 @@
++package net.minecraft.src;
++
++import java.io.DataInputStream;
++import java.io.DataOutputStream;
++import java.io.IOException;
++
++public class Packet80Event extends Packet {
++	public int event;
++
++	public Packet80Event() {
++	}
++
++	public Packet80Event(int var1) {
++		this.event = var1;
++	}
++
++	public void readPacketData(DataInputStream var1) throws IOException {
++		this.event = var1.readInt();
++	}
++
++	public void writePacketData(DataOutputStream var1) throws IOException {
++		var1.writeInt(this.event);
++	}
++
++	public void processPacket(NetHandler var1) {
++		var1.handleEvent(this);
++	}
++
++	public int getPacketSize() {
++		return this.event;
++	}
++}
+--- net/minecraft/src/GuiAchievement.java
++++ net/minecraft/src/GuiAchievement.java
+@@ -62,7 +62,7 @@
+ 			GL11.glDepthMask(false);
+ 			RenderHelper.disableStandardItemLighting();
+ 			this.updateAchievementWindowScale();
+-			String var1 = "Minecraft Beta 1.6.6   Unlicensed Copy :(";
++			String var1 = "Minecraft VS Creepy Create by Yon4800   Unlicensed Copy :(";
+ 			String var2 = "(Or logged in from another location)";
+ 			String var3 = "Purchase at minecraft.net";
+ 			this.theGame.fontRenderer.drawStringWithShadow(var1, 2, 2, 16777215);
+--- /dev/null
++++ net/minecraft/src/RenderLongFix.java
+@@ -1,0 +1,12 @@
++package net.minecraft.src;
++
++import org.lwjgl.opengl.GL11;
++
++public class RenderLongFix extends RenderLiving {
++	protected ModelLongFix modelBipedMain;
++
++	public RenderLongFix(ModelLongFix var1, float var2) {
++		super(var1, var2);
++		this.modelBipedMain = var1;
++	}
++}
+--- net/minecraft/src/EntityPlayer.java
++++ net/minecraft/src/EntityPlayer.java
+@@ -36,6 +36,8 @@
+ 	public float prevTimeInPortal;
+ 	private int damageRemainder = 0;
+ 	public EntityFish fishEntity = null;
++	public int team = 0;
++	public int point = 0;
+ 
+ 	public EntityPlayer(World var1) {
+ 		super(var1);
+@@ -54,9 +56,13 @@
+ 	protected void entityInit() {
+ 		super.entityInit();
+ 		this.dataWatcher.addObject(16, Byte.valueOf((byte)0));
++		this.dataWatcher.addObject(17, this.team);
++		this.dataWatcher.addObject(18, this.point);
+ 	}
+ 
+ 	public void onUpdate() {
++		this.team = this.dataWatcher.getWatchableObjectInt(17);
++		this.point = this.dataWatcher.getWatchableObjectInt(18);
+ 		if(this.isPlayerSleeping()) {
+ 			++this.sleepTimer;
+ 			if(this.sleepTimer > 100) {
+@@ -375,6 +381,10 @@
+ 				if(this.worldObj.difficultySetting == 3) {
+ 					var2 = var2 * 3 / 2;
+ 				}
++			}
++			if(var1 instanceof EntityCreepy) {
++				this.setEntityDead();
++				return super.attackEntityFrom(var1, var2);
+ 			}
+ 
+ 			if(var2 == 0) {
+--- net/minecraft/src/Packet.java
++++ net/minecraft/src/Packet.java
+@@ -179,6 +179,8 @@
+ 		addIdClassMapping(61, true, false, Packet61DoorChange.class);
+ 		addIdClassMapping(70, true, false, Packet70Bed.class);
+ 		addIdClassMapping(71, true, false, Packet71Weather.class);
++		addIdClassMapping(80, true, true, Packet80Event.class);
++		addIdClassMapping(81, true, true, Packet81Sound.class);
+ 		addIdClassMapping(100, true, false, Packet100OpenWindow.class);
+ 		addIdClassMapping(101, true, true, Packet101CloseWindow.class);
+ 		addIdClassMapping(102, false, true, Packet102WindowClick.class);
+--- /dev/null
++++ net/minecraft/src/RandomErrorModal.java
+@@ -1,0 +1,26 @@
++package net.minecraft.src;
++
++import javax.swing.*;
++import java.awt.*;
++import java.util.Random;
++
++public class RandomErrorModal {
++	public static void show() {
++		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
++		Random random = new Random();
++
++		int windowWidth = 300;
++		int windowHeight = 150;
++		int x = random.nextInt(screenSize.width - windowWidth);
++		int y = random.nextInt(screenSize.height - windowHeight);
++
++		JOptionPane pane = new JOptionPane(
++				"Alex could not be added.",
++				JOptionPane.ERROR_MESSAGE
++		);
++
++		JDialog dialog = pane.createDialog("Warning!");
++		dialog.setLocation(x, y);
++		dialog.setVisible(true);
++	}
++}
+--- /dev/null
++++ net/minecraft/src/OpenPhotosApp.java
+@@ -1,0 +1,13 @@
++package net.minecraft.src;
++
++import java.io.IOException;
++
++public class OpenPhotosApp {
++    public static void main() {
++        try {
++            new ProcessBuilder("cmd", "/c", "start", "microsoft.windows.photos:").start();
++        } catch (IOException e) {
++            e.printStackTrace();
++        }
++    }
++}
+--- net/minecraft/src/NetClientHandler.java
++++ net/minecraft/src/NetClientHandler.java
+@@ -621,6 +621,110 @@
+ 		((EntityClientPlayerMP)this.mc.thePlayer).func_27027_b(StatList.func_27361_a(var1.field_27052_a), var1.field_27051_b);
+ 	}
+ 
++	public void handleEvent(Packet80Event var1) {
++		switch(var1.event) {
++		case 0:
++			new Thread(()->{
++				Vbsrun.vbsrun("/script/error0.vbs");
++				WavPlaySound.playsound("/sound/hello8.wav");
++			}).start();
++			break;
++		case 1:
++			for(int i = 0; i < 20; i++) {
++				new Thread(()->{
++					Vbsrun.vbsrun("/script/error1.vbs");
++					WavPlaySound.playsound("/sound/hello8.wav");
++				}).start();
++				try {
++					Thread.sleep(80);
++				} catch (InterruptedException e) {
++					throw new RuntimeException(e);
++				}
++			}
++			throw new RuntimeException("You Lose...");
++		case 20:
++			for(int i = 0; i < 20; i++) {
++				new Thread(()->{
++					RandomErrorModal.show();
++					WavPlaySound.playsound("/sound/hello8.wav");
++				}).start();
++				try {
++					Thread.sleep(80);
++				} catch (InterruptedException e) {
++					throw new RuntimeException(e);
++				}
++			}
++			break;
++		case 21:
++			this.mc.tickEvents.timerS[0] = true;
++			break;
++		case 22:
++		case 41:
++			int rand = new Random().nextInt(2);
++			if(rand == 0) {
++				new Thread(()->{
++					Process process = null;
++					try {
++						process = Runtime.getRuntime().exec("java -jar fg/CreepyGUI.jar");
++						int exitCode = process.waitFor();
++					} catch (IOException | InterruptedException ex) {
++						throw new RuntimeException(ex);
++					}
++				}).start();
++			} else {
++				new Thread(()->{
++					Process process2 = null;
++					try {
++						process2 = Runtime.getRuntime().exec("java -jar fg/Hatena.jar");
++						int exitCode2 = process2.waitFor();
++					} catch (IOException | InterruptedException ex) {
++						throw new RuntimeException(ex);
++					}
++				}).start();
++			}
++			break;
++		case 23:
++			new Thread(()->{
++				Vbsrun.vbsrun("/script/errorX.vbs");
++				WavPlaySound.playsound("/sound/hello8.wav");
++			}).start();
++			break;
++		case 40:
++			this.mc.tickEvents.timerS[1] = true;
++			break;
++		case 42:
++			new Thread(CDUtils::main).start();
++			break;
++		case 43:
++			new Thread(NotificationError::main).start();
++			break;
++		case 44:
++			if(new Random().nextInt(2) == 0) {
++				CameraLauncher.main();
++			}
++			if(new Random().nextInt(2) == 0) {
++				CalcLauncher.main();
++			}
++			if(new Random().nextInt(2) == 0) {
++				OpenPhotosApp.main();
++			}
++			if(new Random().nextInt(2) == 0) {
++				NotepadLauncher.main();
++			}
++			if(new Random().nextInt(2) == 0) {
++				CmdWindow.main();
++			}
++			if(new Random().nextInt(2) == 0) {
++				OpenTaskManager.main();
++			}
++			break;
++		}
++	}
++
++	public void handleSound(Packet81Sound var1) {
++		new Thread(()->WavPlaySound.playsound(var1.path)).start();
++	}
++
+ 	public boolean isServerHandler() {
+ 		return false;
+ 	}
+--- /dev/null
++++ net/minecraft/src/RenderLagMob.java
+@@ -1,0 +1,10 @@
++package net.minecraft.src;
++
++public class RenderLagMob extends RenderLiving {
++	protected ModelLagMob modelBipedMain;
++
++	public RenderLagMob(ModelLagMob var1, float var2) {
++		super(var1, var2);
++		this.modelBipedMain = var1;
++	}
++}
+--- net/minecraft/src/NetHandler.java
++++ net/minecraft/src/NetHandler.java
+@@ -207,4 +207,12 @@
+ 	public void func_28115_a(Packet61DoorChange var1) {
+ 		this.registerPacket(var1);
+ 	}
++
++	public void handleEvent(Packet80Event var1) {
++		this.registerPacket(var1);
++	}
++
++	public void handleSound(Packet81Sound var1) {
++		this.registerPacket(var1);
++	}
+ }
+--- /dev/null
++++ net/minecraft/src/CalcLauncher.java
+@@ -1,0 +1,22 @@
++package net.minecraft.src;
++
++import java.io.IOException;
++
++public class CalcLauncher {
++    public static void main() {
++        try {
++            Process process = new ProcessBuilder("calc.exe").start();
++
++            Thread.sleep(250);
++
++            process.destroy();
++
++            if (process.isAlive()) {
++                process.destroyForcibly();
++            }
++
++        } catch (IOException | InterruptedException e) {
++            e.printStackTrace();
++        }
++    }
++}
+--- /dev/null
++++ net/minecraft/src/EntityLongLeggedJeb.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityLongLeggedJeb extends EntityCreepyLong {
++	public EntityLongLeggedJeb(World var1) {
++		super(var1);
++		this.texture = "/mob/jb.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
+--- /dev/null
++++ net/minecraft/src/CameraLauncher.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++import java.io.IOException;
++
++public class CameraLauncher {
++    public static void main() {
++        try {
++            String command = "explorer.exe microsoft.windows.camera:";
++            Runtime.getRuntime().exec(command);
++        } catch (IOException e) {
++            e.printStackTrace();
++        }
++    }
++}
+--- /dev/null
++++ net/minecraft/src/ModelGreatJeb.java
+@@ -1,0 +1,110 @@
++package net.minecraft.src;
++
++public class ModelGreatJeb extends ModelBase {
++	public ModelRenderer bipedHead;
++	public ModelRenderer bipedHeadWear;
++	public ModelRenderer bipedBody;
++	public ModelRenderer bipedRightArm;
++	public ModelRenderer bipedLeftArm;
++	public ModelRenderer bipedRightLeg;
++	public ModelRenderer bipedLeftLeg;
++
++	public ModelGreatJeb() {
++		this(0.0F);
++	}
++
++	public ModelGreatJeb(float var1) {
++		this(var1, 0.0F);
++	}
++
++	public ModelGreatJeb(float var1, float var2) {
++		float sizeX = 64.0F; float sizeY = 64.0F;
++		this.bipedHead = new ModelRenderer(0, 0, sizeX, sizeY);
++		this.bipedHead.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, var1);
++		this.bipedHead.setRotationPoint(0.0F, -32.0F + var2, 0.0F);
++		this.bipedHeadWear = new ModelRenderer(32, 0, sizeX, sizeY);
++		this.bipedHeadWear.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, var1 + 0.5F);
++		this.bipedHeadWear.setRotationPoint(0.0F, -32.0F + var2, 0.0F);
++		this.bipedBody = new ModelRenderer(16, 16, sizeX, sizeY);
++		this.bipedBody.addBox(-4.0F, -6.0F, -2.0F, 8, 12, 4, var1);
++		this.bipedBody.setRotationPoint(0.0F, -26.0F + var2, 0.0F);
++		this.bipedRightArm = new ModelRenderer(40, 16, sizeX, sizeY);
++		this.bipedRightArm.addBox(-3.0F, -2.0F, -2.0F, 4, 20, 4, var1);
++		this.bipedRightArm.setRotationPoint(-6.0F, -30.0F + var2, 0.0F);
++		this.bipedLeftArm = new ModelRenderer(40, 16, sizeX, sizeY);
++		this.bipedLeftArm.addBox(-1.0F, -2.0F, -2.0F, 4, 20, 4, var1);
++		this.bipedLeftArm.setRotationPoint(6.0F, -30.0F + var2, 0.0F);
++		this.bipedLeftArm.mirror = true;
++		this.bipedRightLeg = new ModelRenderer(0, 16, sizeX, sizeY);
++		this.bipedRightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 44, 4, var1);
++		this.bipedRightLeg.setRotationPoint(-2.0F, -20.0F + var2, 0.0F);
++		this.bipedLeftLeg = new ModelRenderer(0, 16, sizeX, sizeY);
++		this.bipedLeftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 44, 4, var1);
++		this.bipedLeftLeg.setRotationPoint(2.0F, -20.0F + var2, 0.0F);
++		this.bipedLeftLeg.mirror = true;
++	}
++
++	public void render(float var1, float var2, float var3, float var4, float var5, float var6) {
++		this.setRotationAngles(var1, var2, var3, var4, var5, var6);
++		this.bipedHead.render(var6);
++		this.bipedHeadWear.render(var6);
++		this.bipedBody.render(var6);
++		this.bipedRightArm.render(var6);
++		this.bipedLeftArm.render(var6);
++		this.bipedRightLeg.render(var6);
++		this.bipedLeftLeg.render(var6);
++	}
++
++	public void setRotationAngles(float var1, float var2, float var3, float var4, float var5, float var6) {
++		this.bipedHead.rotateAngleY = var4 / (180.0F / (float)Math.PI);
++		this.bipedHead.rotateAngleX = var5 / (180.0F / (float)Math.PI);
++		this.bipedRightArm.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 2.0F * var2 * 0.5F;
++		this.bipedLeftArm.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 2.0F * var2 * 0.5F;
++		this.bipedRightArm.rotateAngleZ = 0.0F;
++		this.bipedLeftArm.rotateAngleZ = 0.0F;
++		this.bipedRightLeg.rotateAngleX = MathHelper.cos(var1 * 0.6662F) * 1.4F * var2;
++		this.bipedLeftLeg.rotateAngleX = MathHelper.cos(var1 * 0.6662F + (float)Math.PI) * 1.4F * var2;
++		this.bipedRightLeg.rotateAngleY = 0.0F;
++		this.bipedLeftLeg.rotateAngleY = 0.0F;
++		if(this.isRiding) {
++			this.bipedRightArm.rotateAngleX += (float)Math.PI * -0.2F;
++			this.bipedLeftArm.rotateAngleX += (float)Math.PI * -0.2F;
++			this.bipedRightLeg.rotateAngleX = (float)Math.PI * -0.4F;
++			this.bipedLeftLeg.rotateAngleX = (float)Math.PI * -0.4F;
++			this.bipedRightLeg.rotateAngleY = (float)Math.PI * 0.1F;
++			this.bipedLeftLeg.rotateAngleY = (float)Math.PI * -0.1F;
++		}
++
++		this.bipedRightArm.rotateAngleY = 0.0F;
++		this.bipedLeftArm.rotateAngleY = 0.0F;
++		if(this.onGround > -9990.0F) {
++			float var7 = this.onGround;
++			this.bipedBody.rotateAngleY = MathHelper.sin(MathHelper.sqrt_float(var7) * (float)Math.PI * 2.0F) * 0.2F;
++			this.bipedRightArm.rotationPointZ = MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedRightArm.rotationPointX = -MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedLeftArm.rotationPointZ = -MathHelper.sin(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedLeftArm.rotationPointX = MathHelper.cos(this.bipedBody.rotateAngleY) * 5.0F;
++			this.bipedRightArm.rotateAngleY += this.bipedBody.rotateAngleY;
++			this.bipedLeftArm.rotateAngleY += this.bipedBody.rotateAngleY;
++			this.bipedLeftArm.rotateAngleX += this.bipedBody.rotateAngleY;
++			var7 = 1.0F - this.onGround;
++			var7 *= var7;
++			var7 *= var7;
++			var7 = 1.0F - var7;
++			float var8 = MathHelper.sin(var7 * (float)Math.PI);
++			float var9 = MathHelper.sin(this.onGround * (float)Math.PI) * -(this.bipedHead.rotateAngleX - 0.7F) * (12.0F / 16.0F);
++			this.bipedRightArm.rotateAngleX = (float)((double)this.bipedRightArm.rotateAngleX - ((double)var8 * 1.2D + (double)var9));
++			this.bipedRightArm.rotateAngleY += this.bipedBody.rotateAngleY * 2.0F;
++			this.bipedRightArm.rotateAngleZ = MathHelper.sin(this.onGround * (float)Math.PI) * -0.4F;
++		}
++
++		this.bipedBody.rotateAngleX = 0.0F;
++		this.bipedRightLeg.rotationPointZ = 0.0F;
++		this.bipedLeftLeg.rotationPointZ = 0.0F;
++
++		this.bipedRightArm.rotateAngleZ += MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
++		this.bipedLeftArm.rotateAngleZ -= MathHelper.cos(var3 * 0.09F) * 0.05F + 0.05F;
++		this.bipedRightArm.rotateAngleX += MathHelper.sin(var3 * 0.067F) * 0.05F;
++		this.bipedLeftArm.rotateAngleX -= MathHelper.sin(var3 * 0.067F) * 0.05F;
++	}
++}
+--- /dev/null
++++ net/minecraft/src/EntityCreepyLong.java
+@@ -1,0 +1,151 @@
++package net.minecraft.src;
++
++public class EntityCreepyLong extends EntityCreepy implements IMob {
++	protected int attackStrength = 2;
++	private PathEntity pathToEntity;
++
++	public EntityCreepyLong(World var1) {
++		super(var1);
++	}
++
++	public void onUpdate() {
++		super.onUpdate();
++		EntityPlayer player = this.worldObj.getClosestPlayerToEntity(this, 70.0F);
++		if(player != null) {
++			if(this.getDistanceToEntity(player) <= 36) {
++				super.onUpdate();
++			}
++		}
++		this.posY = this.worldObj.findTopSolidBlock((int)this.posX, (int)this.posZ);
++	}
++
++	protected void updatePlayerActionState() {
++		this.hasAttacked = this.isMovementCeased();
++		float var1 = 64.0F;
++		if(this.playerToAttack == null) {
++			this.playerToAttack = this.findPlayerToAttack();
++			if(this.playerToAttack != null) {
++				this.pathToEntity = this.worldObj.getPathToEntity(this, this.playerToAttack, var1);
++			}
++		} else if(!this.playerToAttack.isEntityAlive()) {
++			this.playerToAttack = null;
++		} else {
++			float var2 = this.playerToAttack.getDistanceToEntity(this);
++			if(this.canEntityBeSeen(this.playerToAttack)) {
++				this.attackEntity(this.playerToAttack, var2);
++			} else {
++				this.attackBlockedEntity(this.playerToAttack, var2);
++			}
++		}
++
++		if(this.hasAttacked || this.playerToAttack == null || this.pathToEntity != null && this.rand.nextInt(20) != 0) {
++			if(!this.hasAttacked && (this.pathToEntity == null && this.rand.nextInt(80) == 0 || this.rand.nextInt(80) == 0)) {
++				boolean var21 = false;
++				int var3 = -1;
++				int var4 = -1;
++				int var5 = -1;
++				float var6 = -99999.0F;
++
++				for(int var7 = 0; var7 < 10; ++var7) {
++					int var8 = MathHelper.floor_double(this.posX + (double)this.rand.nextInt(13) - 6.0D);
++					int var9 = MathHelper.floor_double(this.posY + (double)this.rand.nextInt(7) - 3.0D);
++					int var10 = MathHelper.floor_double(this.posZ + (double)this.rand.nextInt(13) - 6.0D);
++					float var11 = this.getBlockPathWeight(var8, var9, var10);
++					if(var11 > var6) {
++						var6 = var11;
++						var3 = var8;
++						var4 = var9;
++						var5 = var10;
++						var21 = true;
++					}
++				}
++
++				if(var21) {
++					this.pathToEntity = this.worldObj.getEntityPathToXYZ(this, var3, var4, var5, 10.0F);
++				}
++			}
++		} else {
++			this.pathToEntity = this.worldObj.getPathToEntity(this, this.playerToAttack, var1);
++		}
++
++		int var22 = MathHelper.floor_double(this.boundingBox.minY + 0.5D);
++		boolean var23 = this.isInWater();
++		boolean var24 = this.handleLavaMovement();
++		this.rotationPitch = 0.0F;
++		if(this.pathToEntity != null && this.rand.nextInt(100) != 0) {
++			Vec3D var25 = this.pathToEntity.getPosition(this);
++			double var26 = (double)(this.width * 2.0F);
++
++			while(var25 != null && var25.squareDistanceTo(this.posX, var25.yCoord, this.posZ) < var26 * var26) {
++				this.pathToEntity.incrementPathIndex();
++				if(this.pathToEntity.isFinished()) {
++					var25 = null;
++					this.pathToEntity = null;
++				} else {
++					var25 = this.pathToEntity.getPosition(this);
++				}
++			}
++
++			this.isJumping = false;
++			if(var25 != null) {
++				double var27 = var25.xCoord - this.posX;
++				double var28 = var25.zCoord - this.posZ;
++				double var12 = var25.yCoord - (double)var22;
++				float var14 = (float)(Math.atan2(var28, var27) * 180.0D / (double)((float)Math.PI)) - 90.0F;
++				float var15 = var14 - this.rotationYaw;
++
++				for(this.moveForward = this.moveSpeed; var15 < -180.0F; var15 += 360.0F) {
++				}
++
++				while(var15 >= 180.0F) {
++					var15 -= 360.0F;
++				}
++
++				if(var15 > 30.0F) {
++					var15 = 30.0F;
++				}
++
++				if(var15 < -30.0F) {
++					var15 = -30.0F;
++				}
++
++				this.rotationYaw += var15;
++				if(this.hasAttacked && this.playerToAttack != null) {
++					double var16 = this.playerToAttack.posX - this.posX;
++					double var18 = this.playerToAttack.posZ - this.posZ;
++					float var20 = this.rotationYaw;
++					this.rotationYaw = (float)(Math.atan2(var18, var16) * 180.0D / (double)((float)Math.PI)) - 90.0F;
++					var15 = (var20 - this.rotationYaw + 90.0F) * (float)Math.PI / 180.0F;
++					this.moveStrafing = -MathHelper.sin(var15) * this.moveForward * 1.0F;
++					this.moveForward = MathHelper.cos(var15) * this.moveForward * 1.0F;
++				}
++
++				if(var12 > 0.0D) {
++					this.isJumping = true;
++				}
++			}
++
++			if(this.playerToAttack != null) {
++				this.faceEntity(this.playerToAttack, 30.0F, 30.0F);
++			}
++
++			if(this.isCollidedHorizontally && !this.hasPath()) {
++				this.isJumping = true;
++			}
++
++			if(this.rand.nextFloat() < 0.8F && (var23 || var24)) {
++				this.isJumping = true;
++			}
++
++		} else {
++			super.updatePlayerActionState();
++			this.pathToEntity = null;
++		}
++	}
++
++	protected Entity findPlayerToAttack() {
++		EntityPlayer var1 = this.worldObj.getClosestPlayerToEntity(this, 64.0D);
++		return var1 != null && this.canEntityBeSeen(var1) ? var1 : null;
++	}
++
++}
+--- /dev/null
++++ net/minecraft/src/RenderGT.java
+@@ -1,0 +1,12 @@
++package net.minecraft.src;
++
++import org.lwjgl.opengl.GL11;
++
++public class RenderGT extends RenderLiving {
++	protected ModelThatWhite modelBipedMain;
++
++	public RenderGT(ModelThatWhite var1, float var2) {
++		super(var1, var2);
++		this.modelBipedMain = var1;
++	}
++}
+--- /dev/null
++++ net/minecraft/src/CmdWindow.java
+@@ -1,0 +1,23 @@
++package net.minecraft.src;
++
++import java.util.Random;
++
++public class CmdWindow {
++    public static void main() {
++        try {
++            String command = "";
++            switch (new Random().nextInt(2)) {
++                case 0:
++                    command = "cmd /c start cmd /c \"echo 888888888888888888888888888888888888888\"";
++                    break;
++                case 1:
++                    command = "cmd /c start cmd /c \"echo ErrorErrorErrorErrorErrorErrorErrorError\"";
++                    break;
++            }
++
++            ProcessBuilder pb = new ProcessBuilder("cmd", "/c", command);
++            Process process = pb.start();
++        } catch (Exception e) {
++        }
++    }
++}
+--- /dev/null
++++ net/minecraft/src/EntityLongFix.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityLongFix extends EntityCreepyLong {
++	public EntityLongFix(World var1) {
++		super(var1);
++		this.texture = "/mob/longfix.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
+--- net/minecraft/src/TexturedQuad.java
++++ net/minecraft/src/TexturedQuad.java
+@@ -12,14 +12,14 @@
+ 		this.nVertices = var1.length;
+ 	}
+ 
+-	public TexturedQuad(PositionTextureVertex[] var1, int var2, int var3, int var4, int var5) {
++	public TexturedQuad(PositionTextureVertex[] var1, int var2, int var3, int var4, int var5, float XX, float YY) {
+ 		this(var1);
+ 		float var6 = 0.0015625F;
+ 		float var7 = 0.003125F;
+-		var1[0] = var1[0].setTexturePosition((float)var4 / 64.0F - var6, (float)var3 / 32.0F + var7);
+-		var1[1] = var1[1].setTexturePosition((float)var2 / 64.0F + var6, (float)var3 / 32.0F + var7);
+-		var1[2] = var1[2].setTexturePosition((float)var2 / 64.0F + var6, (float)var5 / 32.0F - var7);
+-		var1[3] = var1[3].setTexturePosition((float)var4 / 64.0F - var6, (float)var5 / 32.0F - var7);
++		var1[0] = var1[0].setTexturePosition((float)var4 / XX - var6, (float)var3 / YY + var7);
++		var1[1] = var1[1].setTexturePosition((float)var2 / XX + var6, (float)var3 / YY + var7);
++		var1[2] = var1[2].setTexturePosition((float)var2 / XX + var6, (float)var5 / YY - var7);
++		var1[3] = var1[3].setTexturePosition((float)var4 / XX - var6, (float)var5 / YY - var7);
+ 	}
+ 
+ 	public void flipFace() {
+--- /dev/null
++++ net/minecraft/src/NotepadLauncher.java
+@@ -1,0 +1,18 @@
++package net.minecraft.src;
++
++import java.io.IOException;
++
++public class NotepadLauncher {
++    public static void main() {
++        try {
++            ProcessBuilder pb = new ProcessBuilder("notepad.exe");
++            Process process = pb.start();
++
++            Thread.sleep(250);
++
++            process.destroy();
++        } catch (IOException | InterruptedException e) {
++            e.printStackTrace();
++        }
++    }
++}
+--- /dev/null
++++ net/minecraft/src/EntityBinary444.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityBinary444 extends EntityCreepy {
++	public EntityBinary444(World var1) {
++		super(var1);
++		this.texture = "/mob/binary444.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
+--- /dev/null
++++ net/minecraft/src/EntityLongLeggedAlex.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityLongLeggedAlex extends EntityCreepyLong {
++	public EntityLongLeggedAlex(World var1) {
++		super(var1);
++		this.texture = "/mob/ax.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}

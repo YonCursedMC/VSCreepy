@@ -1,0 +1,1321 @@
+--- net/minecraft/src/World.java
++++ net/minecraft/src/World.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.src;
+ 
++import net.minecraft.server.MinecraftServer;
+ import java.util.ArrayList;
+ import java.util.HashSet;
+ import java.util.Iterator;
+@@ -51,6 +52,7 @@
+ 	private int ambientTickCountdown = this.rand.nextInt(12000);
+ 	private List field_778_L = new ArrayList();
+ 	public boolean singleplayerWorld = false;
++	public WorldRandomCreepy creepy;
+ 
+ 	public WorldChunkManager getWorldChunkManager() {
+ 		return this.worldProvider.worldChunkMgr;
+@@ -85,6 +87,7 @@
+ 
+ 		this.calculateInitialSkylight();
+ 		this.func_27070_x();
++		this.creepy = new WorldRandomCreepy(this);
+ 	}
+ 
+ 	protected IChunkProvider func_22086_b() {
+@@ -102,7 +105,7 @@
+ 			var1 += this.rand.nextInt(64) - this.rand.nextInt(64);
+ 		}
+ 
+-		this.worldInfo.setSpawnPosition(var1, var2, var3);
++		this.worldInfo.setSpawnPosition(0, this.findTopSolidBlock(0, 0), 0);
+ 		this.worldChunkLoadOverride = false;
+ 	}
+ 
+@@ -1230,6 +1233,10 @@
+ 		return this.newExplosion(var1, var2, var4, var6, var8, false);
+ 	}
+ 
++	public Explosion createExplosion(Entity var1, float var8) {
++		return this.newExplosion(var1, var1.posX, var1.posY, var1.posZ, var8, false);
++	}
++
+ 	public Explosion newExplosion(Entity var1, double var2, double var4, double var6, float var8, boolean var9) {
+ 		Explosion var10 = new Explosion(this, var1, var2, var4, var6, var8);
+ 		var10.isFlaming = var9;
+@@ -1414,7 +1421,72 @@
+ 		this.spawnPeacefulMobs = var2;
+ 	}
+ 
++	public void stopGame() {
++		List<EntityPlayerMP> playerMPS = this.playerEntities;
++		if(this.worldInfo.getGameStart()) {
++			for(EntityPlayerMP playerMP : playerMPS) {
++				playerMP.team = 0;
++				playerMP.point = 0;
++				playerMP.dataWatcher.updateObject(17, playerMP.team);
++				playerMP.dataWatcher.updateObject(18, playerMP.point);
++				playerMP.inventory.clearAllItems();
++			}
++			this.worldInfo.setGameStart(false);
++		}
++	}
++
+ 	public void tick() {
++		List<EntityPlayerMP> playerMPS = this.playerEntities;
++		if(this.worldInfo.getGameStart()) {
++			if(this.playerEntities.size() % 2 == 1) {
++				this.stopGame();
++				playerMPS.get(0).mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("The game has ended because the number of players became even."));
++			}
++			for(EntityPlayerMP playerMP : playerMPS) {
++				int teamdia1 = 0;
++				int teamdia2 = 0;
++				if(playerMP.teamDiamond) {
++					if(playerMP.team == 1) {
++						teamdia1++;
++					} else if(playerMP.team == 2) {
++						teamdia2++;
++					}
++				}
++				if(teamdia1 >= playerMPS.size() / 2 && playerMPS.size() > 1) {
++					for(EntityPlayerMP mp : playerMPS) {
++						if(mp.team == 1) {
++							playerMP.mcServer.configManager.sendPacketToAllPlayers(new Packet80Event(0));
++						}
++						if(mp.team == 2) {
++							playerMP.mcServer.configManager.sendPacketToAllPlayers(new Packet80Event(1));
++						}
++					}
++					this.stopGame();
++					MinecraftServer.logger.info("1 Team Wom! Please remake the world and restart.");
++					throw new RuntimeException("Please remake the world and restart.");
++				}
++				if(teamdia2 >= playerMPS.size() / 2 && playerMPS.size() > 1) {
++					for(EntityPlayerMP mp : playerMPS) {
++						if(mp.team == 1) {
++							playerMP.mcServer.configManager.sendPacketToAllPlayers(new Packet80Event(1));
++						}
++						if(mp.team == 2) {
++							playerMP.mcServer.configManager.sendPacketToAllPlayers(new Packet80Event(0));
++						}
++					}
++					this.stopGame();
++					MinecraftServer.logger.info("2 Team Wom! Please remake the world and restart.");
++					throw new RuntimeException("Please remake the world and restart.");
++				}
++			}
++		} else {
++			for(int i = -16; i < 16; i++) {
++				for(int j = -16; j < 16; j++) {
++					this.setBlockWithNotify(i, 120, j, Block.stone.blockID);
++				}
++			}
++		}
++		this.worldInfo.setWorldTime(1000);
+ 		this.func_27066_i();
+ 		long var2;
+ 		if(this.isAllPlayersFullyAsleep()) {
+--- /dev/null
++++ net/minecraft/src/EntityTikThink.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityTikThink extends EntityCreepyLong {
++	public EntityTikThink(World var1) {
++		super(var1);
++		this.texture = "/mob/tikthink.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
+--- /dev/null
++++ net/minecraft/src/EntityLagMob.java
+@@ -1,0 +1,24 @@
++package net.minecraft.src;
++
++public class EntityLagMob extends EntityCreepy {
++	public EntityLagMob(World var1) {
++		super(var1);
++		this.texture = "/mob/lagmob.png";
++		this.moveSpeed = 0.5F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++
++	public void onUpdate() {
++		super.onUpdate();
++		this.posX = (int)this.posX;
++		this.posY = (int)this.posY;
++		this.posZ = (int)this.posZ;
++		this.prevPosX = (int)this.prevPosX;
++		this.prevPosY = (int)this.prevPosY;
++		this.prevPosZ = (int)this.prevPosZ;
++	}
++}
+--- net/minecraft/src/EntityAnimal.java
++++ net/minecraft/src/EntityAnimal.java
+@@ -24,6 +24,15 @@
+ 		return this.worldObj.getBlockId(var1, var2 - 1, var3) == Block.grass.blockID && this.worldObj.func_28098_j(var1, var2, var3) > 8 && super.getCanSpawnHere();
+ 	}
+ 
++	public void onDeath(Entity var1) {
++		super.onDeath(var1);
++		if(var1 instanceof EntityPlayerMP) {
++			((EntityPlayerMP)var1).point += 3;
++			var1.dataWatcher.updateObject(18, ((EntityPlayerMP)var1).point);
++			((EntityPlayerMP)var1).playerNetServerHandler.sendPacket(new Packet81Sound("/sound/point_onjin.wav"));
++		}
++	}
++
+ 	public int getTalkInterval() {
+ 		return 120;
+ 	}
+--- net/minecraft/src/EntityMob.java
++++ net/minecraft/src/EntityMob.java
+@@ -84,4 +84,14 @@
+ 			return var4 <= this.rand.nextInt(8) && super.getCanSpawnHere();
+ 		}
+ 	}
++
++
++	public void onDeath(Entity var1) {
++		super.onDeath(var1);
++		if(var1 instanceof EntityPlayerMP) {
++			((EntityPlayerMP)var1).point += 5;
++			var1.dataWatcher.updateObject(18, ((EntityPlayerMP)var1).point);
++			((EntityPlayerMP)var1).playerNetServerHandler.sendPacket(new Packet81Sound("/sound/point2_onjin.wav"));
++		}
++	}
+ }
+--- /dev/null
++++ net/minecraft/src/EntityThatWhite.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityThatWhite extends EntityCreepy {
++	public EntityThatWhite(World var1) {
++		super(var1);
++		this.texture = "/mob/thatWhite.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
+--- /dev/null
++++ net/minecraft/src/EntityCreepy.java
+@@ -1,0 +1,68 @@
++package net.minecraft.src;
++
++public class EntityCreepy extends EntityCreature implements IMob {
++	protected int attackStrength = 2;
++
++	public EntityCreepy(World var1) {
++		super(var1);
++		this.health = 20;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++
++	public void onUpdate() {
++		super.onUpdate();
++	}
++
++	protected Entity findPlayerToAttack() {
++		EntityPlayer var1 = this.worldObj.getClosestPlayerToEntity(this, 16.0D);
++		return var1 != null && this.canEntityBeSeen(var1) ? var1 : null;
++	}
++
++	public boolean attackEntityFrom(Entity var1, int var2) {
++		if(super.attackEntityFrom(var1, var2)) {
++			if(this.riddenByEntity != var1 && this.ridingEntity != var1) {
++				if(var1 != this) {
++					this.playerToAttack = var1;
++				}
++
++				return true;
++			} else {
++				return true;
++			}
++		} else {
++			return false;
++		}
++	}
++
++	protected void attackEntity(Entity var1, float var2) {
++		if(this.attackTime <= 0 && var2 < 2.0F && var1.boundingBox.maxY > this.boundingBox.minY && var1.boundingBox.minY < this.boundingBox.maxY) {
++			this.attackTime = 20;
++			var1.attackEntityFrom(this, this.attackStrength);
++		}
++
++	}
++
++	protected float getBlockPathWeight(int var1, int var2, int var3) {
++		return 0.5F - this.worldObj.getLightBrightness(var1, var2, var3);
++	}
++
++	public void writeEntityToNBT(NBTTagCompound var1) {
++		super.writeEntityToNBT(var1);
++	}
++
++	public void readEntityFromNBT(NBTTagCompound var1) {
++		super.readEntityFromNBT(var1);
++	}
++
++	public void onDeath(Entity var1) {
++		super.onDeath(var1);
++		if(var1 instanceof EntityPlayerMP) {
++			((EntityPlayerMP)var1).point += 10;
++			var1.dataWatcher.updateObject(18, ((EntityPlayerMP)var1).point);
++			((EntityPlayerMP)var1).playerNetServerHandler.sendPacket(new Packet81Sound("/sound/point3_onjin.wav"));
++		}
++	}
++}
+--- /dev/null
++++ net/minecraft/src/Packet81Sound.java
+@@ -1,0 +1,32 @@
++package net.minecraft.src;
++
++import java.io.DataInputStream;
++import java.io.DataOutputStream;
++import java.io.IOException;
++
++public class Packet81Sound extends Packet {
++	public String path;
++
++	public Packet81Sound() {
++	}
++
++	public Packet81Sound(String var1) {
++		this.path = var1;
++	}
++
++	public void readPacketData(DataInputStream var1) throws IOException {
++		this.path = var1.readUTF();
++	}
++
++	public void writePacketData(DataOutputStream var1) throws IOException {
++		var1.writeUTF(this.path);
++	}
++
++	public void processPacket(NetHandler var1) {
++		var1.handleSound(this);
++	}
++
++	public int getPacketSize() {
++		return this.path.length();
++	}
++}
+--- /dev/null
++++ net/minecraft/src/EntityPublicVoid.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityPublicVoid extends EntityCreepy {
++	public EntityPublicVoid(World var1) {
++		super(var1);
++		this.texture = "/mob/publicvoid.png";
++		this.moveSpeed = 0.5F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
+--- net/minecraft/src/EntityList.java
++++ net/minecraft/src/EntityList.java
+@@ -85,5 +85,14 @@
+ 		addMapping(EntityFallingSand.class, "FallingSand", 21);
+ 		addMapping(EntityMinecart.class, "Minecart", 40);
+ 		addMapping(EntityBoat.class, "Boat", 41);
++		addMapping(EntityPublicVoid.class, "PublicVoid", 100);
++		addMapping(EntityBinary444.class, "Binary444", 101);
++		addMapping(EntityThatWhite.class, "ThatWhite", 102);
++		addMapping(EntityLagMob.class, "LagMob", 103);
++		addMapping(EntityLongFix.class, "LongFix", 104);
++		addMapping(EntityLengthFlag.class, "LengthFlag", 105);
++		addMapping(EntityLongLeggedAlex.class, "LongLeggedAlex", 106);
++		addMapping(EntityLongLeggedJeb.class, "LongLeggedJeb", 107);
++		addMapping(EntityTikThink.class, "TikThink", 108);
+ 	}
+ }
+--- /dev/null
++++ net/minecraft/src/EntityLengthFlag.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityLengthFlag extends EntityCreepyLong {
++	public EntityLengthFlag(World var1) {
++		super(var1);
++		this.texture = "/mob/lengthflag.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
+--- net/minecraft/src/InventoryPlayer.java
++++ net/minecraft/src/InventoryPlayer.java
+@@ -310,6 +310,22 @@
+ 
+ 	}
+ 
++	public void clearAllItems() {
++		int var1;
++		for(var1 = 0; var1 < this.mainInventory.length; ++var1) {
++			if(this.mainInventory[var1] != null) {
++				this.mainInventory[var1] = null;
++			}
++		}
++
++		for(var1 = 0; var1 < this.armorInventory.length; ++var1) {
++			if(this.armorInventory[var1] != null) {
++				this.armorInventory[var1] = null;
++			}
++		}
++
++	}
++
+ 	public void onInventoryChanged() {
+ 		this.inventoryChanged = true;
+ 	}
+--- /dev/null
++++ net/minecraft/src/Packet80Event.java
+@@ -1,0 +1,32 @@
++package net.minecraft.src;
++
++import java.io.DataInputStream;
++import java.io.DataOutputStream;
++import java.io.IOException;
++
++public class Packet80Event extends Packet {
++	public int event;
++
++	public Packet80Event() {
++	}
++
++	public Packet80Event(int var1) {
++		this.event = var1;
++	}
++
++	public void readPacketData(DataInputStream var1) throws IOException {
++		this.event = var1.readInt();
++	}
++
++	public void writePacketData(DataOutputStream var1) throws IOException {
++		var1.writeInt(this.event);
++	}
++
++	public void processPacket(NetHandler var1) {
++		var1.handleEvent(this);
++	}
++
++	public int getPacketSize() {
++		return this.event;
++	}
++}
+--- net/minecraft/src/EntityPlayer.java
++++ net/minecraft/src/EntityPlayer.java
+@@ -2,6 +2,8 @@
+ 
+ import java.util.Iterator;
+ import java.util.List;
++import java.util.Random;
++import java.util.function.LongFunction;
+ 
+ public abstract class EntityPlayer extends EntityLiving {
+ 	public InventoryPlayer inventory = new InventoryPlayer(this);
+@@ -33,6 +35,10 @@
+ 	public float field_28014_E;
+ 	private int damageRemainder = 0;
+ 	public EntityFish fishEntity = null;
++	public int team = 0;
++	public int point = 0;
++	public int tickPoints;
++	public boolean teamDiamond = false;
+ 
+ 	public EntityPlayer(World var1) {
+ 		super(var1);
+@@ -51,6 +57,8 @@
+ 	protected void entityInit() {
+ 		super.entityInit();
+ 		this.dataWatcher.addObject(16, Byte.valueOf((byte)0));
++		this.dataWatcher.addObject(17, this.team);
++		this.dataWatcher.addObject(18, this.point);
+ 	}
+ 
+ 	public void onUpdate() {
+@@ -154,13 +162,12 @@
+ 	}
+ 
+ 	public void onLivingUpdate() {
+-		if(this.worldObj.difficultySetting == 0 && this.health < 20 && this.ticksExisted % 20 * 12 == 0) {
+-			this.heal(1);
+-		}
+-
+ 		this.inventory.decrementAnimations();
+ 		this.field_9150_ao = this.field_9149_ap;
+ 		super.onLivingUpdate();
++		if(this.worldObj.difficultySetting == 0 && this.health < 20 && this.ticksExisted % 20 * 12 == 0) {
++			this.heal(1);
++		}
+ 		float var1 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
+ 		float var2 = (float)Math.atan(-this.motionY * (double)0.2F) * 15.0F;
+ 		if(var1 > 0.1F) {
+@@ -214,6 +221,8 @@
+ 
+ 		this.yOffset = 0.1F;
+ 		this.addStat(StatList.field_25098_u, 1);
++		this.point = 0;
++		this.dataWatcher.updateObject(18, this.point);
+ 	}
+ 
+ 	public void addToPlayerScore(Entity var1, int var2) {
+@@ -292,6 +301,9 @@
+ 		this.dimension = var1.getInteger("Dimension");
+ 		this.sleeping = var1.getBoolean("Sleeping");
+ 		this.sleepTimer = var1.getShort("SleepTimer");
++		this.team = var1.getInteger("team");
++		this.point = var1.getInteger("point");
++		this.teamDiamond = var1.getBoolean("teamDiamond");
+ 		if(this.sleeping) {
+ 			this.playerLocation = new ChunkCoordinates(MathHelper.floor_double(this.posX), MathHelper.floor_double(this.posY), MathHelper.floor_double(this.posZ));
+ 			this.wakeUpPlayer(true, true, false);
+@@ -309,6 +321,9 @@
+ 		var1.setInteger("Dimension", this.dimension);
+ 		var1.setBoolean("Sleeping", this.sleeping);
+ 		var1.setShort("SleepTimer", (short)this.sleepTimer);
++		var1.setInteger("team", this.team);
++		var1.setInteger("point", this.point);
++		var1.setBoolean("teamDiamond", this.teamDiamond);
+ 		if(this.spawnChunk != null) {
+ 			var1.setInteger("SpawnX", this.spawnChunk.posX);
+ 			var1.setInteger("SpawnY", this.spawnChunk.posY);
+@@ -355,6 +370,52 @@
+ 				if(this.worldObj.difficultySetting == 3) {
+ 					var2 = var2 * 3 / 2;
+ 				}
++			}
++			if(!(var1 instanceof EntityPlayer)) {
++				this.point += 3;
++				this.dataWatcher.updateObject(18, this.point);
++			}
++
++			if(var1 instanceof EntityCreepy) {
++				EntityPlayerMP playerMP = ((EntityPlayerMP)this);
++				if(var1 instanceof EntityPublicVoid) {
++					playerMP.playerNetServerHandler.sendPacket(new Packet80Event(20));
++				}
++				if(var1 instanceof EntityBinary444) {
++					double XX = 0;
++					double ZZ = new Random().nextDouble() * 1000 - 500;
++					if(this.team == 1) {
++						XX = new Random().nextDouble() * -500;
++					}
++					if(this.team == 2) {
++						XX = new Random().nextDouble() * 500;
++					}
++					playerMP.playerNetServerHandler.teleportTo(XX, this.worldObj.findTopSolidBlock((int)XX, (int)ZZ), ZZ, rotationYaw, this.rotationPitch);
++				}
++				if(var1 instanceof EntityThatWhite) {
++					playerMP.inventory.dropAllItems();
++				}
++				if(var1 instanceof EntityLagMob) {
++					playerMP.playerNetServerHandler.sendPacket(new Packet80Event(21));
++				}
++				if(var1 instanceof EntityLongFix) {
++					playerMP.inventory.clearAllItems();
++				}
++				if(var1 instanceof EntityLengthFlag) {
++					playerMP.point = 0;
++					this.dataWatcher.updateObject(18, playerMP.point);
++				}
++				if(var1 instanceof EntityLongLeggedAlex) {
++					playerMP.playerNetServerHandler.sendPacket(new Packet80Event(22));
++				}
++				if(var1 instanceof EntityLongLeggedJeb) {
++					playerMP.playerNetServerHandler.sendPacket(new Packet80Event(23));
++				}
++				if(var1 instanceof EntityTikThink) {
++					this.worldObj.createExplosion(var1, 10.0F);
++				}
++				this.setEntityDead();
++				return super.attackEntityFrom(var1, var2);
+ 			}
+ 
+ 			if(var2 == 0) {
+--- net/minecraft/src/Packet.java
++++ net/minecraft/src/Packet.java
+@@ -179,6 +179,8 @@
+ 		addIdClassMapping(61, true, false, Packet61DoorChange.class);
+ 		addIdClassMapping(70, true, false, Packet70Bed.class);
+ 		addIdClassMapping(71, true, false, Packet71Weather.class);
++		addIdClassMapping(80, true, true, Packet80Event.class);
++		addIdClassMapping(81, true, true, Packet81Sound.class);
+ 		addIdClassMapping(100, true, false, Packet100OpenWindow.class);
+ 		addIdClassMapping(101, true, true, Packet101CloseWindow.class);
+ 		addIdClassMapping(102, false, true, Packet102WindowClick.class);
+--- net/minecraft/src/WorldInfo.java
++++ net/minecraft/src/WorldInfo.java
+@@ -18,6 +18,7 @@
+ 	private int rainTime;
+ 	private boolean isThundering;
+ 	private int thunderTime;
++	private boolean gamestart = false;
+ 
+ 	public WorldInfo(NBTTagCompound var1) {
+ 		this.randomSeed = var1.getLong("RandomSeed");
+@@ -33,6 +34,7 @@
+ 		this.isRaining = var1.getBoolean("raining");
+ 		this.thunderTime = var1.getInteger("thunderTime");
+ 		this.isThundering = var1.getBoolean("thundering");
++		this.gamestart = var1.getBoolean("gamestart");
+ 		if(var1.hasKey("Player")) {
+ 			this.field_22195_h = var1.getCompoundTag("Player");
+ 			this.field_22194_i = this.field_22195_h.getInteger("Dimension");
+@@ -61,6 +63,7 @@
+ 		this.isRaining = var1.isRaining;
+ 		this.thunderTime = var1.thunderTime;
+ 		this.isThundering = var1.isThundering;
++		this.gamestart = var1.gamestart;
+ 	}
+ 
+ 	public NBTTagCompound func_22185_a() {
+@@ -100,6 +103,7 @@
+ 		var1.setBoolean("raining", this.isRaining);
+ 		var1.setInteger("thunderTime", this.thunderTime);
+ 		var1.setBoolean("thundering", this.isThundering);
++		var1.setBoolean("gamestart", this.gamestart);
+ 		if(var2 != null) {
+ 			var1.setCompoundTag("Player", var2);
+ 		}
+@@ -174,6 +178,14 @@
+ 
+ 	public void setThunderTime(int var1) {
+ 		this.thunderTime = var1;
++	}
++
++	public boolean getGameStart() {
++		return this.gamestart;
++	}
++
++	public void setGameStart(boolean var1) {
++		this.gamestart = var1;
+ 	}
+ 
+ 	public boolean getIsRaining() {
+--- /dev/null
++++ net/minecraft/src/WorldRandomCreepy.java
+@@ -1,0 +1,221 @@
++package net.minecraft.src;
++
++import sun.text.resources.cldr.ka.FormatData_ka;
++import java.util.List;
++import java.util.Random;
++
++public class WorldRandomCreepy {
++	public World worldObj;
++	public boolean[] timerS;
++	public int[] timer;
++
++	public WorldRandomCreepy(World world) {
++		this.worldObj = world;
++		this.timerS = new boolean[20];
++		this.timer = new int[20];
++	}
++
++	public void event0(EntityPlayerMP playerSP) {
++		EntityPublicVoid entity = new EntityPublicVoid(this.worldObj);
++		int XX = (int)playerSP.posX + 5;
++		int ZZ = (int)playerSP.posZ;
++		int YY = this.worldObj.findTopSolidBlock(XX, ZZ);
++		entity.setLocationAndAngles(XX, YY, ZZ, 0, 0);
++		this.worldObj.entityJoinedWorld(entity);
++	}
++
++	public void event1(EntityPlayerMP playerSP) {
++		EntityBinary444 entity = new EntityBinary444(this.worldObj);
++		int XX = (int)playerSP.posX + 5;
++		int ZZ = (int)playerSP.posZ;
++		int YY = this.worldObj.findTopSolidBlock(XX, ZZ);
++		entity.setLocationAndAngles(XX, YY, ZZ, 0, 0);
++		this.worldObj.entityJoinedWorld(entity);
++	}
++
++	public void event2(EntityPlayerMP playerSP) {
++		EntityThatWhite entity = new EntityThatWhite(this.worldObj);
++		int XX = (int)playerSP.posX + 5;
++		int ZZ = (int)playerSP.posZ;
++		int YY = this.worldObj.findTopSolidBlock(XX, ZZ);
++		entity.setLocationAndAngles(XX, YY, ZZ, 0, 0);
++		this.worldObj.entityJoinedWorld(entity);
++	}
++
++	public void event3(EntityPlayerMP playerSP) {
++		EntityLightningBolt lightningBolt = new EntityLightningBolt(this.worldObj, playerSP.posX, playerSP.posY, playerSP.posZ);
++		this.worldObj.entityJoinedWorld(lightningBolt);
++	}
++
++	public void event4(EntityPlayerMP playerSP) {
++		playerSP.playerNetServerHandler.sendPacket(new Packet80Event(40));
++	}
++
++	public void event5(EntityPlayerMP playerSP) {
++		for(int i = -16; i < 16; i++) {
++			for(int j = 0; j > -16; j--) {
++				for(int k = -16; k < 16; k++) {
++					this.worldObj.setBlockWithNotify(i, j, k, 0);
++				}
++			}
++		}
++	}
++
++	public void event6(EntityPlayerMP playerSP) {
++		playerSP.moveForward *= -0.98F;
++	}
++
++	public void event7(EntityPlayerMP playerSP) {
++		EntityLagMob entity = new EntityLagMob(this.worldObj);
++		int XX = (int)playerSP.posX + 5;
++		int ZZ = (int)playerSP.posZ;
++		int YY = this.worldObj.findTopSolidBlock(XX, ZZ);
++		entity.setLocationAndAngles(XX, YY, ZZ, 0, 0);
++		this.worldObj.entityJoinedWorld(entity);
++	}
++
++	public void event8(EntityPlayerMP playerSP) {
++		EntityLongFix entity = new EntityLongFix(this.worldObj);
++		int XX = (int)playerSP.posX + 60;
++		int ZZ = (int)playerSP.posZ;
++		int YY = this.worldObj.findTopSolidBlock(XX, ZZ);
++		entity.setLocationAndAngles(XX, YY, ZZ, 0, 0);
++		this.worldObj.entityJoinedWorld(entity);
++	}
++
++	public void event9(EntityPlayerMP playerSP) {
++		EntityLengthFlag entity = new EntityLengthFlag(this.worldObj);
++		int XX = (int)playerSP.posX + 60;
++		int ZZ = (int)playerSP.posZ;
++		int YY = this.worldObj.findTopSolidBlock(XX, ZZ);
++		entity.setLocationAndAngles(XX, YY, ZZ, 0, 0);
++		this.worldObj.entityJoinedWorld(entity);
++	}
++
++	public void event10(EntityPlayerMP playerSP) {
++		EntityLongLeggedAlex entity = new EntityLongLeggedAlex(this.worldObj);
++		int XX = (int)playerSP.posX + 60;
++		int ZZ = (int)playerSP.posZ;
++		int YY = this.worldObj.findTopSolidBlock(XX, ZZ);
++		entity.setLocationAndAngles(XX, YY, ZZ, 0, 0);
++		this.worldObj.entityJoinedWorld(entity);
++	}
++
++	public void event11(EntityPlayerMP playerSP) {
++		EntityLongLeggedJeb entity = new EntityLongLeggedJeb(this.worldObj);
++		int XX = (int)playerSP.posX + 60;
++		int ZZ = (int)playerSP.posZ;
++		int YY = this.worldObj.findTopSolidBlock(XX, ZZ);
++		entity.setLocationAndAngles(XX, YY, ZZ, 0, 0);
++		this.worldObj.entityJoinedWorld(entity);
++	}
++
++	public void event12(EntityPlayerMP playerSP) {
++		EntityTikThink entity = new EntityTikThink(this.worldObj);
++		int XX = (int)playerSP.posX + 5;
++		int ZZ = (int)playerSP.posZ;
++		int YY = this.worldObj.findTopSolidBlock(XX, ZZ);
++		entity.setLocationAndAngles(XX, YY, ZZ, 0, 0);
++		this.worldObj.entityJoinedWorld(entity);
++	}
++
++	public void event13(EntityPlayerMP playerSP) {
++		this.worldObj.createExplosion(playerSP, playerSP.posX, playerSP.posY, playerSP.posZ, 8.0F);
++	}
++
++	public void event14(EntityPlayerMP playerSP) {
++		new WorldGenTen().generate(this.worldObj, this.worldObj.rand, (int)playerSP.posX, (int)playerSP.posY, (int)playerSP.posZ);
++	}
++
++	public void event15(EntityPlayerMP playerSP) {
++		new WorldGenSign().generate(this.worldObj, (int)playerSP.posX, (int)playerSP.posY, (int)playerSP.posZ, "So Creepy", "Are you Alex?", "Creepy?", "Pasta is");
++	}
++
++	public void event16(EntityPlayerMP playerSP) {
++		playerSP.playerNetServerHandler.sendPacket(new Packet80Event(41));
++	}
++
++	public void event17(EntityPlayerMP playerSP) {
++		playerSP.playerNetServerHandler.sendPacket(new Packet80Event(42));
++	}
++
++	public void event18(EntityPlayerMP playerSP) {
++		playerSP.playerNetServerHandler.sendPacket(new Packet80Event(43));
++	}
++
++	public void event19(EntityPlayerMP playerSP) {
++		playerSP.playerNetServerHandler.sendPacket(new Packet80Event(44));
++	}
++
++	public void doCurse(int team) {
++		List<EntityPlayerMP> playerSPList = this.worldObj.playerEntities;
++		if(!playerSPList.isEmpty()) {
++			for(EntityPlayerMP playerSP : playerSPList) {
++				if(playerSP.team == team) {
++					switch(new Random().nextInt(20)) {
++					case 0:
++						this.event0(playerSP);
++						break;
++					case 1:
++						this.event1(playerSP);
++						break;
++					case 2:
++						this.event2(playerSP);
++						break;
++					case 3:
++						this.event3(playerSP);
++						break;
++					case 4:
++						this.event4(playerSP);
++						break;
++					case 5:
++						this.event5(playerSP);
++						break;
++					case 6:
++						this.event6(playerSP);
++						break;
++					case 7:
++						this.event7(playerSP);
++						break;
++					case 8:
++						this.event8(playerSP);
++						break;
++					case 9:
++						this.event9(playerSP);
++						break;
++					case 10:
++						this.event10(playerSP);
++						break;
++					case 11:
++						this.event11(playerSP);
++						break;
++					case 12:
++						this.event12(playerSP);
++						break;
++					case 13:
++						this.event13(playerSP);
++						break;
++					case 14:
++						this.event14(playerSP);
++						break;
++					case 15:
++						this.event15(playerSP);
++						break;
++					case 16:
++						this.event16(playerSP);
++						break;
++					case 17:
++						this.event17(playerSP);
++						break;
++					case 18:
++						this.event18(playerSP);
++						break;
++					case 19:
++						this.event19(playerSP);
++						break;
++					}
++				}
++			}
++		}
++	}
++}
+--- net/minecraft/src/NetHandler.java
++++ net/minecraft/src/NetHandler.java
+@@ -207,4 +207,12 @@
+ 	public void func_28002_a(Packet61DoorChange var1) {
+ 		this.registerPacket(var1);
+ 	}
++
++	public void handleEvent(Packet80Event var1) {
++		this.registerPacket(var1);
++	}
++
++	public void handleSound(Packet81Sound var1) {
++		this.registerPacket(var1);
++	}
+ }
+--- /dev/null
++++ net/minecraft/src/EntityLongLeggedJeb.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityLongLeggedJeb extends EntityCreepyLong {
++	public EntityLongLeggedJeb(World var1) {
++		super(var1);
++		this.texture = "/mob/jb.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
+--- net/minecraft/src/NetServerHandler.java
++++ net/minecraft/src/NetServerHandler.java
+@@ -1,8 +1,6 @@
+ package net.minecraft.src;
+ 
+-import java.util.ArrayList;
+-import java.util.HashMap;
+-import java.util.Map;
++import java.util.*;
+ import java.util.logging.Logger;
+ import net.minecraft.server.MinecraftServer;
+ 
+@@ -410,6 +408,47 @@
+ 			var1 = "* " + this.playerEntity.username + " " + var1.substring(var1.indexOf(" ")).trim();
+ 			logger.info(var1);
+ 			this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat(var1));
++		} else if(var1.equalsIgnoreCase("/startGame")) {
++			List<EntityPlayerMP> playerMPS = this.mcServer.worldMngr[0].playerEntities;
++			if(playerMPS.size() % 2 == 0 && !playerMPS.isEmpty()) {
++				List<Integer> labels = new ArrayList<>();
++				for(int i = 0; i < playerMPS.size() / 2; i++) labels.add(1);
++				for(int i = 0; i < playerMPS.size() / 2; i++) labels.add(2);
++				Collections.shuffle(labels);
++				int i = 0;
++				for(EntityPlayerMP playerMP : playerMPS) {
++					playerMP.team = labels.get(i);
++					i++;
++				}
++				for(EntityPlayerMP playerMP : playerMPS) {
++					if(playerMP.team == 1) {
++						playerMP.playerNetServerHandler.teleportTo(-20, this.mcServer.worldMngr[0].findTopSolidBlock(-20, 0), 0, 0, 0);
++					} else if(playerMP.team == 2) {
++						playerMP.playerNetServerHandler.teleportTo(20, this.mcServer.worldMngr[0].findTopSolidBlock(20, 0), 0, 0, 0);
++					}
++				}
++				this.mcServer.worldMngr[0].worldInfo.setGameStart(true);
++				this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("Game Start"));
++			} else {
++				this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("The number of people is odd, not even. Please make it even."));
++			}
++		} else if(var1.equalsIgnoreCase("/stopGame")) {
++			this.mcServer.worldMngr[0].stopGame();
++		} else if(var1.equalsIgnoreCase("/creepy")) {
++			if(this.mcServer.worldMngr[0].worldInfo.getGameStart()) {
++				if(this.playerEntity.point >= 100) {
++					if(this.playerEntity.team == 1) {
++						this.mcServer.worldMngr[0].creepy.doCurse(2);
++					} else if(this.playerEntity.team == 2) {
++						this.mcServer.worldMngr[0].creepy.doCurse(1);
++					}
++					this.playerEntity.point = 0;
++				} else {
++					this.playerEntity.playerNetServerHandler.sendPacket(new Packet3Chat("Not enough points."));
++				}
++			} else {
++				this.playerEntity.playerNetServerHandler.sendPacket(new Packet3Chat("The game hasn't started yet."));
++			}
+ 		} else if(var1.toLowerCase().startsWith("/kill")) {
+ 			this.playerEntity.attackEntityFrom((Entity)null, 1000);
+ 		} else if(var1.toLowerCase().startsWith("/tell ")) {
+--- /dev/null
++++ net/minecraft/src/WorldGenSign.java
+@@ -1,0 +1,15 @@
++package net.minecraft.src;
++
++public class WorldGenSign {
++	public boolean generate(World var1, int var2, int var3, int var4, String var5, String var6, String var7, String var8) {
++		var1.setBlock(var2, var3, var4, Block.signPost.blockID);
++		TileEntitySign var9 = new TileEntitySign();
++		var9.xCoord = var2;
++		var9.yCoord = var3;
++		var9.zCoord = var4;
++		var9.worldObj = var1;
++		var9.signText = new String[]{"\u00A74" + var5, "\u00A74" + var6, "\u00A74" + var7, "\u00A74" + var8};
++		var1.setBlockTileEntity(var2, var3, var4, var9);
++		return true;
++	}
++}
+--- /dev/null
++++ net/minecraft/src/WorldGenTen.java
+@@ -1,0 +1,37 @@
++package net.minecraft.src;
++
++import java.util.Random;
++
++public class WorldGenTen extends WorldGenerator {
++	public boolean generate(World var1, Random var2, int var3, int var4, int var5) {
++		boolean var6 = new Random().nextBoolean();
++		int petrol = new Random().nextInt(2);
++		int block;
++		switch(new Random().nextInt(2)) {
++		case 0:
++			block = Block.bedrock.blockID;
++			break;
++		case 1:
++		default:
++			block = Block.sponge.blockID;
++			break;
++		}
++
++		int var7;
++		for(var7 = 0; var7 < 4; ++var7) {
++			var1.setBlock(var3, var4 + var7, var5, block);
++		}
++
++		for(var7 = 0; var7 < 3; ++var7) {
++			if(var7 != 1) {
++				if(var6) {
++					var1.setBlock(var3 + (var7 - 1), var4 + 1 + petrol, var5, block);
++				} else {
++					var1.setBlock(var3, var4 + 1 + petrol, var5 + (var7 - 1), block);
++				}
++			}
++		}
++
++		return true;
++	}
++}
+--- net/minecraft/src/ServerConfigurationManager.java
++++ net/minecraft/src/ServerConfigurationManager.java
+@@ -130,6 +130,7 @@
+ 	}
+ 
+ 	public EntityPlayerMP recreatePlayerEntity(EntityPlayerMP var1, int var2) {
++		int team = var1.team;
+ 		this.mcServer.getEntityTracker(var1.dimension).removeTrackedPlayerSymmetric(var1);
+ 		this.mcServer.getEntityTracker(var1.dimension).untrackEntity(var1);
+ 		this.func_28167_a(var1.dimension).removePlayer(var1);
+@@ -165,6 +166,8 @@
+ 		this.playerEntities.add(var4);
+ 		var4.func_20057_k();
+ 		var4.func_22068_s();
++		var4.team = team;
++		var4.point = 0;
+ 		return var4;
+ 	}
+ 
+--- net/minecraft/src/EntityPlayerMP.java
++++ net/minecraft/src/EntityPlayerMP.java
+@@ -64,6 +64,45 @@
+ 	}
+ 
+ 	public void onUpdate() {
++		if(this.worldObj.worldInfo.getGameStart()) {
++			this.dataWatcher.updateObject(17, this.team);
++			this.tickPoints++;
++			if(this.tickPoints > 40) {
++				this.point++;
++				this.dataWatcher.updateObject(18, this.point);
++				this.tickPoints = 0;
++			}
++			if(this.point >= 100 ){
++				this.point = 100;
++				this.dataWatcher.updateObject(18, this.point);
++			}
++			if(this.team == 1) {
++				if(this.posX > 0) {
++					this.playerNetServerHandler.teleportTo(-20, this.worldObj.findTopSolidBlock(-20, 0), this.posZ, 0, 0);
++				}
++			} else if(this.team == 2) {
++				if(this.posX < 0) {
++					this.playerNetServerHandler.teleportTo(20, this.worldObj.findTopSolidBlock(20, 0), this.posZ, 0, 0);
++				}
++			}
++			if(this.getCurrentEquippedItem() != null) {
++				if(this.getCurrentEquippedItem().equals(new ItemStack(Item.diamond))) {
++					this.teamDiamond = true;
++				} else {
++					this.teamDiamond = false;
++				}
++			}
++		} else {
++			if(this.posX > 16 || this.posX < -16) {
++				this.playerNetServerHandler.teleportTo(0, this.worldObj.findTopSolidBlock(0, 0), 0, 0, 0);
++				this.playerNetServerHandler.sendPacket(new Packet3Chat("The game hasn't started yet."));
++			}
++			if(this.posZ > 16 || this.posZ < -16) {
++				this.playerNetServerHandler.teleportTo(0, this.worldObj.findTopSolidBlock(0, 0), 0, 0, 0);
++			}
++			this.health = 20;
++			this.point = 0;
++		}
+ 		this.itemInWorldManager.func_328_a();
+ 		--this.ticksOfInvuln;
+ 		this.currentCraftingInventory.updateCraftingMatrix();
+--- /dev/null
++++ net/minecraft/src/EntityCreepyLong.java
+@@ -1,0 +1,150 @@
++package net.minecraft.src;
++
++public class EntityCreepyLong extends EntityCreepy {
++	protected int attackStrength = 2;
++	private PathEntity pathToEntity;
++
++	public EntityCreepyLong(World var1) {
++		super(var1);
++	}
++
++	public void onUpdate() {
++		super.onUpdate();
++		EntityPlayer player = this.worldObj.getClosestPlayerToEntity(this, 70.0F);
++		if(player != null) {
++			if(this.getDistanceToEntity(player) <= 36) {
++				super.onUpdate();
++			}
++		}
++		this.posY = this.worldObj.findTopSolidBlock((int)this.posX, (int)this.posZ);
++	}
++
++	protected void updatePlayerActionState() {
++		this.hasAttacked = this.func_25026_u();
++		float var1 = 64.0F;
++		if(this.playerToAttack == null) {
++			this.playerToAttack = this.findPlayerToAttack();
++			if(this.playerToAttack != null) {
++				this.pathToEntity = this.worldObj.getPathToEntity(this, this.playerToAttack, var1);
++			}
++		} else if(!this.playerToAttack.isEntityAlive()) {
++			this.playerToAttack = null;
++		} else {
++			float var2 = this.playerToAttack.getDistanceToEntity(this);
++			if(this.canEntityBeSeen(this.playerToAttack)) {
++				this.attackEntity(this.playerToAttack, var2);
++			} else {
++				this.func_28013_b(this.playerToAttack, var2);
++			}
++		}
++
++		if(this.hasAttacked || this.playerToAttack == null || this.pathToEntity != null && this.rand.nextInt(20) != 0) {
++			if(!this.hasAttacked && (this.pathToEntity == null && this.rand.nextInt(80) == 0 || this.rand.nextInt(80) == 0)) {
++				boolean var21 = false;
++				int var3 = -1;
++				int var4 = -1;
++				int var5 = -1;
++				float var6 = -99999.0F;
++
++				for(int var7 = 0; var7 < 10; ++var7) {
++					int var8 = MathHelper.floor_double(this.posX + (double)this.rand.nextInt(13) - 6.0D);
++					int var9 = MathHelper.floor_double(this.posY + (double)this.rand.nextInt(7) - 3.0D);
++					int var10 = MathHelper.floor_double(this.posZ + (double)this.rand.nextInt(13) - 6.0D);
++					float var11 = this.getBlockPathWeight(var8, var9, var10);
++					if(var11 > var6) {
++						var6 = var11;
++						var3 = var8;
++						var4 = var9;
++						var5 = var10;
++						var21 = true;
++					}
++				}
++
++				if(var21) {
++					this.pathToEntity = this.worldObj.getEntityPathToXYZ(this, var3, var4, var5, 10.0F);
++				}
++			}
++		} else {
++			this.pathToEntity = this.worldObj.getPathToEntity(this, this.playerToAttack, var1);
++		}
++
++		int var22 = MathHelper.floor_double(this.boundingBox.minY + 0.5D);
++		boolean var23 = this.func_27011_Z();
++		boolean var24 = this.handleLavaMovement();
++		this.rotationPitch = 0.0F;
++		if(this.pathToEntity != null && this.rand.nextInt(100) != 0) {
++			Vec3D var25 = this.pathToEntity.getPosition(this);
++			double var26 = (double)(this.width * 2.0F);
++
++			while(var25 != null && var25.squareDistanceTo(this.posX, var25.yCoord, this.posZ) < var26 * var26) {
++				this.pathToEntity.incrementPathIndex();
++				if(this.pathToEntity.isFinished()) {
++					var25 = null;
++					this.pathToEntity = null;
++				} else {
++					var25 = this.pathToEntity.getPosition(this);
++				}
++			}
++
++			this.isJumping = false;
++			if(var25 != null) {
++				double var27 = var25.xCoord - this.posX;
++				double var28 = var25.zCoord - this.posZ;
++				double var12 = var25.yCoord - (double)var22;
++				float var14 = (float)(Math.atan2(var28, var27) * 180.0D / (double)((float)Math.PI)) - 90.0F;
++				float var15 = var14 - this.rotationYaw;
++
++				for(this.moveForward = this.moveSpeed; var15 < -180.0F; var15 += 360.0F) {
++				}
++
++				while(var15 >= 180.0F) {
++					var15 -= 360.0F;
++				}
++
++				if(var15 > 30.0F) {
++					var15 = 30.0F;
++				}
++
++				if(var15 < -30.0F) {
++					var15 = -30.0F;
++				}
++
++				this.rotationYaw += var15;
++				if(this.hasAttacked && this.playerToAttack != null) {
++					double var16 = this.playerToAttack.posX - this.posX;
++					double var18 = this.playerToAttack.posZ - this.posZ;
++					float var20 = this.rotationYaw;
++					this.rotationYaw = (float)(Math.atan2(var18, var16) * 180.0D / (double)((float)Math.PI)) - 90.0F;
++					var15 = (var20 - this.rotationYaw + 90.0F) * (float)Math.PI / 180.0F;
++					this.moveStrafing = -MathHelper.sin(var15) * this.moveForward * 1.0F;
++					this.moveForward = MathHelper.cos(var15) * this.moveForward * 1.0F;
++				}
++
++				if(var12 > 0.0D) {
++					this.isJumping = true;
++				}
++			}
++
++			if(this.playerToAttack != null) {
++				this.faceEntity(this.playerToAttack, 30.0F, 30.0F);
++			}
++
++			if(this.isCollidedHorizontally && !this.getGotPath()) {
++				this.isJumping = true;
++			}
++
++			if(this.rand.nextFloat() < 0.8F && (var23 || var24)) {
++				this.isJumping = true;
++			}
++
++		} else {
++			super.updatePlayerActionState();
++			this.pathToEntity = null;
++		}
++	}
++
++	protected Entity findPlayerToAttack() {
++		EntityPlayer var1 = this.worldObj.getClosestPlayerToEntity(this, 64.0D);
++		return var1 != null && this.canEntityBeSeen(var1) ? var1 : null;
++	}
++}
+--- /dev/null
++++ net/minecraft/src/EntityLongFix.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityLongFix extends EntityCreepyLong {
++	public EntityLongFix(World var1) {
++		super(var1);
++		this.texture = "/mob/longfix.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
+--- net/minecraft/src/ConsoleCommandHandler.java
++++ net/minecraft/src/ConsoleCommandHandler.java
+@@ -1,7 +1,6 @@
+ package net.minecraft.src;
+ 
+-import java.util.Iterator;
+-import java.util.Set;
++import java.util.*;
+ import java.util.logging.Logger;
+ import net.minecraft.server.MinecraftServer;
+ 
+--- /dev/null
++++ net/minecraft/src/EntityBinary444.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityBinary444 extends EntityCreepy {
++	public EntityBinary444(World var1) {
++		super(var1);
++		this.texture = "/mob/binary444.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
+--- net/minecraft/server/MinecraftServer.java
++++ net/minecraft/server/MinecraftServer.java
+@@ -71,7 +71,7 @@
+ 		var1.setDaemon(true);
+ 		var1.start();
+ 		ConsoleLogManager.init();
+-		logger.info("Starting minecraft server version Beta 1.6.6");
++		logger.info("Starting minecraft server version VS Creepy Created by Yon4800");
+ 		if(Runtime.getRuntime().maxMemory() / 1024L / 1024L < 512L) {
+ 			logger.warning("**** NOT ENOUGH RAM!");
+ 			logger.warning("To start the server with more ram, launch it as \"java -Xmx1024M -Xms1024M -jar minecraft_server.jar\"");
+@@ -80,7 +80,7 @@
+ 		logger.info("Loading properties");
+ 		this.propertyManagerObj = new PropertyManager(new File("server.properties"));
+ 		String var2 = this.propertyManagerObj.getStringProperty("server-ip", "");
+-		this.onlineMode = this.propertyManagerObj.getBooleanProperty("online-mode", true);
++		this.onlineMode = this.propertyManagerObj.getBooleanProperty("online-mode", false);
+ 		this.spawnPeacefulMobs = this.propertyManagerObj.getBooleanProperty("spawn-animals", true);
+ 		this.pvpOn = this.propertyManagerObj.getBooleanProperty("pvp", true);
+ 		this.allowFlight = this.propertyManagerObj.getBooleanProperty("allow-flight", false);
+@@ -160,8 +160,8 @@
+ 				WorldServer var10 = this.worldMngr[var9];
+ 				ChunkCoordinates var11 = var10.getSpawnPoint();
+ 
+-				for(int var12 = -var18; var12 <= var18 && this.serverRunning; var12 += 16) {
+-					for(int var13 = -var18; var13 <= var18 && this.serverRunning; var13 += 16) {
++				for(int var12 = -var18; var12 <= var18/* && this.serverRunning*/; var12 += 16) {
++					for(int var13 = -var18; var13 <= var18/* && this.serverRunning*/; var13 += 16) {
+ 						long var14 = System.currentTimeMillis();
+ 						if(var14 < var7) {
+ 							var7 = var14;
+@@ -176,8 +176,10 @@
+ 
+ 						var10.chunkProviderServer.loadChunk(var11.posX + var12 >> 4, var11.posZ + var13 >> 4);
+ 
+-						while(var10.func_6156_d() && this.serverRunning) {
+-						}
++						/**
++						 while(var10.func_6156_d() && this.serverRunning) {
++						 }
++						 */
+ 					}
+ 				}
+ 			}
+--- /dev/null
++++ net/minecraft/src/EntityLongLeggedAlex.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityLongLeggedAlex extends EntityCreepyLong {
++	public EntityLongLeggedAlex(World var1) {
++		super(var1);
++		this.texture = "/mob/ax.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
