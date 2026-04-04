@@ -1,3 +1,5 @@
+<img alt="GitHub Downloads (all releases)" src="https://img.shields.io/github/downloads/YonCursedMC/VSCreepy/total?style=for-the-badge">
+
 # JP
 
 ## VSCreepy
