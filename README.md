@@ -66,15 +66,16 @@ mob討伐+5
 
 わからないことや、バグなどがあればissueなどに書いてください。
 
-# VSCreepy
+# EN
+## VSCreepy
 
-## Creepy Battle
+### Creepy Battle
 
 Who will be the first to get a diamond?!
 
 ---
 
-## What is this?
+### What is this?
 
 * This is a competitive game where the goal is for **everyone to be holding a diamond first**.
 * Use paranormal phenomena to interfere with your opponents.
@@ -83,7 +84,7 @@ Who will be the first to get a diamond?!
 
 ---
 
-## How to Play (Setup)
+### How to Play (Setup)
 
 * Clients should launch the game using **MultiMC** or **PrismLauncher** (PrismLauncher recommended).
 * Download from here: [https://github.com/YonCursedMC/VSCreepy/releases](https://github.com/YonCursedMC/VSCreepy/releases)
@@ -96,7 +97,7 @@ Who will be the first to get a diamond?!
 
 ---
 
-## How to Play (Rules & Controls)
+### How to Play (Rules & Controls)
 <img width="600" height="300" alt="2026-04-03_15 12 09" src="https://github.com/user-attachments/assets/569c9cf7-2a2d-4d34-9c81-4219680362cc" />
 
 * Type `/startgame` in chat to begin.
