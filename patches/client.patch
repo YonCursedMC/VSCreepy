@@ -1616,6 +1616,55 @@
 +        }
 +    }
 +}
+--- net/minecraft/src/GuiScreen.java
++++ net/minecraft/src/GuiScreen.java
+@@ -144,19 +144,37 @@
+ 
+ 	}
+ 
++	/**
++	 public void drawBackground(int var1) {
++	 GL11.glDisable(GL11.GL_LIGHTING);
++	 GL11.glDisable(GL11.GL_FOG);
++	 Tessellator var2 = Tessellator.instance;
++	 GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.mc.renderEngine.getTexture("/gui/background.png"));
++	 GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
++	 float var3 = 32.0F;
++	 var2.startDrawingQuads();
++	 var2.setColorOpaque_I(4210752);
++	 var2.addVertexWithUV(0.0D, (double)this.height, 0.0D, 0.0D, (double)((float)this.height / var3 + (float)var1));
++	 var2.addVertexWithUV((double)this.width, (double)this.height, 0.0D, (double)((float)this.width / var3), (double)((float)this.height / var3 + (float)var1));
++	 var2.addVertexWithUV((double)this.width, 0.0D, 0.0D, (double)((float)this.width / var3), (double)(0 + var1));
++	 var2.addVertexWithUV(0.0D, 0.0D, 0.0D, 0.0D, (double)(0 + var1));
++	 var2.draw();
++	 }
++	 */
++
+ 	public void drawBackground(int var1) {
++		Tessellator var2 = Tessellator.instance;
+ 		GL11.glDisable(GL11.GL_LIGHTING);
++		GL11.glEnable(GL11.GL_TEXTURE_2D);
+ 		GL11.glDisable(GL11.GL_FOG);
+-		Tessellator var2 = Tessellator.instance;
+-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.mc.renderEngine.getTexture("/gui/background.png"));
+-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+-		float var3 = 32.0F;
++		GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.mc.renderEngine.getTexture("/gui/VSCreepy.png"));
++		GL11.glColor4f(0.5F, 0.5F, 0.5F, 0.5F);
+ 		var2.startDrawingQuads();
+-		var2.setColorOpaque_I(4210752);
+-		var2.addVertexWithUV(0.0D, (double)this.height, 0.0D, 0.0D, (double)((float)this.height / var3 + (float)var1));
+-		var2.addVertexWithUV((double)this.width, (double)this.height, 0.0D, (double)((float)this.width / var3), (double)((float)this.height / var3 + (float)var1));
+-		var2.addVertexWithUV((double)this.width, 0.0D, 0.0D, (double)((float)this.width / var3), (double)(0 + var1));
+-		var2.addVertexWithUV(0.0D, 0.0D, 0.0D, 0.0D, (double)(0 + var1));
++		var2.setColorOpaque_I(0x888888);
++		var2.addVertexWithUV(0.0D, (double)this.height, 0.0D, 0.0D, 1.0D);
++		var2.addVertexWithUV((double)this.width, (double)this.height, 0.0D, 1.0D, 1.0D);
++		var2.addVertexWithUV((double)this.width, 0.0D, 0.0D, 1.0D, 0.0D);
++		var2.addVertexWithUV(0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
+ 		var2.draw();
+ 	}
+ 
 --- /dev/null
 +++ net/minecraft/src/ModelGreatJeb.java
 @@ -1,0 +1,110 @@

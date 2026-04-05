@@ -108,7 +108,7 @@
 +		} else {
 +			for(int i = -16; i < 16; i++) {
 +				for(int j = -16; j < 16; j++) {
-+					this.setBlockWithNotify(i, 120, j, Block.stone.blockID);
++					this.setBlockWithNotify(i, 120, j, Block.glass.blockID);
 +				}
 +			}
 +		}
