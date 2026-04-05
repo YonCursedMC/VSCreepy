@@ -45,7 +45,7 @@ mob討伐+5
   
   * Public Voidが出てくる、攻撃されるとモーダルウィンドウが大量に出てきて消える
   * Binary444が出てくる、攻撃されると別の場所にテレポートしてしまい消える
-  * That Thingが出てきて、攻撃されるとアイテムをばらまかれる
+  * That Whiteが出てきて、攻撃されるとアイテムをばらまかれる
   * 雷が大量に落ちる
   * 画面に文字が大量に出てくる
   * 床が抜ける
@@ -148,7 +148,7 @@ You can also earn points like this:
 
 * Public Void appears; getting hit spawns many modal windows
 * Binary444 appears; getting hit teleports you randomly
-* That Thing appears; getting hit scatters your items
+* That White appears; getting hit scatters your items
 * Massive lightning strikes
 * Text floods the screen
 * The floor disappears
