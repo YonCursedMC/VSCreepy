@@ -68,6 +68,18 @@ mob討伐+5
 
 わからないことや、バグなどがあればissueなどに書いてください。
 
+### クレジット
+
+#### テクスチャ
+- Test_Alpha
+- Tei
+#### 効果音
+- 音人 https://on-jin.com/
+- pixabay https://pixabay.com/
+#### 利用ツール
+- Intelij IDEA
+- RetroMCP
+
 # EN
 ## VSCreepy
 
@@ -162,3 +174,15 @@ You can also earn points like this:
 If you have any questions or find bugs, please report them in the Issues section.
 
 ---
+
+### Credits
+
+#### Textures
+- Test_Alpha
+- Tei
+#### Sound Effects
+- On-jin https://on-jin.com/
+- pixabay https://pixabay.com/
+#### Tools Used
+- Intelij IDEA
+- RetroMCP
