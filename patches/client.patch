@@ -724,27 +724,48 @@
  
  	public GuiIngame(Minecraft var1) {
  		this.mc = var1;
-@@ -170,7 +172,7 @@
+@@ -170,11 +172,15 @@
  				GL11.glTranslatef(0.0F, 32.0F, 0.0F);
  			}
  
 -			var8.drawStringWithShadow("Minecraft Beta 1.6.6 (" + this.mc.debug + ")", 2, 2, 16777215);
-+			var8.drawStringWithShadow("Minecraft Creepy Battle (" + this.mc.debug + ")", 2, 2, 16777215);
- 			var8.drawStringWithShadow(this.mc.func_6241_m(), 2, 12, 16777215);
- 			var8.drawStringWithShadow(this.mc.func_6262_n(), 2, 22, 16777215);
- 			var8.drawStringWithShadow(this.mc.func_6245_o(), 2, 32, 16777215);
-@@ -187,6 +189,10 @@
- 			this.drawString(var8, "y: " + this.mc.thePlayer.posY, 2, 72, 14737632);
- 			this.drawString(var8, "z: " + this.mc.thePlayer.posZ, 2, 80, 14737632);
+-			var8.drawStringWithShadow(this.mc.func_6241_m(), 2, 12, 16777215);
+-			var8.drawStringWithShadow(this.mc.func_6262_n(), 2, 22, 16777215);
+-			var8.drawStringWithShadow(this.mc.func_6245_o(), 2, 32, 16777215);
+-			var8.drawStringWithShadow(this.mc.func_21002_o(), 2, 42, 16777215);
++			var8.drawStringWithShadow("Minecraft VS Creepy (" + this.mc.debug + ")", 2, 2, 16777215);
++			var8.drawStringWithShadow("Your Team: " + this.mc.thePlayer.team, 2, 12, 16777215);
++			var8.drawStringWithShadow("Point: " + this.mc.thePlayer.point, 2, 22, 16777215);
++			var8.drawStringWithShadow("team1: " + this.mc.thePlayer.teamMember1, 2, 32, 16777215);
++			var8.drawStringWithShadow("team2: " + this.mc.thePlayer.teamMember2, 2, 42, 16777215);
++			var8.drawStringWithShadow(this.mc.func_6241_m(), 2, 52, 16777215);
++			var8.drawStringWithShadow(this.mc.func_6262_n(), 2, 62, 16777215);
++			var8.drawStringWithShadow(this.mc.func_6245_o(), 2, 72, 16777215);
++			var8.drawStringWithShadow(this.mc.func_21002_o(), 2, 82, 16777215);
+ 			long var24 = Runtime.getRuntime().maxMemory();
+ 			long var29 = Runtime.getRuntime().totalMemory();
+ 			long var30 = Runtime.getRuntime().freeMemory();
+@@ -183,10 +189,16 @@
+ 			this.drawString(var8, var23, var6 - var8.getStringWidth(var23) - 2, 2, 14737632);
+ 			var23 = "Allocated memory: " + var29 * 100L / var24 + "% (" + var29 / 1024L / 1024L + "MB)";
+ 			this.drawString(var8, var23, var6 - var8.getStringWidth(var23) - 2, 12, 14737632);
+-			this.drawString(var8, "x: " + this.mc.thePlayer.posX, 2, 64, 14737632);
+-			this.drawString(var8, "y: " + this.mc.thePlayer.posY, 2, 72, 14737632);
+-			this.drawString(var8, "z: " + this.mc.thePlayer.posZ, 2, 80, 14737632);
++			this.drawString(var8, "x: " + this.mc.thePlayer.posX, 2, 94, 14737632);
++			this.drawString(var8, "y: " + this.mc.thePlayer.posY, 2, 102, 14737632);
++			this.drawString(var8, "z: " + this.mc.thePlayer.posZ, 2, 110, 14737632);
  			GL11.glPopMatrix();
 +		} else {
 +			var8.drawStringWithShadow("Minecraft VS Creepy", 2, 2, 16777215);
-+			var8.drawStringWithShadow("Team: " + this.mc.thePlayer.team, 2, 12, 16777215);
++			var8.drawStringWithShadow("Your Team: " + this.mc.thePlayer.team, 2, 12, 16777215);
 +			var8.drawStringWithShadow("Point: " + this.mc.thePlayer.point, 2, 22, 16777215);
++			var8.drawStringWithShadow("team1: " + this.mc.thePlayer.teamMember1, 2, 32, 16777215);
++			var8.drawStringWithShadow("team2: " + this.mc.thePlayer.teamMember2, 2, 42, 16777215);
  		}
  
  		if(this.recordPlayingUpFor > 0) {
-@@ -258,6 +264,11 @@
+@@ -258,6 +270,11 @@
  		GL11.glPopMatrix();
  		GL11.glEnable(GL11.GL_ALPHA_TEST);
  		GL11.glDisable(GL11.GL_BLEND);
@@ -1326,30 +1347,36 @@
 +}
 --- net/minecraft/src/EntityPlayer.java
 +++ net/minecraft/src/EntityPlayer.java
-@@ -36,6 +36,8 @@
+@@ -36,6 +36,10 @@
  	public float prevTimeInPortal;
  	private int damageRemainder = 0;
  	public EntityFish fishEntity = null;
 +	public int team = 0;
 +	public int point = 0;
++	public String teamMember1 = "no game start team1";
++	public String teamMember2 = "no game start team2";
  
  	public EntityPlayer(World var1) {
  		super(var1);
-@@ -54,9 +56,13 @@
+@@ -54,9 +58,17 @@
  	protected void entityInit() {
  		super.entityInit();
  		this.dataWatcher.addObject(16, Byte.valueOf((byte)0));
 +		this.dataWatcher.addObject(17, this.team);
 +		this.dataWatcher.addObject(18, this.point);
++		this.dataWatcher.addObject(19, "no game start team1");
++		this.dataWatcher.addObject(20, "no game start team2");
  	}
  
  	public void onUpdate() {
 +		this.team = this.dataWatcher.getWatchableObjectInt(17);
 +		this.point = this.dataWatcher.getWatchableObjectInt(18);
++		this.teamMember1 = this.dataWatcher.getWatchableObjectString(19);
++		this.teamMember2 = this.dataWatcher.getWatchableObjectString(20);
  		if(this.isPlayerSleeping()) {
  			++this.sleepTimer;
  			if(this.sleepTimer > 100) {
-@@ -375,6 +381,9 @@
+@@ -375,6 +387,9 @@
  				if(this.worldObj.difficultySetting == 3) {
  					var2 = var2 * 3 / 2;
  				}
@@ -1541,6 +1568,17 @@
 +		this.modelBipedMain = var1;
 +	}
 +}
+--- net/minecraft/src/BlockBed.java
++++ net/minecraft/src/BlockBed.java
+@@ -180,4 +180,8 @@
+ 
+ 		return null;
+ 	}
++
++	public void onBlockClicked(World var1, int var2, int var3, int var4, EntityPlayer var5) {
++		super.onBlockClicked(var1, var2, var3, var4, var5);
++	}
+ }
 --- net/minecraft/src/NetHandler.java
 +++ net/minecraft/src/NetHandler.java
 @@ -207,4 +207,12 @@

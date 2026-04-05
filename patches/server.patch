@@ -32,7 +32,17 @@
  		this.worldChunkLoadOverride = false;
  	}
  
-@@ -1230,6 +1233,10 @@
+@@ -718,6 +721,9 @@
+ 				EntityPlayer var5 = (EntityPlayer)var1;
+ 				this.playerEntities.add(var5);
+ 				this.updateAllPlayersSleepingFlag();
++				if(this.worldInfo.getGameStart() && var5.team == 0){
++					var5.team = new Random().nextInt(2) + 1;
++				}
+ 			}
+ 
+ 			this.getChunkFromChunkCoords(var2, var3).addEntity(var1);
+@@ -1230,6 +1236,10 @@
  		return this.newExplosion(var1, var2, var4, var6, var8, false);
  	}
  
@@ -43,7 +53,7 @@
  	public Explosion newExplosion(Entity var1, double var2, double var4, double var6, float var8, boolean var9) {
  		Explosion var10 = new Explosion(this, var1, var2, var4, var6, var8);
  		var10.isFlaming = var9;
-@@ -1414,7 +1421,72 @@
+@@ -1414,7 +1424,68 @@
  		this.spawnPeacefulMobs = var2;
  	}
  
@@ -64,10 +74,6 @@
  	public void tick() {
 +		List<EntityPlayerMP> playerMPS = this.playerEntities;
 +		if(this.worldInfo.getGameStart()) {
-+			if(this.playerEntities.size() % 2 == 1) {
-+				this.stopGame();
-+				playerMPS.get(0).mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("The game has ended because the number of players became even."));
-+			}
 +			for(EntityPlayerMP playerMP : playerMPS) {
 +				int teamdia1 = 0;
 +				int teamdia2 = 0;
@@ -78,7 +84,7 @@
 +						teamdia2++;
 +					}
 +				}
-+				if(teamdia1 >= playerMPS.size() / 2 && playerMPS.size() > 1) {
++				if(teamdia1 >= 1 && playerMPS.size() > 1) {
 +					for(EntityPlayerMP mp : playerMPS) {
 +						if(mp.team == 1) {
 +							playerMP.mcServer.configManager.sendPacketToAllPlayers(new Packet80Event(0));
@@ -91,7 +97,7 @@
 +					MinecraftServer.logger.info("1 Team Wom! Please remake the world and restart.");
 +					throw new RuntimeException("Please remake the world and restart.");
 +				}
-+				if(teamdia2 >= playerMPS.size() / 2 && playerMPS.size() > 1) {
++				if(teamdia2 >= 1 && playerMPS.size() > 1) {
 +					for(EntityPlayerMP mp : playerMPS) {
 +						if(mp.team == 1) {
 +							playerMP.mcServer.configManager.sendPacketToAllPlayers(new Packet80Event(1));
@@ -160,6 +166,17 @@
 +		this.prevPosZ = (int)this.prevPosZ;
 +	}
 +}
+--- net/minecraft/src/BlockOre.java
++++ net/minecraft/src/BlockOre.java
+@@ -8,7 +8,7 @@
+ 	}
+ 
+ 	public int idDropped(int var1, Random var2) {
+-		return this.blockID == Block.oreCoal.blockID ? Item.coal.shiftedIndex : (this.blockID == Block.oreDiamond.blockID ? Item.diamond.shiftedIndex : (this.blockID == Block.oreLapis.blockID ? Item.dyePowder.shiftedIndex : this.blockID));
++		return this.blockID == Block.oreCoal.blockID ? Item.coal.shiftedIndex : (this.blockID == Block.oreDiamond.blockID ? Item.diamond.shiftedIndex : (this.blockID == Block.oreLapis.blockID ? Item.dyePowder.shiftedIndex : (this.blockID == Block.oreIron.blockID ? Item.ingotIron.shiftedIndex : (this.blockID == Block.oreGold.blockID ? Item.ingotGold.shiftedIndex : this.blockID))));
+ 	}
+ 
+ 	public int quantityDropped(Random var1) {
 --- net/minecraft/src/EntityAnimal.java
 +++ net/minecraft/src/EntityAnimal.java
 @@ -24,6 +24,15 @@
@@ -440,7 +457,7 @@
  
  public abstract class EntityPlayer extends EntityLiving {
  	public InventoryPlayer inventory = new InventoryPlayer(this);
-@@ -33,6 +35,10 @@
+@@ -33,6 +35,12 @@
  	public float field_28014_E;
  	private int damageRemainder = 0;
  	public EntityFish fishEntity = null;
@@ -448,19 +465,23 @@
 +	public int point = 0;
 +	public int tickPoints;
 +	public boolean teamDiamond = false;
++	public String teamMember1 = "no game start team1";
++	public String teamMember2 = "no game start team2";
  
  	public EntityPlayer(World var1) {
  		super(var1);
-@@ -51,6 +57,8 @@
+@@ -51,6 +59,10 @@
  	protected void entityInit() {
  		super.entityInit();
  		this.dataWatcher.addObject(16, Byte.valueOf((byte)0));
 +		this.dataWatcher.addObject(17, this.team);
 +		this.dataWatcher.addObject(18, this.point);
++		this.dataWatcher.addObject(19, "no game start team1");
++		this.dataWatcher.addObject(20, "no game start team2");
  	}
  
  	public void onUpdate() {
-@@ -154,13 +162,12 @@
+@@ -154,13 +166,12 @@
  	}
  
  	public void onLivingUpdate() {
@@ -477,7 +498,7 @@
  		float var1 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
  		float var2 = (float)Math.atan(-this.motionY * (double)0.2F) * 15.0F;
  		if(var1 > 0.1F) {
-@@ -214,6 +221,8 @@
+@@ -214,6 +225,8 @@
  
  		this.yOffset = 0.1F;
  		this.addStat(StatList.field_25098_u, 1);
@@ -486,7 +507,7 @@
  	}
  
  	public void addToPlayerScore(Entity var1, int var2) {
-@@ -292,6 +301,9 @@
+@@ -292,6 +305,9 @@
  		this.dimension = var1.getInteger("Dimension");
  		this.sleeping = var1.getBoolean("Sleeping");
  		this.sleepTimer = var1.getShort("SleepTimer");
@@ -496,7 +517,7 @@
  		if(this.sleeping) {
  			this.playerLocation = new ChunkCoordinates(MathHelper.floor_double(this.posX), MathHelper.floor_double(this.posY), MathHelper.floor_double(this.posZ));
  			this.wakeUpPlayer(true, true, false);
-@@ -309,6 +321,9 @@
+@@ -309,6 +325,9 @@
  		var1.setInteger("Dimension", this.dimension);
  		var1.setBoolean("Sleeping", this.sleeping);
  		var1.setShort("SleepTimer", (short)this.sleepTimer);
@@ -506,7 +527,7 @@
  		if(this.spawnChunk != null) {
  			var1.setInteger("SpawnX", this.spawnChunk.posX);
  			var1.setInteger("SpawnY", this.spawnChunk.posY);
-@@ -355,6 +370,51 @@
+@@ -355,6 +374,51 @@
  				if(this.worldObj.difficultySetting == 3) {
  					var2 = var2 * 3 / 2;
  				}
@@ -842,6 +863,23 @@
 +		}
 +	}
 +}
+--- net/minecraft/src/BlockBed.java
++++ net/minecraft/src/BlockBed.java
+@@ -12,6 +12,8 @@
+ 	}
+ 
+ 	public boolean blockActivated(World var1, int var2, int var3, int var4, EntityPlayer var5) {
++		var5.setSpawnChunk(new ChunkCoordinates(var2, var3, var4));
++		((EntityPlayerMP)var5).playerNetServerHandler.sendPacket(new Packet3Chat("Set spawn point."));
+ 		if(var1.singleplayerWorld) {
+ 			return true;
+ 		} else {
+@@ -176,4 +178,5 @@
+ 
+ 		return null;
+ 	}
++
+ }
 --- net/minecraft/src/NetHandler.java
 +++ net/minecraft/src/NetHandler.java
 @@ -207,4 +207,12 @@
@@ -886,40 +924,10 @@
  import java.util.logging.Logger;
  import net.minecraft.server.MinecraftServer;
  
-@@ -410,6 +408,51 @@
+@@ -410,6 +408,21 @@
  			var1 = "* " + this.playerEntity.username + " " + var1.substring(var1.indexOf(" ")).trim();
  			logger.info(var1);
  			this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat(var1));
-+		} else if(var1.equalsIgnoreCase("/startGame")) {
-+			if(!this.mcServer.worldMngr[0].worldInfo.getGameStart()){
-+				List<EntityPlayerMP> playerMPS = this.mcServer.worldMngr[0].playerEntities;
-+				if(playerMPS.size() % 2 == 0 && !playerMPS.isEmpty()) {
-+					List<Integer> labels = new ArrayList<>();
-+					for(int i = 0; i < playerMPS.size() / 2; i++) labels.add(1);
-+					for(int i = 0; i < playerMPS.size() / 2; i++) labels.add(2);
-+					Collections.shuffle(labels);
-+					int i = 0;
-+					for(EntityPlayerMP playerMP : playerMPS) {
-+						playerMP.team = labels.get(i);
-+						i++;
-+					}
-+					for(EntityPlayerMP playerMP : playerMPS) {
-+						if(playerMP.team == 1) {
-+							playerMP.playerNetServerHandler.teleportTo(-20, this.mcServer.worldMngr[0].findTopSolidBlock(-20, 0), 0, 0, 0);
-+						} else if(playerMP.team == 2) {
-+							playerMP.playerNetServerHandler.teleportTo(20, this.mcServer.worldMngr[0].findTopSolidBlock(20, 0), 0, 0, 0);
-+						}
-+					}
-+					this.mcServer.worldMngr[0].worldInfo.setGameStart(true);
-+					this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("Game Start"));
-+				} else {
-+					this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("The number of people is odd, not even. Please make it even."));
-+				}
-+			}else {
-+				this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("The game has already begun!"));
-+			}
-+		} else if(var1.equalsIgnoreCase("/stopGame")) {
-+			this.mcServer.worldMngr[0].stopGame();
 +		} else if(var1.equalsIgnoreCase("/creepy")) {
 +			if(this.mcServer.worldMngr[0].worldInfo.getGameStart()) {
 +				if(this.playerEntity.point >= 100) {
@@ -1021,7 +1029,7 @@
  	public void harvestBlock(World var1, EntityPlayer var2, int var3, int var4, int var5, int var6) {
  		var2.addStat(StatList.mineBlockStatArray[this.blockID], 1);
  		this.dropBlockAsItem(var1, var3, var4, var5, var6);
-+		if(this instanceof BlockOre) {
++		if(this instanceof BlockOre || this instanceof BlockOreStorage || this instanceof BlockRedstoneOre) {
 +			var2.point += 5;
 +			var2.dataWatcher.updateObject(18, var2.point);
 +			((EntityPlayerMP)var2).playerNetServerHandler.sendPacket(new Packet81Sound("/sound/point2_onjin.wav"));
@@ -1031,10 +1039,11 @@
  	public boolean canBlockStay(World var1, int var2, int var3, int var4) {
 --- net/minecraft/src/EntityPlayerMP.java
 +++ net/minecraft/src/EntityPlayerMP.java
-@@ -64,6 +64,45 @@
+@@ -64,6 +64,62 @@
  	}
  
  	public void onUpdate() {
++
 +		if(this.worldObj.worldInfo.getGameStart()) {
 +			this.dataWatcher.updateObject(17, this.team);
 +			this.tickPoints++;
@@ -1042,8 +1051,22 @@
 +				this.point++;
 +				this.dataWatcher.updateObject(18, this.point);
 +				this.tickPoints = 0;
++				StringBuilder team1 = new StringBuilder();
++				StringBuilder team2 = new StringBuilder();
++				List<EntityPlayerMP> playerMPS = this.worldObj.playerEntities;
++				for(EntityPlayerMP playerMP : playerMPS) {
++					if(playerMP.team == 1) {
++						team1.append(playerMP.username).append(", ");
++					} else if(playerMP.team == 2) {
++						team2.append(playerMP.username).append(", ");
++					}
++				}
++				this.teamMember1 = team1.toString();
++				this.teamMember2 = team2.toString();
++				this.dataWatcher.updateObject(19, this.teamMember1);
++				this.dataWatcher.updateObject(20, this.teamMember2);
 +			}
-+			if(this.point >= 100 ){
++			if(this.point >= 100) {
 +				this.point = 100;
 +				this.dataWatcher.updateObject(18, this.point);
 +			}
@@ -1064,6 +1087,8 @@
 +				}
 +			}
 +		} else {
++			this.dataWatcher.updateObject(19, "no game start team1");
++			this.dataWatcher.updateObject(20, "no game start team2");
 +			if(this.posX > 16 || this.posX < -16) {
 +				this.playerNetServerHandler.teleportTo(0, this.worldObj.findTopSolidBlock(0, 0), 0, 0, 0);
 +				this.playerNetServerHandler.sendPacket(new Packet3Chat("The game hasn't started yet."));
@@ -1077,6 +1102,18 @@
  		this.itemInWorldManager.func_328_a();
  		--this.ticksOfInvuln;
  		this.currentCraftingInventory.updateCraftingMatrix();
+@@ -242,11 +298,6 @@
+ 	}
+ 
+ 	public void wakeUpPlayer(boolean var1, boolean var2, boolean var3) {
+-		if(this.func_30001_K()) {
+-			EntityTracker var4 = this.mcServer.getEntityTracker(this.dimension);
+-			var4.sendPacketToTrackedPlayersAndTrackedEntity(this, new Packet18Animation(this, 3));
+-		}
+-
+ 		super.wakeUpPlayer(var1, var2, var3);
+ 		if(this.playerNetServerHandler != null) {
+ 			this.playerNetServerHandler.teleportTo(this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch);
 --- /dev/null
 +++ net/minecraft/src/EntityCreepyLong.java
 @@ -1,0 +1,150 @@
@@ -1258,6 +1295,45 @@
  import java.util.logging.Logger;
  import net.minecraft.server.MinecraftServer;
  
+@@ -65,7 +64,37 @@
+ 						var5.deopPlayer(var13);
+ 						var5.sendChatMessageToPlayer(var13, "\u00a7eYou are no longer op!");
+ 						this.sendNoticeToOps(var4, "De-opping " + var13);
+-					} else if(var2.toLowerCase().startsWith("ban-ip ")) {
++					}else if(var2.equalsIgnoreCase("/startGame")) {
++						if(!this.minecraftServer.worldMngr[0].worldInfo.getGameStart()){
++							List<EntityPlayerMP> playerMPS = this.minecraftServer.worldMngr[0].playerEntities;
++							if(playerMPS.size() % 2 == 0 && !playerMPS.isEmpty()) {
++								List<Integer> labels = new ArrayList<>();
++								for(int i = 0; i < playerMPS.size() / 2; i++) labels.add(1);
++								for(int i = 0; i < playerMPS.size() / 2; i++) labels.add(2);
++								Collections.shuffle(labels);
++								int i = 0;
++								for(EntityPlayerMP playerMP : playerMPS) {
++									playerMP.team = labels.get(i);
++									i++;
++								}
++								for(EntityPlayerMP playerMP : playerMPS) {
++									if(playerMP.team == 1) {
++										playerMP.playerNetServerHandler.teleportTo(-20, this.minecraftServer.worldMngr[0].findTopSolidBlock(-20, 0), 0, 0, 0);
++									} else if(playerMP.team == 2) {
++										playerMP.playerNetServerHandler.teleportTo(20, this.minecraftServer.worldMngr[0].findTopSolidBlock(20, 0), 0, 0, 0);
++									}
++								}
++								this.minecraftServer.worldMngr[0].worldInfo.setGameStart(true);
++								this.minecraftServer.configManager.sendPacketToAllPlayers(new Packet3Chat("Game Start"));
++							} else {
++								this.minecraftServer.configManager.sendPacketToAllPlayers(new Packet3Chat("The number of people is odd, not even. Please make it even."));
++							}
++						}else {
++							this.minecraftServer.configManager.sendPacketToAllPlayers(new Packet3Chat("The game has already begun!"));
++						}
++					} else if(var2.equalsIgnoreCase("/stopGame")) {
++						this.minecraftServer.worldMngr[0].stopGame();
++					}  else if(var2.toLowerCase().startsWith("ban-ip ")) {
+ 						var13 = var2.substring(var2.indexOf(" ")).trim();
+ 						var5.banIP(var13);
+ 						this.sendNoticeToOps(var4, "Banning ip " + var13);
 --- /dev/null
 +++ net/minecraft/src/EntityBinary444.java
 @@ -1,0 +1,14 @@
