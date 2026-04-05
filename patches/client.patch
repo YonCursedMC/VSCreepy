@@ -49,7 +49,7 @@
 +public class EntityTikThink extends EntityCreepyLong {
 +	public EntityTikThink(World var1) {
 +		super(var1);
-+		this.texture = "/mob/tikthink.png";
++		this.texture = "/mob/ttk.png";
 +		this.moveSpeed = 1.0F;
 +		this.attackStrength = 4;
 +	}
@@ -1349,14 +1349,13 @@
  		if(this.isPlayerSleeping()) {
  			++this.sleepTimer;
  			if(this.sleepTimer > 100) {
-@@ -375,6 +381,10 @@
+@@ -375,6 +381,9 @@
  				if(this.worldObj.difficultySetting == 3) {
  					var2 = var2 * 3 / 2;
  				}
 +			}
 +			if(var1 instanceof EntityCreepy) {
-+				this.setEntityDead();
-+				return super.attackEntityFrom(var1, var2);
++				var1.setEntityDead();
  			}
  
  			if(var2 == 0) {

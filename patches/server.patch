@@ -124,7 +124,7 @@
 +public class EntityTikThink extends EntityCreepyLong {
 +	public EntityTikThink(World var1) {
 +		super(var1);
-+		this.texture = "/mob/tikthink.png";
++		this.texture = "/mob/ttk.png";
 +		this.moveSpeed = 1.0F;
 +		this.attackStrength = 4;
 +	}
@@ -506,7 +506,7 @@
  		if(this.spawnChunk != null) {
  			var1.setInteger("SpawnX", this.spawnChunk.posX);
  			var1.setInteger("SpawnY", this.spawnChunk.posY);
-@@ -355,6 +370,52 @@
+@@ -355,6 +370,51 @@
  				if(this.worldObj.difficultySetting == 3) {
  					var2 = var2 * 3 / 2;
  				}
@@ -533,17 +533,17 @@
 +					playerMP.playerNetServerHandler.teleportTo(XX, this.worldObj.findTopSolidBlock((int)XX, (int)ZZ), ZZ, rotationYaw, this.rotationPitch);
 +				}
 +				if(var1 instanceof EntityThatWhite) {
-+					playerMP.inventory.dropAllItems();
++					this.inventory.dropAllItems();
 +				}
 +				if(var1 instanceof EntityLagMob) {
 +					playerMP.playerNetServerHandler.sendPacket(new Packet80Event(21));
 +				}
 +				if(var1 instanceof EntityLongFix) {
-+					playerMP.inventory.clearAllItems();
++					this.inventory.clearAllItems();
 +				}
 +				if(var1 instanceof EntityLengthFlag) {
-+					playerMP.point = 0;
-+					this.dataWatcher.updateObject(18, playerMP.point);
++					this.point = 0;
++					this.dataWatcher.updateObject(18, this.point);
 +				}
 +				if(var1 instanceof EntityLongLeggedAlex) {
 +					playerMP.playerNetServerHandler.sendPacket(new Packet80Event(22));
@@ -552,10 +552,9 @@
 +					playerMP.playerNetServerHandler.sendPacket(new Packet80Event(23));
 +				}
 +				if(var1 instanceof EntityTikThink) {
-+					this.worldObj.createExplosion(var1, 10.0F);
++					this.worldObj.createExplosion(this, 10.0F);
 +				}
-+				this.setEntityDead();
-+				return super.attackEntityFrom(var1, var2);
++				var1.setEntityDead();
  			}
  
  			if(var2 == 0) {
@@ -887,33 +886,37 @@
  import java.util.logging.Logger;
  import net.minecraft.server.MinecraftServer;
  
-@@ -410,6 +408,47 @@
+@@ -410,6 +408,51 @@
  			var1 = "* " + this.playerEntity.username + " " + var1.substring(var1.indexOf(" ")).trim();
  			logger.info(var1);
  			this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat(var1));
 +		} else if(var1.equalsIgnoreCase("/startGame")) {
-+			List<EntityPlayerMP> playerMPS = this.mcServer.worldMngr[0].playerEntities;
-+			if(playerMPS.size() % 2 == 0 && !playerMPS.isEmpty()) {
-+				List<Integer> labels = new ArrayList<>();
-+				for(int i = 0; i < playerMPS.size() / 2; i++) labels.add(1);
-+				for(int i = 0; i < playerMPS.size() / 2; i++) labels.add(2);
-+				Collections.shuffle(labels);
-+				int i = 0;
-+				for(EntityPlayerMP playerMP : playerMPS) {
-+					playerMP.team = labels.get(i);
-+					i++;
-+				}
-+				for(EntityPlayerMP playerMP : playerMPS) {
-+					if(playerMP.team == 1) {
-+						playerMP.playerNetServerHandler.teleportTo(-20, this.mcServer.worldMngr[0].findTopSolidBlock(-20, 0), 0, 0, 0);
-+					} else if(playerMP.team == 2) {
-+						playerMP.playerNetServerHandler.teleportTo(20, this.mcServer.worldMngr[0].findTopSolidBlock(20, 0), 0, 0, 0);
++			if(!this.mcServer.worldMngr[0].worldInfo.getGameStart()){
++				List<EntityPlayerMP> playerMPS = this.mcServer.worldMngr[0].playerEntities;
++				if(playerMPS.size() % 2 == 0 && !playerMPS.isEmpty()) {
++					List<Integer> labels = new ArrayList<>();
++					for(int i = 0; i < playerMPS.size() / 2; i++) labels.add(1);
++					for(int i = 0; i < playerMPS.size() / 2; i++) labels.add(2);
++					Collections.shuffle(labels);
++					int i = 0;
++					for(EntityPlayerMP playerMP : playerMPS) {
++						playerMP.team = labels.get(i);
++						i++;
 +					}
++					for(EntityPlayerMP playerMP : playerMPS) {
++						if(playerMP.team == 1) {
++							playerMP.playerNetServerHandler.teleportTo(-20, this.mcServer.worldMngr[0].findTopSolidBlock(-20, 0), 0, 0, 0);
++						} else if(playerMP.team == 2) {
++							playerMP.playerNetServerHandler.teleportTo(20, this.mcServer.worldMngr[0].findTopSolidBlock(20, 0), 0, 0, 0);
++						}
++					}
++					this.mcServer.worldMngr[0].worldInfo.setGameStart(true);
++					this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("Game Start"));
++				} else {
++					this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("The number of people is odd, not even. Please make it even."));
 +				}
-+				this.mcServer.worldMngr[0].worldInfo.setGameStart(true);
-+				this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("Game Start"));
-+			} else {
-+				this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("The number of people is odd, not even. Please make it even."));
++			}else {
++				this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("The game has already begun!"));
 +			}
 +		} else if(var1.equalsIgnoreCase("/stopGame")) {
 +			this.mcServer.worldMngr[0].stopGame();
@@ -1012,6 +1015,20 @@
  		return var4;
  	}
  
+--- net/minecraft/src/Block.java
++++ net/minecraft/src/Block.java
+@@ -468,6 +468,11 @@
+ 	public void harvestBlock(World var1, EntityPlayer var2, int var3, int var4, int var5, int var6) {
+ 		var2.addStat(StatList.mineBlockStatArray[this.blockID], 1);
+ 		this.dropBlockAsItem(var1, var3, var4, var5, var6);
++		if(this instanceof BlockOre) {
++			var2.point += 5;
++			var2.dataWatcher.updateObject(18, var2.point);
++			((EntityPlayerMP)var2).playerNetServerHandler.sendPacket(new Packet81Sound("/sound/point2_onjin.wav"));
++		}
+ 	}
+ 
+ 	public boolean canBlockStay(World var1, int var2, int var3, int var4) {
 --- net/minecraft/src/EntityPlayerMP.java
 +++ net/minecraft/src/EntityPlayerMP.java
 @@ -64,6 +64,45 @@
