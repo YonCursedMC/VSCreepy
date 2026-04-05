@@ -91,6 +91,9 @@ mob討伐+5
 #### 利用ツール
 - Intelij IDEA
 - RetroMCP
+- Gemini Nano Banana
+- Perplexity
+- Claude
 
 # EN
 ## VSCreepy
@@ -212,3 +215,6 @@ If you have any questions or find bugs, please report them in the Issues section
 #### Tools Used
 - Intelij IDEA
 - RetroMCP
+- Gemini Nano Banana
+- Perplexity
+- Claude
