@@ -122,8 +122,7 @@ Who will be the first to get a diamond?!
 * (Server admins only) Download **“VSCreepy_server.jar”** The startup method is the same as for a regular server.
 * (Server admins only) After a win, the world must be reset (server restart required).
   Note: The server will stop due to an error.
-* Once everyone joins the server, wait until someone types `/startgame`.
-  **You must have an even number of players.**
+* Once everyone has joined the server, the OP should type ```/startgame``` in chat. **You must have an even number of players when playing.**
 
 ---
 
@@ -144,10 +143,8 @@ Who will be the first to get a diamond?!
 ### How to Play (Rules & Controls)
 <img width="600" height="300" alt="2026-04-03_15 12 09" src="https://github.com/user-attachments/assets/569c9cf7-2a2d-4d34-9c81-4219680362cc" />
 
-* Type `/startgame` in chat to begin.
-  **The number of players must be even. If it becomes odd, the game will end.**
-* The goal is for **everyone to be holding a diamond**.
-  (Having it in your inventory is not enough—you must hold it.)
+* When OP types ```/startgame``` in the chat, the game starts.
+* The goal is for someone on the team to **hold a diamond in their hand**. (Simply putting it in the inventory is not enough. The goal is to hold it.)
 * Teams are assigned randomly into Team 1 and Team 2.
 * Team 1 stays on the **-X side**, Team 2 on the **+X side**.
   Do not cross beyond your side.
