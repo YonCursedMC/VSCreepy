@@ -49,7 +49,7 @@ mob討伐+5
 * ポイントはプレイヤーごとで、チーム共有ではありません。
 * ポイントが100まで溜まったら、```/creepy```と打ちましょう。相手のチームに怪奇現象が起き妨害できます。
 * 怪奇現象はランダムに起きます。何が起こるかはお楽しみです。
-* 時間は1000固定です。
+* 時間は1000固定です。その代わり、ベットを右クリックすることによりリスポーン地点を固定できます。
 * クライアントをクラッシュさせる怪奇現象はありません。(最後を除く)
 * ```/stopgame```コマンドを打つとゲームを中断することができます。(誰でもできてしまうので、非常時以外は使わないようにしましょう。)
 
@@ -165,7 +165,7 @@ You can also earn points like this:
 * Points are **per player**, not shared with the team.
 * When you reach 100 points, type `/creepy` to trigger a paranormal event on the opposing team.
 * Events occur randomly—you won’t know what happens!
-* Time is fixed at 1000.
+* Time is fixed at 1000. Alternatively, you can fix your respawn point by right-clicking on the bed.
 * No events will crash the client (except the final one).
 * You can interrupt the game by entering the `/stopgame` command. (Since anyone can do it, please refrain from using it except in emergencies.)
 
