@@ -6,7 +6,7 @@
 Creepyバトル どちらが最初にダイヤモンドを手にする事ができるのか？！
 
 ### これは？
-* ダイヤモンドを最初に全員「手に持つ」ことが目的の対戦型ゲームです。
+* ダイヤモンドを最初に「手に持つ」ことが目的の対戦型ゲームです。
 * 怪奇現象で妨害しよう
 * サーバー限定です
 * 実質Creepy Minecraft Versionではありません。
@@ -107,7 +107,7 @@ Who will be the first to get a diamond?!
 
 ### What is this?
 
-* This is a competitive game where the goal is for **everyone to be holding a diamond first**.
+* This is a competitive game where the goal is for **holding a diamond first**.
 * Use paranormal phenomena to interfere with your opponents.
 * Server-only.
 * Not exactly the Creepy Minecraft Version.
