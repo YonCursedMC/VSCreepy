@@ -155,7 +155,7 @@
  	public void tick() {
 +		List<EntityPlayerMP> playerMPS = this.playerEntities;
 +		if(this.worldInfo.getGameStart()) {
-+			if(playerMPS.isEmpty()) {
++			if(playerMPS.size() <= 1) {
 +				this.stopGame();
 +				MinecraftServer.logger.warning("The game has ended because there are no people.");
 +			}
@@ -1191,32 +1191,69 @@
  	public boolean canBlockStay(World var1, int var2, int var3, int var4) {
 --- net/minecraft/src/EntityPlayerMP.java
 +++ net/minecraft/src/EntityPlayerMP.java
-@@ -64,6 +64,62 @@
+@@ -1,9 +1,6 @@
+ package net.minecraft.src;
+ 
+-import java.util.HashSet;
+-import java.util.LinkedList;
+-import java.util.List;
+-import java.util.Set;
++import java.util.*;
+ import net.minecraft.server.MinecraftServer;
+ 
+ public class EntityPlayerMP extends EntityPlayer implements ICrafting {
+@@ -63,7 +60,88 @@
+ 		return 1.62F;
  	}
  
++	public void pointX(List<EntityPlayerMP> playerMPS) {
++		int team1P = 0;
++		int team2P = 0;
++
++		for(EntityPlayerMP playerMP : playerMPS) {
++			if(playerMP.team == 1) {
++				team1P++;
++			} else if(playerMP.team == 2) {
++				team2P++;
++			}
++		}
++
++		int myTeamCount = (this.team == 1) ? team1P : team2P;
++		int enemyTeamCount = (this.team == 1) ? team2P : team1P;
++
++		if(myTeamCount < enemyTeamCount) {
++			this.point += 2;
++		} else {
++			this.point += 1;
++		}
++		this.dataWatcher.updateObject(18, this.point);
++		this.tickPoints = 0;
++	}
++	public void teamMemberX(List<EntityPlayerMP> playerMPS) {
++		StringBuilder team1 = new StringBuilder();
++		StringBuilder team2 = new StringBuilder();
++		for(EntityPlayerMP playerMP : playerMPS) {
++			if(playerMP.team == 1) {
++				team1.append(playerMP.username).append(", ");
++			} else if(playerMP.team == 2) {
++				team2.append(playerMP.username).append(", ");
++			}
++		}
++		this.teamMember1 = team1.toString();
++		this.teamMember2 = team2.toString();
++		this.dataWatcher.updateObject(19, this.teamMember1);
++		this.dataWatcher.updateObject(20, this.teamMember2);
++	}
++
  	public void onUpdate() {
 +
 +		if(this.worldObj.worldInfo.getGameStart()) {
 +			this.dataWatcher.updateObject(17, this.team);
 +			this.tickPoints++;
 +			if(this.tickPoints > 40) {
-+				this.point++;
-+				this.dataWatcher.updateObject(18, this.point);
-+				this.tickPoints = 0;
-+				StringBuilder team1 = new StringBuilder();
-+				StringBuilder team2 = new StringBuilder();
 +				List<EntityPlayerMP> playerMPS = this.worldObj.playerEntities;
-+				for(EntityPlayerMP playerMP : playerMPS) {
-+					if(playerMP.team == 1) {
-+						team1.append(playerMP.username).append(", ");
-+					} else if(playerMP.team == 2) {
-+						team2.append(playerMP.username).append(", ");
-+					}
-+				}
-+				this.teamMember1 = team1.toString();
-+				this.teamMember2 = team2.toString();
-+				this.dataWatcher.updateObject(19, this.teamMember1);
-+				this.dataWatcher.updateObject(20, this.teamMember2);
++				this.pointX(playerMPS);
++				this.teamMemberX(playerMPS);
 +			}
 +			if(this.point >= 100) {
 +				this.point = 100;
@@ -1254,7 +1291,7 @@
  		this.itemInWorldManager.func_328_a();
  		--this.ticksOfInvuln;
  		this.currentCraftingInventory.updateCraftingMatrix();
-@@ -242,11 +298,6 @@
+@@ -242,11 +320,6 @@
  	}
  
  	public void wakeUpPlayer(boolean var1, boolean var2, boolean var3) {
@@ -1482,7 +1519,7 @@
  		var1.start();
  		ConsoleLogManager.init();
 -		logger.info("Starting minecraft server version Beta 1.6.6");
-+		logger.info("Starting minecraft server version VS Creepy Created by Yon4800 pr1");
++		logger.info("Starting minecraft server version VS Creepy Created by Yon4800 pr2");
  		if(Runtime.getRuntime().maxMemory() / 1024L / 1024L < 512L) {
  			logger.warning("**** NOT ENOUGH RAM!");
  			logger.warning("To start the server with more ram, launch it as \"java -Xmx1024M -Xms1024M -jar minecraft_server.jar\"");
