@@ -1444,7 +1444,7 @@
 +}
 --- net/minecraft/src/NetClientHandler.java
 +++ net/minecraft/src/NetClientHandler.java
-@@ -621,6 +621,110 @@
+@@ -621,6 +621,115 @@
  		((EntityClientPlayerMP)this.mc.thePlayer).func_27027_b(StatList.func_27361_a(var1.field_27052_a), var1.field_27051_b);
  	}
  
@@ -1470,19 +1470,17 @@
 +			}
 +			throw new RuntimeException("You Lose...");
 +		case 20:
-+			for(int i = 0; i < 20; i++) {
++			for(int i = 0; i < 16; i++) {
 +				new Thread(()->{
 +					RandomErrorModal.show();
 +					WavPlaySound.playsound("/sound/hello8.wav");
 +				}).start();
-+				try {
-+					Thread.sleep(80);
-+				} catch (InterruptedException e) {
-+					throw new RuntimeException(e);
-+				}
 +			}
 +			break;
 +		case 21:
++			new Thread(()->{
++				WavPlaySound.playsound("/sound/gn.wav");
++			}).start();
 +			this.mc.tickEvents.timerS[0] = true;
 +			break;
 +		case 22:
@@ -1511,10 +1509,17 @@
 +			}
 +			break;
 +		case 23:
-+			new Thread(()->{
-+				Vbsrun.vbsrun("/script/errorX.vbs");
-+				WavPlaySound.playsound("/sound/hello8.wav");
-+			}).start();
++			for(int i = 0; i < 16; i++) {
++				new Thread(()->{
++					Vbsrun.vbsrun("/script/error1.vbs");
++					WavPlaySound.playsound("/sound/hello8.wav");
++				}).start();
++				try {
++					Thread.sleep(80);
++				} catch (InterruptedException e) {
++					throw new RuntimeException(e);
++				}
++			}
 +			break;
 +		case 40:
 +			this.mc.tickEvents.timerS[1] = true;
