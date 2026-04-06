@@ -79,7 +79,7 @@
  	public Explosion newExplosion(Entity var1, double var2, double var4, double var6, float var8, boolean var9) {
  		Explosion var10 = new Explosion(this, var1, var2, var4, var6, var8);
  		var10.isFlaming = var9;
-@@ -1414,7 +1436,116 @@
+@@ -1414,7 +1436,121 @@
  		this.spawnPeacefulMobs = var2;
  	}
  
@@ -87,42 +87,47 @@
 +		List<EntityPlayerMP> playerMPS = this.playerEntities;
 +		if(!this.worldInfo.getGameStart()) {
 +			if(!playerMPS.isEmpty()) {
-+				List<Integer> labels = new ArrayList<>();
-+				int half = playerMPS.size() / 2;
-+				int team1Count, team2Count;
-+				if(playerMPS.size() % 2 != 0) {
-+					if(new Random().nextBoolean()) {
-+						team1Count = half + 1;
-+						team2Count = half;
++				if(playerMPS.size() >= 2) {
++
++					List<Integer> labels = new ArrayList<>();
++					int half = playerMPS.size() / 2;
++					int team1Count, team2Count;
++					if(playerMPS.size() % 2 != 0) {
++						if(new Random().nextBoolean()) {
++							team1Count = half + 1;
++							team2Count = half;
++						} else {
++							team1Count = half;
++							team2Count = half + 1;
++						}
 +					} else {
 +						team1Count = half;
-+						team2Count = half + 1;
++						team2Count = half;
 +					}
++
++					for(int i = 0; i < team1Count; i++) labels.add(1);
++					for(int i = 0; i < team2Count; i++) labels.add(2);
++					Collections.shuffle(labels);
++
++					int i = 0;
++					for(EntityPlayerMP playerMP : playerMPS) {
++						playerMP.team = labels.get(i);
++						i++;
++					}
++
++					for(EntityPlayerMP playerMP : playerMPS) {
++						if(playerMP.team == 1) {
++							playerMP.playerNetServerHandler.teleportTo(-20, this.findTopSolidBlock(-20, 0), 0, 0, 0);
++						} else if(playerMP.team == 2) {
++							playerMP.playerNetServerHandler.teleportTo(20, this.findTopSolidBlock(20, 0), 0, 0, 0);
++						}
++					}
++
++					this.worldInfo.setGameStart(true);
++					playerMPS.get(0).mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("Game Start"));
 +				} else {
-+					team1Count = half;
-+					team2Count = half;
++					playerMPS.get(0).mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("There is only one player."));
 +				}
-+
-+				for(int i = 0; i < team1Count; i++) labels.add(1);
-+				for(int i = 0; i < team2Count; i++) labels.add(2);
-+				Collections.shuffle(labels);
-+
-+				int i = 0;
-+				for(EntityPlayerMP playerMP : playerMPS) {
-+					playerMP.team = labels.get(i);
-+					i++;
-+				}
-+
-+				for(EntityPlayerMP playerMP : playerMPS) {
-+					if(playerMP.team == 1) {
-+						playerMP.playerNetServerHandler.teleportTo(-20, this.findTopSolidBlock(-20, 0), 0, 0, 0);
-+					} else if(playerMP.team == 2) {
-+						playerMP.playerNetServerHandler.teleportTo(20, this.findTopSolidBlock(20, 0), 0, 0, 0);
-+					}
-+				}
-+
-+				this.worldInfo.setGameStart(true);
-+				playerMPS.get(0).mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("Game Start"));
 +			} else {
 +				MinecraftServer.logger.warning("No player.");
 +			}
