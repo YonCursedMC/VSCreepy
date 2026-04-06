@@ -471,15 +471,17 @@
  		}
  
  		if(var1.id == 4) {
-@@ -118,7 +118,7 @@
+@@ -118,8 +118,8 @@
  		GL11.glScalef(var8, var8, var8);
  		this.drawCenteredString(this.fontRenderer, this.splashText, 0, -8, 16776960);
  		GL11.glPopMatrix();
 -		this.drawString(this.fontRenderer, "Minecraft Beta 1.6.6", 2, 2, 5263440);
-+		this.drawString(this.fontRenderer, "Minecraft VS Creepy Create by Yon4800", 2, 2, 5263440);
- 		String var9 = "Copyright Mojang AB. Do not distribute.";
+-		String var9 = "Copyright Mojang AB. Do not distribute.";
++		this.drawString(this.fontRenderer, "Minecraft VS Creepy Create by Yon4800 pr1", 2, 2, 5263440);
++		String var9 = "This is not an official Mojang build. Copyright Mojang AB. Do not distribute.";
  		this.drawString(this.fontRenderer, var9, this.width - this.fontRenderer.getStringWidth(var9) - 2, this.height - 10, 16777215);
  		super.drawScreen(var1, var2, var3);
+ 	}
 --- net/minecraft/src/RenderManager.java
 +++ net/minecraft/src/RenderManager.java
 @@ -52,6 +52,15 @@
@@ -733,7 +735,7 @@
 -			var8.drawStringWithShadow(this.mc.func_6262_n(), 2, 22, 16777215);
 -			var8.drawStringWithShadow(this.mc.func_6245_o(), 2, 32, 16777215);
 -			var8.drawStringWithShadow(this.mc.func_21002_o(), 2, 42, 16777215);
-+			var8.drawStringWithShadow("Minecraft VS Creepy (" + this.mc.debug + ")", 2, 2, 16777215);
++			var8.drawStringWithShadow("Minecraft VS Creepy pr1 (" + this.mc.debug + ")", 2, 2, 16777215);
 +			var8.drawStringWithShadow("Your Team: " + this.mc.thePlayer.team, 2, 12, 16777215);
 +			var8.drawStringWithShadow("Point: " + this.mc.thePlayer.point, 2, 22, 16777215);
 +			var8.drawStringWithShadow("team1: " + this.mc.thePlayer.teamMember1, 2, 32, 16777215);
@@ -757,7 +759,7 @@
 +			this.drawString(var8, "z: " + this.mc.thePlayer.posZ, 2, 110, 14737632);
  			GL11.glPopMatrix();
 +		} else {
-+			var8.drawStringWithShadow("Minecraft VS Creepy", 2, 2, 16777215);
++			var8.drawStringWithShadow("Minecraft VS Creepy pr1", 2, 2, 16777215);
 +			var8.drawStringWithShadow("Your Team: " + this.mc.thePlayer.team, 2, 12, 16777215);
 +			var8.drawStringWithShadow("Point: " + this.mc.thePlayer.point, 2, 22, 16777215);
 +			var8.drawStringWithShadow("team1: " + this.mc.thePlayer.teamMember1, 2, 32, 16777215);
@@ -1121,7 +1123,7 @@
  			var5 = var5 + "Generated " + (new SimpleDateFormat()).format(new Date()) + "\n";
  			var5 = var5 + "\n";
 -			var5 = var5 + "Minecraft: Minecraft Beta 1.6.6\n";
-+			var5 = var5 + "Minecraft: Minecraft VS Creepy Create by Yon4800\n";
++			var5 = var5 + "Minecraft: Minecraft VS Creepy Create by Yon4800 pr1\n";
  			var5 = var5 + "OS: " + System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ") version " + System.getProperty("os.version") + "\n";
  			var5 = var5 + "Java: " + System.getProperty("java.version") + ", " + System.getProperty("java.vendor") + "\n";
  			var5 = var5 + "VM: " + System.getProperty("java.vm.name") + " (" + System.getProperty("java.vm.info") + "), " + System.getProperty("java.vm.vendor") + "\n";
@@ -1272,7 +1274,7 @@
  		}
  
 -		Display.setTitle("Minecraft Minecraft Beta 1.6.6");
-+		Display.setTitle("Minecraft Minecraft VS Creepy Create by Yon4800");
++		Display.setTitle("Minecraft Minecraft VS Creepy Create by Yon4800 pr1");
  
  		try {
  			Display.create();
@@ -1326,7 +1328,7 @@
  			RenderHelper.disableStandardItemLighting();
  			this.updateAchievementWindowScale();
 -			String var1 = "Minecraft Beta 1.6.6   Unlicensed Copy :(";
-+			String var1 = "Minecraft VS Creepy Create by Yon4800   Unlicensed Copy :(";
++			String var1 = "Minecraft VS Creepy Create by Yon4800 pr1   Unlicensed Copy :(";
  			String var2 = "(Or logged in from another location)";
  			String var3 = "Purchase at minecraft.net";
  			this.theGame.fontRenderer.drawStringWithShadow(var1, 2, 2, 16777215);
