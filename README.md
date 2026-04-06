@@ -51,7 +51,7 @@ mob討伐+5
 * 怪奇現象はランダムに起きます。何が起こるかはお楽しみです。
 * 時間は1000固定です。その代わり、ベットを右クリックすることによりリスポーン地点を固定できます。
 * クライアントをクラッシュさせる怪奇現象はありません。(最後を除く)
-* ```/stopgame```コマンドを打つとゲームを中断することができます。(誰でもできてしまうので、非常時以外は使わないようにしましょう。)
+* OPが、```/stopgame```コマンドを打つとゲームを中断することができます。
 
 <details>
 <summary>怪奇現象の種類(ネタバレ注意)</summary>
@@ -167,7 +167,7 @@ You can also earn points like this:
 * Events occur randomly—you won’t know what happens!
 * Time is fixed at 1000. Alternatively, you can fix your respawn point by right-clicking on the bed.
 * No events will crash the client (except the final one).
-* You can interrupt the game by entering the `/stopgame` command. (Since anyone can do it, please refrain from using it except in emergencies.)
+* OP can interrupt the game by entering the `/stopgame` command.
 
 ---
 
