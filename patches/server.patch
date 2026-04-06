@@ -40,7 +40,7 @@
  		this.worldChunkLoadOverride = false;
  	}
  
-@@ -718,6 +715,27 @@
+@@ -718,6 +715,29 @@
  				EntityPlayer var5 = (EntityPlayer)var1;
  				this.playerEntities.add(var5);
  				this.updateAllPlayersSleepingFlag();
@@ -64,11 +64,13 @@
 +					} else {
 +						var5.team = new Random().nextInt(2) + 1;
 +					}
++				} else {
++					var5.team = 0;
 +				}
  			}
  
  			this.getChunkFromChunkCoords(var2, var3).addEntity(var1);
-@@ -1230,6 +1248,10 @@
+@@ -1230,6 +1250,10 @@
  		return this.newExplosion(var1, var2, var4, var6, var8, false);
  	}
  
@@ -79,7 +81,7 @@
  	public Explosion newExplosion(Entity var1, double var2, double var4, double var6, float var8, boolean var9) {
  		Explosion var10 = new Explosion(this, var1, var2, var4, var6, var8);
  		var10.isFlaming = var9;
-@@ -1414,7 +1436,125 @@
+@@ -1414,7 +1438,125 @@
  		this.spawnPeacefulMobs = var2;
  	}
  
@@ -153,7 +155,7 @@
  	public void tick() {
 +		List<EntityPlayerMP> playerMPS = this.playerEntities;
 +		if(this.worldInfo.getGameStart()) {
-+			if(playerMPS.isEmpty()){
++			if(playerMPS.isEmpty()) {
 +				this.stopGame();
 +				MinecraftServer.logger.warning("The game has ended because there are no people.");
 +			}
