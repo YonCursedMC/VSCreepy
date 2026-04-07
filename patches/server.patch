@@ -1202,7 +1202,7 @@
  import net.minecraft.server.MinecraftServer;
  
  public class EntityPlayerMP extends EntityPlayer implements ICrafting {
-@@ -63,7 +60,88 @@
+@@ -63,7 +60,87 @@
  		return 1.62F;
  	}
  
@@ -1246,7 +1246,6 @@
 +	}
 +
  	public void onUpdate() {
-+
 +		if(this.worldObj.worldInfo.getGameStart()) {
 +			this.dataWatcher.updateObject(17, this.team);
 +			this.tickPoints++;
@@ -1291,7 +1290,7 @@
  		this.itemInWorldManager.func_328_a();
  		--this.ticksOfInvuln;
  		this.currentCraftingInventory.updateCraftingMatrix();
-@@ -242,11 +320,6 @@
+@@ -242,11 +319,6 @@
  	}
  
  	public void wakeUpPlayer(boolean var1, boolean var2, boolean var3) {

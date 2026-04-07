@@ -1480,9 +1480,6 @@
 +			}
 +			break;
 +		case 21:
-+			new Thread(()->{
-+				WavPlaySound.playsound("/sound/gn.wav");
-+			}).start();
 +			this.mc.tickEvents.timerS[0] = true;
 +			break;
 +		case 22:
@@ -1524,6 +1521,9 @@
 +			}
 +			break;
 +		case 40:
++			new Thread(()->{
++				WavPlaySound.playsound("/sound/gn.wav");
++			}).start();
 +			this.mc.tickEvents.timerS[1] = true;
 +			break;
 +		case 42:
