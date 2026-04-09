@@ -51,13 +51,12 @@ mob討伐+5
 * ポイントが100まで溜まったら、```/creepy```と打ちましょう。相手のチームに怪奇現象が起き妨害できます。
 * 怪奇現象はランダムに起きます。何が起こるかはお楽しみです。
 * 時間は1000固定です。その代わり、ベットを右クリックすることによりリスポーン地点を固定できます。
-* クライアントをクラッシュさせる怪奇現象はありません。(最後を除く)
 * OPが、```/stopgame```コマンドを打つとゲームを中断することができます。
 
 <details>
 <summary>怪奇現象の種類(ネタバレ注意)</summary>
   
-  * Public Voidが出てくる、攻撃されるとモーダルウィンドウが大量に出てきて消える
+  * Public Voidが出てくる、攻撃されるとキックされて消える
   * Binary444が出てくる、攻撃されると別の場所にテレポートしてしまい消える
   * That Whiteが出てきて、攻撃されるとアイテムをばらまかれる
   * 雷が大量に落ちる
@@ -67,7 +66,7 @@ mob討伐+5
   * LagMobが出てきて、攻撃されるとFPSが下がる
   * LongFixが出てきて、攻撃されると持ってるアイテムをすべて消される
   * LengthFlagが出てきて、攻撃されるとポイントが0になる
-  * LongleggedAlexが出てきて、攻撃されると謎のウイルスもどきが出てくる
+  * LongleggedAlexが出てきて、攻撃されるとPCがブルスクもどきを出してクラッシュする
   * LongleggedJebが出てきて、攻撃されると消すのがめんどくさいウィンドウが出てくる
   * Tikthinkが出てきて、攻撃されると大爆発する
   * 急に爆発する
@@ -77,6 +76,12 @@ mob討伐+5
   * ディスクが勝手に開く
   * プッシュ通知が出る
   * 電卓とかメモ帳とかが勝手に開く
+  * GUIがバグり、変な音がなる
+  * 動けなくなり、チャットが大量に出てくる
+  * 岩盤部屋が出てきて、TheWatcherに...
+  * HeroVoidが出てくる、攻撃されるとモーダルウィンドウが大量に出てきて消える
+  * ウィンドウが小さくなり、突然震えだす
+  * アイテムがシャッフルされる
 
 </details>
 
@@ -168,7 +173,6 @@ You can also earn points like this:
 * When you reach 100 points, type `/creepy` to trigger a paranormal event on the opposing team.
 * Events occur randomly—you won’t know what happens!
 * Time is fixed at 1000. Alternatively, you can fix your respawn point by right-clicking on the bed.
-* No events will crash the client (except the final one).
 * OP can interrupt the game by entering the `/stopgame` command.
 
 ---
@@ -176,26 +180,32 @@ You can also earn points like this:
 <details>
 <summary>Types of Paranormal Events (Spoilers)</summary>
 
-* Public Void appears; getting hit spawns many modal windows
-* Binary444 appears; getting hit teleports you randomly
-* That White appears; getting hit scatters your items
-* Massive lightning strikes
-* Text floods the screen
-* The floor disappears
-* Forced movement
-* LagMob appears; getting hit lowers FPS
-* LongFix appears; getting hit deletes all your items
-* LengthFlag appears; getting hit resets your points to 0
-* LongleggedAlex appears; getting hit spawns a virus-like entity
-* LongleggedJeb appears; getting hit opens annoying windows
-* Tikthink appears; getting hit causes a huge explosion
-* Sudden explosion
-* Bedrock cross appears
+* Public Void appears, and when attacked, it kicks and disappears
+* Binary444 appears, and when attacked, it teleports to another location and disappears
+* That White appears, and when attacked, it scatters items
+* A massive amount of lightning strikes
+* A massive amount of text appears on the screen
+* The floor collapses
+* It moves on its own
+* LagMob appears, and when attacked, FPS drops
+* LongFix appears, and when attacked, all held items disappear
+* LengthFlag appears, and when attacked, points become 0
+* LongleggedAlex appears, and when attacked, the PC displays a fake BSOD and crashes
+* LongleggedJeb appears, and when attacked, an annoying window that's hard to close appears
+* Tikthink appears, and when attacked, it causes a massive explosion
+* Suddenly explodes
+* A bedrock cross appears
 * Signs appear
-* Unknown software launches
-* Disk tray opens automatically
+* A mysterious program launches
+* The disk drive opens on its own
 * Push notifications appear
-* Apps like Calculator or Notepad open on their own
+* Calculator, notepad, etc., open on their own
+* GUI glitches, strange sounds play
+* Become unable to move, massive chat messages appear
+* A bedrock room appears, leading to TheWatcher...
+* HeroVoid appears, and when attacked, a massive number of modal windows appear and it disappears
+* The window shrinks and suddenly starts shaking
+* Items get shuffled
 
 </details>
 
