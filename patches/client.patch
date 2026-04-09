@@ -335,6 +335,159 @@
 +	}
 +}
 --- /dev/null
++++ net/minecraft/src/EntityCreepyLong2.java
+@@ -1,0 +1,150 @@
++package net.minecraft.src;
++
++public class EntityCreepyLong2 extends EntityCreepy implements IMob {
++	protected int attackStrength = 2;
++	private PathEntity pathToEntity;
++
++	public EntityCreepyLong2(World var1) {
++		super(var1);
++	}
++
++	public void onUpdate() {
++		super.onUpdate();
++		EntityPlayer player = this.worldObj.getClosestPlayerToEntity(this, 70.0F);
++		if(player != null) {
++			if(this.getDistanceToEntity(player) <= 36) {
++				super.onUpdate();
++			}
++		}
++	}
++
++	protected void updatePlayerActionState() {
++		this.hasAttacked = this.isMovementCeased();
++		float var1 = 64.0F;
++		if(this.playerToAttack == null) {
++			this.playerToAttack = this.findPlayerToAttack();
++			if(this.playerToAttack != null) {
++				this.pathToEntity = this.worldObj.getPathToEntity(this, this.playerToAttack, var1);
++			}
++		} else if(!this.playerToAttack.isEntityAlive()) {
++			this.playerToAttack = null;
++		} else {
++			float var2 = this.playerToAttack.getDistanceToEntity(this);
++			if(this.canEntityBeSeen(this.playerToAttack)) {
++				this.attackEntity(this.playerToAttack, var2);
++			} else {
++				this.attackBlockedEntity(this.playerToAttack, var2);
++			}
++		}
++
++		if(this.hasAttacked || this.playerToAttack == null || this.pathToEntity != null && this.rand.nextInt(20) != 0) {
++			if(!this.hasAttacked && (this.pathToEntity == null && this.rand.nextInt(80) == 0 || this.rand.nextInt(80) == 0)) {
++				boolean var21 = false;
++				int var3 = -1;
++				int var4 = -1;
++				int var5 = -1;
++				float var6 = -99999.0F;
++
++				for(int var7 = 0; var7 < 10; ++var7) {
++					int var8 = MathHelper.floor_double(this.posX + (double)this.rand.nextInt(13) - 6.0D);
++					int var9 = MathHelper.floor_double(this.posY + (double)this.rand.nextInt(7) - 3.0D);
++					int var10 = MathHelper.floor_double(this.posZ + (double)this.rand.nextInt(13) - 6.0D);
++					float var11 = this.getBlockPathWeight(var8, var9, var10);
++					if(var11 > var6) {
++						var6 = var11;
++						var3 = var8;
++						var4 = var9;
++						var5 = var10;
++						var21 = true;
++					}
++				}
++
++				if(var21) {
++					this.pathToEntity = this.worldObj.getEntityPathToXYZ(this, var3, var4, var5, 10.0F);
++				}
++			}
++		} else {
++			this.pathToEntity = this.worldObj.getPathToEntity(this, this.playerToAttack, var1);
++		}
++
++		int var22 = MathHelper.floor_double(this.boundingBox.minY + 0.5D);
++		boolean var23 = this.isInWater();
++		boolean var24 = this.handleLavaMovement();
++		this.rotationPitch = 0.0F;
++		if(this.pathToEntity != null && this.rand.nextInt(100) != 0) {
++			Vec3D var25 = this.pathToEntity.getPosition(this);
++			double var26 = (double)(this.width * 2.0F);
++
++			while(var25 != null && var25.squareDistanceTo(this.posX, var25.yCoord, this.posZ) < var26 * var26) {
++				this.pathToEntity.incrementPathIndex();
++				if(this.pathToEntity.isFinished()) {
++					var25 = null;
++					this.pathToEntity = null;
++				} else {
++					var25 = this.pathToEntity.getPosition(this);
++				}
++			}
++
++			this.isJumping = false;
++			if(var25 != null) {
++				double var27 = var25.xCoord - this.posX;
++				double var28 = var25.zCoord - this.posZ;
++				double var12 = var25.yCoord - (double)var22;
++				float var14 = (float)(Math.atan2(var28, var27) * 180.0D / (double)((float)Math.PI)) - 90.0F;
++				float var15 = var14 - this.rotationYaw;
++
++				for(this.moveForward = this.moveSpeed; var15 < -180.0F; var15 += 360.0F) {
++				}
++
++				while(var15 >= 180.0F) {
++					var15 -= 360.0F;
++				}
++
++				if(var15 > 30.0F) {
++					var15 = 30.0F;
++				}
++
++				if(var15 < -30.0F) {
++					var15 = -30.0F;
++				}
++
++				this.rotationYaw += var15;
++				if(this.hasAttacked && this.playerToAttack != null) {
++					double var16 = this.playerToAttack.posX - this.posX;
++					double var18 = this.playerToAttack.posZ - this.posZ;
++					float var20 = this.rotationYaw;
++					this.rotationYaw = (float)(Math.atan2(var18, var16) * 180.0D / (double)((float)Math.PI)) - 90.0F;
++					var15 = (var20 - this.rotationYaw + 90.0F) * (float)Math.PI / 180.0F;
++					this.moveStrafing = -MathHelper.sin(var15) * this.moveForward * 1.0F;
++					this.moveForward = MathHelper.cos(var15) * this.moveForward * 1.0F;
++				}
++
++				if(var12 > 0.0D) {
++					this.isJumping = true;
++				}
++			}
++
++			if(this.playerToAttack != null) {
++				this.faceEntity(this.playerToAttack, 30.0F, 30.0F);
++			}
++
++			if(this.isCollidedHorizontally && !this.hasPath()) {
++				this.isJumping = true;
++			}
++
++			if(this.rand.nextFloat() < 0.8F && (var23 || var24)) {
++				this.isJumping = true;
++			}
++
++		} else {
++			super.updatePlayerActionState();
++			this.pathToEntity = null;
++		}
++	}
++
++	protected Entity findPlayerToAttack() {
++		EntityPlayer var1 = this.worldObj.getClosestPlayerToEntity(this, 64.0D);
++		return var1 != null && this.canEntityBeSeen(var1) ? var1 : null;
++	}
++
++}
+--- /dev/null
 +++ net/minecraft/src/Vbsrun.java
 @@ -1,0 +1,30 @@
 +package net.minecraft.src;
@@ -369,12 +522,15 @@
 +}
 --- /dev/null
 +++ net/minecraft/src/ClientTickEvents.java
-@@ -1,0 +1,69 @@
+@@ -1,0 +1,85 @@
 +package net.minecraft.src;
 +
 +import net.minecraft.client.Minecraft;
++import org.lwjgl.opengl.Display;
++import org.lwjgl.opengl.DisplayMode;
 +import javax.swing.*;
 +import java.awt.*;
++import java.util.Random;
 +
 +public class ClientTickEvents {
 +	public Minecraft mc;
@@ -416,8 +572,21 @@
 +				this.timer[1] = 0;
 +			}
 +		}
++		if(this.timerS[2]) {
++			this.timer[2]++;
++			if(this.timer[2] >= 20 * 6) {
++				this.timerS[2] = false;
++				this.timer[2] = 0;
++			}
++		}
 +		if(this.timerS[3]) {
 +			this.timer[3]++;
++			int width = Display.getWidth();
++			int height = Display.getHeight();
++			DisplayMode dm = Display.getDesktopDisplayMode();
++			int centerX = (dm.getWidth() - width) / 2;
++			int centerY = (dm.getHeight() - height) / 2;
++			Display.setLocation(centerX + new Random().nextInt(40) - 20, centerY + new Random().nextInt(40) - 20);
 +			if(this.timer[3] >= 10) {
 +				this.timerS[3] = false;
 +				this.timer[3] = 0;
@@ -477,14 +646,14 @@
  		GL11.glPopMatrix();
 -		this.drawString(this.fontRenderer, "Minecraft Beta 1.6.6", 2, 2, 5263440);
 -		String var9 = "Copyright Mojang AB. Do not distribute.";
-+		this.drawString(this.fontRenderer, "Minecraft VS Creepy Create by Yon4800 pr2", 2, 2, 5263440);
++		this.drawString(this.fontRenderer, "Minecraft VS Creepy Create by Yon4800 rt0", 2, 2, 5263440);
 +		String var9 = "This is not an official Mojang build. Copyright Mojang AB. Do not distribute.";
  		this.drawString(this.fontRenderer, var9, this.width - this.fontRenderer.getStringWidth(var9) - 2, this.height - 10, 16777215);
  		super.drawScreen(var1, var2, var3);
  	}
 --- net/minecraft/src/RenderManager.java
 +++ net/minecraft/src/RenderManager.java
-@@ -52,6 +52,15 @@
+@@ -52,6 +52,17 @@
  		this.entityRenderMap.put(EntityBoat.class, new RenderBoat());
  		this.entityRenderMap.put(EntityFish.class, new RenderFish());
  		this.entityRenderMap.put(EntityLightningBolt.class, new RenderLightningBolt());
@@ -497,6 +666,8 @@
 +		this.entityRenderMap.put(EntityLongLeggedAlex.class, new RenderJeb(new ModelGreatJeb(), 0.5F));
 +		this.entityRenderMap.put(EntityLongLeggedJeb.class, new RenderJeb(new ModelGreatJeb(), 0.5F));
 +		this.entityRenderMap.put(EntityTikThink.class, new RenderTTK(new ModelTikThink(), 0.5F));
++		this.entityRenderMap.put(EntityTheWatcher.class, new RenderLongFix(new ModelLongFix(), 0.5F));
++		this.entityRenderMap.put(EntityHeroVoid.class, new RenderBiped(new ModelBiped(), 0.5F));
  		Iterator var1 = this.entityRenderMap.values().iterator();
  
  		while(var1.hasNext()) {
@@ -708,6 +879,27 @@
 +        }
 +    }
 +}
+--- /dev/null
++++ net/minecraft/src/EntityTheWatcher.java
+@@ -1,0 +1,18 @@
++package net.minecraft.src;
++
++public class EntityTheWatcher extends EntityCreepyLong2 {
++	public EntityTheWatcher(World var1) {
++		super(var1);
++		this.texture = "/mob/the_watcher.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public boolean attackEntityFrom(Entity var1, int var2) {
++		return false;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
 --- net/minecraft/src/GuiIngame.java
 +++ net/minecraft/src/GuiIngame.java
 @@ -5,6 +5,7 @@
@@ -726,7 +918,75 @@
  
  	public GuiIngame(Minecraft var1) {
  		this.mc = var1;
-@@ -170,11 +172,15 @@
+@@ -68,6 +70,7 @@
+ 		int var15;
+ 		int var16;
+ 		int var17;
++		RIC ric = new RIC(60, 30);
+ 		if(this.mc.playerController.shouldDrawHUD()) {
+ 			var15 = this.mc.thePlayer.getPlayerArmorValue();
+ 
+@@ -77,15 +80,15 @@
+ 				if(var15 > 0) {
+ 					var18 = var6 / 2 + 91 - var16 * 8 - 9;
+ 					if(var16 * 2 + 1 < var15) {
+-						this.drawTexturedModalRect(var18, var17, 34, 9, 9, 9);
++						this.drawTexturedModalRect(var18 + ric.rand(this.mc.tickEvents.timerS[2]), var17, 34 + ric.rand(this.mc.tickEvents.timerS[2]), 9, 9 + ric.rand(this.mc.tickEvents.timerS[2]), 9);
+ 					}
+ 
+ 					if(var16 * 2 + 1 == var15) {
+-						this.drawTexturedModalRect(var18, var17, 25, 9, 9, 9);
++						this.drawTexturedModalRect(var18 + ric.rand(this.mc.tickEvents.timerS[2]), var17, 25 + ric.rand(this.mc.tickEvents.timerS[2]), 9, 9 + ric.rand(this.mc.tickEvents.timerS[2]), 9);
+ 					}
+ 
+ 					if(var16 * 2 + 1 > var15) {
+-						this.drawTexturedModalRect(var18, var17, 16, 9, 9, 9);
++						this.drawTexturedModalRect(var18 + ric.rand(this.mc.tickEvents.timerS[2]), var17, 16 + ric.rand(this.mc.tickEvents.timerS[2]), 9, 9 + ric.rand(this.mc.tickEvents.timerS[2]), 9);
+ 					}
+ 				}
+ 
+@@ -99,23 +102,23 @@
+ 					var17 += this.rand.nextInt(2);
+ 				}
+ 
+-				this.drawTexturedModalRect(var19, var17, 16 + var28 * 9, 0, 9, 9);
++				this.drawTexturedModalRect(var19 + ric.rand(this.mc.tickEvents.timerS[2]), var17, 16 + var28 *  + ric.rand(this.mc.tickEvents.timerS[2]), 0, 9 + ric.rand(this.mc.tickEvents.timerS[2]), 9);
+ 				if(var12) {
+ 					if(var16 * 2 + 1 < var14) {
+-						this.drawTexturedModalRect(var19, var17, 70, 0, 9, 9);
++						this.drawTexturedModalRect(var19 + ric.rand(this.mc.tickEvents.timerS[2]), var17, 70 + ric.rand(this.mc.tickEvents.timerS[2]), 0, 9 + ric.rand(this.mc.tickEvents.timerS[2]), 9);
+ 					}
+ 
+ 					if(var16 * 2 + 1 == var14) {
+-						this.drawTexturedModalRect(var19, var17, 79, 0, 9, 9);
++						this.drawTexturedModalRect(var19 + ric.rand(this.mc.tickEvents.timerS[2]), var17, 79 + ric.rand(this.mc.tickEvents.timerS[2]), 0, 9 + ric.rand(this.mc.tickEvents.timerS[2]), 9);
+ 					}
+ 				}
+ 
+ 				if(var16 * 2 + 1 < var13) {
+-					this.drawTexturedModalRect(var19, var17, 52, 0, 9, 9);
++					this.drawTexturedModalRect(var19 + ric.rand(this.mc.tickEvents.timerS[2]), var17, 52 + ric.rand(this.mc.tickEvents.timerS[2]), 0, 9 + ric.rand(this.mc.tickEvents.timerS[2]), 9);
+ 				}
+ 
+ 				if(var16 * 2 + 1 == var13) {
+-					this.drawTexturedModalRect(var19, var17, 61, 0, 9, 9);
++					this.drawTexturedModalRect(var19 + ric.rand(this.mc.tickEvents.timerS[2]), var17, 61 + ric.rand(this.mc.tickEvents.timerS[2]), 0, 9 + ric.rand(this.mc.tickEvents.timerS[2]), 9);
+ 				}
+ 			}
+ 
+@@ -125,9 +128,9 @@
+ 
+ 				for(var18 = 0; var18 < var16 + var17; ++var18) {
+ 					if(var18 < var16) {
+-						this.drawTexturedModalRect(var6 / 2 - 91 + var18 * 8, var7 - 32 - 9, 16, 18, 9, 9);
++						this.drawTexturedModalRect(var6 / 2 - 91 + var18 * 8 + ric.rand(this.mc.tickEvents.timerS[2]), var7 - 32 - 9, 16 + ric.rand(this.mc.tickEvents.timerS[2]), 18, 9 + ric.rand(this.mc.tickEvents.timerS[2]), 9);
+ 					} else {
+-						this.drawTexturedModalRect(var6 / 2 - 91 + var18 * 8, var7 - 32 - 9, 25, 18, 9, 9);
++						this.drawTexturedModalRect(var6 / 2 - 91 + var18 * 8 + ric.rand(this.mc.tickEvents.timerS[2]), var7 - 32 - 9, 25 + ric.rand(this.mc.tickEvents.timerS[2]), 18, 9 + ric.rand(this.mc.tickEvents.timerS[2]), 9);
+ 					}
+ 				}
+ 			}
+@@ -170,11 +173,15 @@
  				GL11.glTranslatef(0.0F, 32.0F, 0.0F);
  			}
  
@@ -735,7 +995,7 @@
 -			var8.drawStringWithShadow(this.mc.func_6262_n(), 2, 22, 16777215);
 -			var8.drawStringWithShadow(this.mc.func_6245_o(), 2, 32, 16777215);
 -			var8.drawStringWithShadow(this.mc.func_21002_o(), 2, 42, 16777215);
-+			var8.drawStringWithShadow("Minecraft VS Creepy pr2 (" + this.mc.debug + ")", 2, 2, 16777215);
++			var8.drawStringWithShadow("Minecraft VS Creepy rt0 (" + this.mc.debug + ")", 2, 2, 16777215);
 +			var8.drawStringWithShadow("Your Team: " + this.mc.thePlayer.team, 2, 12, 16777215);
 +			var8.drawStringWithShadow("Point: " + this.mc.thePlayer.point, 2, 22, 16777215);
 +			var8.drawStringWithShadow("team1: " + this.mc.thePlayer.teamMember1, 2, 32, 16777215);
@@ -747,7 +1007,7 @@
  			long var24 = Runtime.getRuntime().maxMemory();
  			long var29 = Runtime.getRuntime().totalMemory();
  			long var30 = Runtime.getRuntime().freeMemory();
-@@ -183,10 +189,16 @@
+@@ -183,10 +190,16 @@
  			this.drawString(var8, var23, var6 - var8.getStringWidth(var23) - 2, 2, 14737632);
  			var23 = "Allocated memory: " + var29 * 100L / var24 + "% (" + var29 / 1024L / 1024L + "MB)";
  			this.drawString(var8, var23, var6 - var8.getStringWidth(var23) - 2, 12, 14737632);
@@ -759,7 +1019,7 @@
 +			this.drawString(var8, "z: " + this.mc.thePlayer.posZ, 2, 110, 14737632);
  			GL11.glPopMatrix();
 +		} else {
-+			var8.drawStringWithShadow("Minecraft VS Creepy pr2", 2, 2, 16777215);
++			var8.drawStringWithShadow("Minecraft VS Creepy rt0", 2, 2, 16777215);
 +			var8.drawStringWithShadow("Your Team: " + this.mc.thePlayer.team, 2, 12, 16777215);
 +			var8.drawStringWithShadow("Point: " + this.mc.thePlayer.point, 2, 22, 16777215);
 +			var8.drawStringWithShadow("team1: " + this.mc.thePlayer.teamMember1, 2, 32, 16777215);
@@ -767,7 +1027,7 @@
  		}
  
  		if(this.recordPlayingUpFor > 0) {
-@@ -258,6 +270,11 @@
+@@ -258,6 +271,11 @@
  		GL11.glPopMatrix();
  		GL11.glEnable(GL11.GL_ALPHA_TEST);
  		GL11.glDisable(GL11.GL_BLEND);
@@ -1101,7 +1361,7 @@
 +}
 --- net/minecraft/src/EntityList.java
 +++ net/minecraft/src/EntityList.java
-@@ -104,5 +104,14 @@
+@@ -104,5 +104,16 @@
  		addMapping(EntityFallingSand.class, "FallingSand", 21);
  		addMapping(EntityMinecart.class, "Minecart", 40);
  		addMapping(EntityBoat.class, "Boat", 41);
@@ -1114,6 +1374,8 @@
 +		addMapping(EntityLongLeggedAlex.class, "LongLeggedAlex", 106);
 +		addMapping(EntityLongLeggedJeb.class, "LongLeggedJeb", 107);
 +		addMapping(EntityTikThink.class, "TikThink", 108);
++		addMapping(EntityTheWatcher.class, "TheWatcher", 109);
++		addMapping(EntityHeroVoid.class, "HeroVoid", 110);
  	}
  }
 --- net/minecraft/src/PanelCrashReport.java
@@ -1123,7 +1385,7 @@
  			var5 = var5 + "Generated " + (new SimpleDateFormat()).format(new Date()) + "\n";
  			var5 = var5 + "\n";
 -			var5 = var5 + "Minecraft: Minecraft Beta 1.6.6\n";
-+			var5 = var5 + "Minecraft: Minecraft VS Creepy Create by Yon4800 pr2\n";
++			var5 = var5 + "Minecraft: Minecraft VS Creepy Create by Yon4800 rt0\n";
  			var5 = var5 + "OS: " + System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ") version " + System.getProperty("os.version") + "\n";
  			var5 = var5 + "Java: " + System.getProperty("java.version") + ", " + System.getProperty("java.vendor") + "\n";
  			var5 = var5 + "VM: " + System.getProperty("java.vm.name") + " (" + System.getProperty("java.vm.info") + "), " + System.getProperty("java.vm.vendor") + "\n";
@@ -1274,7 +1536,7 @@
  		}
  
 -		Display.setTitle("Minecraft Minecraft Beta 1.6.6");
-+		Display.setTitle("Minecraft Minecraft VS Creepy Create by Yon4800 pr2");
++		Display.setTitle("Minecraft Minecraft VS Creepy Create by Yon4800 rt0");
  
  		try {
  			Display.create();
@@ -1328,7 +1590,7 @@
  			RenderHelper.disableStandardItemLighting();
  			this.updateAchievementWindowScale();
 -			String var1 = "Minecraft Beta 1.6.6   Unlicensed Copy :(";
-+			String var1 = "Minecraft VS Creepy Create by Yon4800 pr2   Unlicensed Copy :(";
++			String var1 = "Minecraft VS Creepy Create by Yon4800 rt0   Unlicensed Copy :(";
  			String var2 = "(Or logged in from another location)";
  			String var3 = "Purchase at minecraft.net";
  			this.theGame.fontRenderer.drawStringWithShadow(var1, 2, 2, 16777215);
@@ -1444,12 +1706,184 @@
 +        }
 +    }
 +}
+--- /dev/null
++++ net/minecraft/src/BlueScreenGT.java
+@@ -1,0 +1,156 @@
++package net.minecraft.src;
++
++import javax.swing.Timer;
++import javax.swing.*;
++import java.awt.*;
++
++public class BlueScreenGT extends JFrame {
++
++	private static final Color BSOD_BLUE = new Color(0x00, 0x78, 0xD4);
++	private static final Color WHITE = Color.WHITE;
++
++	private int progressPercent = 0;
++	private Timer progressTimer;
++
++	public BlueScreenGT() {
++		initWindow();
++		startProgressAnimation();
++	}
++
++	private void initWindow() {
++		setUndecorated(true);
++		setDefaultCloseOperation(EXIT_ON_CLOSE);
++
++		GraphicsDevice gd = GraphicsEnvironment
++				.getLocalGraphicsEnvironment()
++				.getDefaultScreenDevice();
++		if(gd.isFullScreenSupported()) {
++			gd.setFullScreenWindow(this);
++		} else {
++			setExtendedState(JFrame.MAXIMIZED_BOTH);
++		}
++
++		JPanel panel = new BSODPanel();
++		panel.setBackground(BSOD_BLUE);
++		setContentPane(panel);
++
++		//KeyStroke esc = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
++		//panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(esc, "close");
++		//panel.getActionMap().put("close", new AbstractAction() {
++		//	public void actionPerformed(ActionEvent e) {dispose(); System.exit(0);}
++		//});
++
++		//panel.addMouseListener(new MouseAdapter() {
++		//	@Override
++		//	public void mouseClicked(MouseEvent e) {
++		//		dispose(); System.exit(0);
++		//	}
++		//});
++	}
++
++	private void startProgressAnimation() {
++		progressTimer = new Timer(40, e->{
++			if(progressPercent < 100) {
++				progressPercent++;
++				repaint();
++			} else {
++				((Timer)e.getSource()).stop();
++			}
++		});
++		progressTimer.start();
++	}
++
++	private class BSODPanel extends JPanel {
++
++		@Override
++		protected void paintComponent(Graphics g) {
++			super.paintComponent(g);
++			Graphics2D g2 = (Graphics2D)g;
++			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
++					RenderingHints.VALUE_ANTIALIAS_ON);
++			g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
++					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
++
++			int w = getWidth();
++			int h = getHeight();
++
++			g2.setColor(BSOD_BLUE);
++			g2.fillRect(0, 0, w, h);
++
++			int leftMargin = (int)(w * 0.13);
++			int lineSpacing = (int)(h * 0.05);
++			int currentY = (int)(h * 0.15);
++
++			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.15)));
++			g2.setColor(WHITE);
++			g2.drawString(":( ", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 1.8);
++
++			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.045)));
++			g2.drawString("Your PC ran into a problem and needs to restart.", leftMargin, currentY);
++			currentY += lineSpacing;
++			g2.drawString("We're just collecting some error info, and then we'll restart for you.", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 1.5);
++
++			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.055)));
++			g2.drawString(progressPercent + "% complete", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 1.2);
++
++			int barW = (int)(w * 0.50);
++			int barH = (int)(h * 0.012);
++			g2.setColor(new Color(0x00, 0x55, 0xA0));
++			g2.fillRoundRect(leftMargin, currentY, barW, barH, barH, barH);
++			g2.setColor(WHITE);
++			int filled = (int)(barW * progressPercent / 100.0);
++			if(filled > 0) {
++				g2.fillRoundRect(leftMargin, currentY, filled, barH, barH, barH);
++			}
++			currentY += (int)(lineSpacing * 1.8);
++
++			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.022)));
++			g2.setColor(new Color(255, 255, 255, 200));
++			g2.drawString("For more information about this issue and possible fixes, visit", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 0.65);
++			g2.setColor(WHITE);
++			g2.drawString("https://www.windows.com/stopcode", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 0.65);
++			g2.setColor(new Color(255, 255, 255, 200));
++			g2.drawString("Stop code:", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 0.65);
++			g2.setFont(new Font("Segoe UI", Font.BOLD, (int)(h * 0.025)));
++			g2.setColor(WHITE);
++			g2.drawString("CRITICAL_PROCESS_DIED", leftMargin, currentY);
++			currentY += (int)(lineSpacing * 1.2);
++
++			drawFakeQR(g2, leftMargin, currentY, (int)(h * 0.08));
++			//currentY += (int)(h * 0.08) + (int)(lineSpacing * 0.5);
++
++			g2.setFont(new Font("Segoe UI", Font.PLAIN, (int)(h * 0.018)));
++			g2.setColor(new Color(255, 255, 255, 160));
++			//g2.drawString("Press Esc or click anywhere to close this screen.", leftMargin, currentY);
++		}
++
++		private void drawFakeQR(Graphics2D g2, int x, int y, int size) {
++			int cell = size / 9;
++			int[][] pattern = {
++					{1, 1, 1, 1, 1, 1, 1, 0, 1},
++					{1, 0, 0, 0, 0, 0, 1, 0, 0},
++					{1, 0, 1, 1, 1, 0, 1, 0, 1},
++					{1, 0, 1, 1, 1, 0, 1, 0, 0},
++					{1, 0, 1, 1, 1, 0, 1, 0, 1},
++					{1, 0, 0, 0, 0, 0, 1, 0, 0},
++					{1, 1, 1, 1, 1, 1, 1, 0, 1},
++					{0, 0, 0, 0, 0, 0, 0, 0, 0},
++					{1, 0, 1, 0, 1, 1, 1, 1, 0},
++					};
++			g2.setColor(WHITE);
++			for(int row = 0; row < pattern.length; row++) {
++				for(int col = 0; col < pattern[row].length; col++) {
++					if(pattern[row][col] == 1) {
++						g2.fillRect(x + col * cell, y + row * cell, cell - 1, cell - 1);
++					}
++				}
++			}
++		}
++	}
++}
 --- net/minecraft/src/NetClientHandler.java
 +++ net/minecraft/src/NetClientHandler.java
-@@ -621,6 +621,115 @@
- 		((EntityClientPlayerMP)this.mc.thePlayer).func_27027_b(StatList.func_27361_a(var1.field_27052_a), var1.field_27051_b);
- 	}
+@@ -10,6 +10,10 @@
+ import java.util.List;
+ import java.util.Random;
+ import net.minecraft.client.Minecraft;
++import org.lwjgl.LWJGLException;
++import org.lwjgl.opengl.Display;
++import org.lwjgl.opengl.DisplayMode;
++import javax.swing.*;
  
+ public class NetClientHandler extends NetHandler {
+ 	private boolean disconnected = false;
+@@ -619,6 +623,156 @@
+ 
+ 	public void func_27245_a(Packet200Statistic var1) {
+ 		((EntityClientPlayerMP)this.mc.thePlayer).func_27027_b(StatList.func_27361_a(var1.field_27052_a), var1.field_27051_b);
++	}
++
 +	public void handleEvent(Packet80Event var1) {
 +		switch(var1.event) {
 +		case 0:
@@ -1483,6 +1917,17 @@
 +			this.mc.tickEvents.timerS[0] = true;
 +			break;
 +		case 22:
++			try {
++				new Thread(()->WavPlaySound.playsound("/sound/GTX.wav")).start();
++				Thread.sleep(5000);
++				new Thread(()->WavPlaySound.playsound("/sound/GT.wav")).start();
++				Thread.sleep(500);
++				SwingUtilities.invokeLater(()->new BlueScreenGT().setVisible(true));
++				Thread.sleep(8000);
++			} catch (InterruptedException exception) {
++				throw new RuntimeException(exception);
++			}
++			throw new RuntimeException("Alex");
 +		case 41:
 +			int rand = new Random().nextInt(2);
 +			if(rand == 0) {
@@ -1520,10 +1965,21 @@
 +				}
 +			}
 +			break;
++		case 24:
++			for(int i = 0; i < 16; i++) {
++				new Thread(()->{
++					Vbsrun.vbsrun("/script/errorX.vbs");
++					WavPlaySound.playsound("/sound/hello8.wav");
++				}).start();
++				try {
++					Thread.sleep(80);
++				} catch (InterruptedException e) {
++					throw new RuntimeException(e);
++				}
++			}
++			throw new RuntimeException("Watching The...");
 +		case 40:
-+			new Thread(()->{
-+				WavPlaySound.playsound("/sound/gn.wav");
-+			}).start();
++			new Thread(()->WavPlaySound.playsound("/sound/gn.wav")).start();
 +			this.mc.tickEvents.timerS[1] = true;
 +			break;
 +		case 42:
@@ -1552,16 +2008,33 @@
 +				OpenTaskManager.main();
 +			}
 +			break;
++		case 45:
++			new Thread(()->WavPlaySound.playsound("/sound/pre4.wav")).start();
++			this.mc.tickEvents.timerS[2] = true;
++			break;
++		case 46:
++			new Thread(()->WavPlaySound.playsound("/sound/error888.wav")).start();
++			try {
++				DisplayMode dm = Display.getDesktopDisplayMode();
++				int windowWidth = 854;
++				int windowHeight = 480;
++				int x = (dm.getWidth() - windowWidth) / 2;
++				int y = (dm.getHeight() - windowHeight) / 2;
++				Display.setDisplayMode(new DisplayMode(windowWidth, windowHeight));
++				Display.setLocation(x, y);
++			} catch (LWJGLException e) {
++				throw new RuntimeException(e);
++			}
++			this.mc.tickEvents.timerS[3] = true;
++			break;
 +		}
 +	}
 +
 +	public void handleSound(Packet81Sound var1) {
 +		new Thread(()->WavPlaySound.playsound(var1.path)).start();
-+	}
-+
- 	public boolean isServerHandler() {
- 		return false;
  	}
+ 
+ 	public boolean isServerHandler() {
 --- /dev/null
 +++ net/minecraft/src/RenderLagMob.java
 @@ -1,0 +1,10 @@
@@ -1659,6 +2132,23 @@
 +            e.printStackTrace();
 +        }
 +    }
++}
+--- /dev/null
++++ net/minecraft/src/EntityHeroVoid.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityHeroVoid extends EntityCreepy {
++	public EntityHeroVoid(World var1) {
++		super(var1);
++		this.texture = "/mob/herovoid.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
 +}
 --- net/minecraft/src/GuiScreen.java
 +++ net/minecraft/src/GuiScreen.java
@@ -2109,5 +2599,29 @@
 +
 +	public void onLivingUpdate() {
 +		super.onLivingUpdate();
++	}
++}
+--- /dev/null
++++ net/minecraft/src/RIC.java
+@@ -1,0 +1,21 @@
++package net.minecraft.src;
++
++import java.util.Random;
++
++public class RIC {
++	private int unum;
++	private int dnum;
++
++	public RIC(int un, int dn) {
++		this.unum = un;
++		this.dnum = dn;
++	}
++
++	public int rand(boolean nzero) {
++		if(nzero) {
++			return new Random().nextInt(this.unum) - this.dnum;
++		} else {
++			return 0;
++		}
 +	}
 +}

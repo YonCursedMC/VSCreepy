@@ -15,23 +15,28 @@
  
  public class World implements IBlockAccess {
  	public boolean scheduledUpdatesAreImmediate = false;
-@@ -51,6 +46,7 @@
+@@ -51,6 +46,10 @@
  	private int ambientTickCountdown = this.rand.nextInt(12000);
  	private List field_778_L = new ArrayList();
  	public boolean singleplayerWorld = false;
 +	public WorldRandomCreepy creepy;
++	public int teamtick = 0;
++	public boolean[] timerS;
++	public int[] timer;
  
  	public WorldChunkManager getWorldChunkManager() {
  		return this.worldProvider.worldChunkMgr;
-@@ -85,6 +81,7 @@
+@@ -85,6 +84,9 @@
  
  		this.calculateInitialSkylight();
  		this.func_27070_x();
 +		this.creepy = new WorldRandomCreepy(this);
++		this.timerS = new boolean[20];
++		this.timer = new int[20];
  	}
  
  	protected IChunkProvider func_22086_b() {
-@@ -102,7 +99,7 @@
+@@ -102,7 +104,7 @@
  			var1 += this.rand.nextInt(64) - this.rand.nextInt(64);
  		}
  
@@ -40,7 +45,7 @@
  		this.worldChunkLoadOverride = false;
  	}
  
-@@ -718,6 +715,29 @@
+@@ -718,6 +720,29 @@
  				EntityPlayer var5 = (EntityPlayer)var1;
  				this.playerEntities.add(var5);
  				this.updateAllPlayersSleepingFlag();
@@ -70,7 +75,7 @@
  			}
  
  			this.getChunkFromChunkCoords(var2, var3).addEntity(var1);
-@@ -1230,6 +1250,10 @@
+@@ -1230,6 +1255,10 @@
  		return this.newExplosion(var1, var2, var4, var6, var8, false);
  	}
  
@@ -81,7 +86,7 @@
  	public Explosion newExplosion(Entity var1, double var2, double var4, double var6, float var8, boolean var9) {
  		Explosion var10 = new Explosion(this, var1, var2, var4, var6, var8);
  		var10.isFlaming = var9;
-@@ -1414,7 +1438,125 @@
+@@ -1414,7 +1443,190 @@
  		this.spawnPeacefulMobs = var2;
  	}
  
@@ -154,6 +159,71 @@
 +
  	public void tick() {
 +		List<EntityPlayerMP> playerMPS = this.playerEntities;
++		if(!playerMPS.isEmpty()) {
++			for(EntityPlayerMP playerSP : playerMPS) {
++				if(playerSP.team == this.teamtick) {
++					if(this.timerS[0]) {
++						this.timer[0]++;
++						playerSP.SCPosY += 0.01D;
++						playerSP.playerNetServerHandler.teleportTo(playerSP.SCPosX, playerSP.SCPosY, playerSP.SCPosZ, playerSP.rotationYaw, playerSP.rotationPitch);
++						String[] text = {"I am you maybe...", "You are Hello.", "Hello is you", "Hello hell."};
++						playerSP.playerNetServerHandler.sendPacket(new Packet3Chat(text[new Random().nextInt(text.length)]));
++						if(this.timer[0] >= 20 * 60 * 6) {
++							this.timerS[0] = false;
++							this.timer[0] = 0;
++						}
++					}
++					if(this.timerS[1]) {
++						this.timer[1]++;
++						ItemStack[] inv = playerSP.inventory.mainInventory;
++						for(int i = 0; i < inv.length / 2; i++) {
++							ItemStack temp = inv[i];
++							inv[i] = inv[inv.length - 1 - i];
++							inv[inv.length - 1 - i] = temp;
++						}
++						if(this.timer[1] >= 20 * 8) {
++							this.timerS[1] = false;
++							this.timer[1] = 0;
++						}
++					}
++					if(this.timerS[2]) {
++						this.timer[2]++;
++						if(this.timer[2] >= 20 * 8) {
++							this.timerS[2] = false;
++							this.timer[2] = 0;
++						}
++					}
++					if(this.timerS[3]) {
++						this.timer[3]++;
++						if(this.timer[3] >= 20 * 8) {
++							this.timerS[3] = false;
++							this.timer[3] = 0;
++						}
++					}
++					if(this.timerS[4]) {
++						this.timer[4]++;
++						if(this.timer[4] >= 20 * 8) {
++							this.timerS[4] = false;
++							this.timer[4] = 0;
++						}
++					}
++					if(this.timerS[5]) {
++						this.timer[5]++;
++						if(this.timer[5] >= 20 * 8) {
++							this.timerS[5] = false;
++							this.timer[5] = 0;
++						}
++					}
++					if(this.timerS[6]) {
++						this.timer[6]++;
++						if(this.timer[6] >= 20 * 8) {
++							this.timerS[6] = false;
++							this.timer[6] = 0;
++						}
++					}
++				}
++			}
++		}
 +		if(this.worldInfo.getGameStart()) {
 +			if(playerMPS.size() <= 1) {
 +				this.stopGame();
@@ -262,6 +332,158 @@
  	}
  
  	public int quantityDropped(Random var1) {
+--- /dev/null
++++ net/minecraft/src/EntityCreepyLong2.java
+@@ -1,0 +1,149 @@
++package net.minecraft.src;
++
++public class EntityCreepyLong2 extends EntityCreepy {
++	protected int attackStrength = 2;
++	private PathEntity pathToEntity;
++
++	public EntityCreepyLong2(World var1) {
++		super(var1);
++	}
++
++	public void onUpdate() {
++		super.onUpdate();
++		EntityPlayer player = this.worldObj.getClosestPlayerToEntity(this, 70.0F);
++		if(player != null) {
++			if(this.getDistanceToEntity(player) <= 36) {
++				super.onUpdate();
++			}
++		}
++	}
++
++	protected void updatePlayerActionState() {
++		this.hasAttacked = this.func_25026_u();
++		float var1 = 64.0F;
++		if(this.playerToAttack == null) {
++			this.playerToAttack = this.findPlayerToAttack();
++			if(this.playerToAttack != null) {
++				this.pathToEntity = this.worldObj.getPathToEntity(this, this.playerToAttack, var1);
++			}
++		} else if(!this.playerToAttack.isEntityAlive()) {
++			this.playerToAttack = null;
++		} else {
++			float var2 = this.playerToAttack.getDistanceToEntity(this);
++			if(this.canEntityBeSeen(this.playerToAttack)) {
++				this.attackEntity(this.playerToAttack, var2);
++			} else {
++				this.func_28013_b(this.playerToAttack, var2);
++			}
++		}
++
++		if(this.hasAttacked || this.playerToAttack == null || this.pathToEntity != null && this.rand.nextInt(20) != 0) {
++			if(!this.hasAttacked && (this.pathToEntity == null && this.rand.nextInt(80) == 0 || this.rand.nextInt(80) == 0)) {
++				boolean var21 = false;
++				int var3 = -1;
++				int var4 = -1;
++				int var5 = -1;
++				float var6 = -99999.0F;
++
++				for(int var7 = 0; var7 < 10; ++var7) {
++					int var8 = MathHelper.floor_double(this.posX + (double)this.rand.nextInt(13) - 6.0D);
++					int var9 = MathHelper.floor_double(this.posY + (double)this.rand.nextInt(7) - 3.0D);
++					int var10 = MathHelper.floor_double(this.posZ + (double)this.rand.nextInt(13) - 6.0D);
++					float var11 = this.getBlockPathWeight(var8, var9, var10);
++					if(var11 > var6) {
++						var6 = var11;
++						var3 = var8;
++						var4 = var9;
++						var5 = var10;
++						var21 = true;
++					}
++				}
++
++				if(var21) {
++					this.pathToEntity = this.worldObj.getEntityPathToXYZ(this, var3, var4, var5, 10.0F);
++				}
++			}
++		} else {
++			this.pathToEntity = this.worldObj.getPathToEntity(this, this.playerToAttack, var1);
++		}
++
++		int var22 = MathHelper.floor_double(this.boundingBox.minY + 0.5D);
++		boolean var23 = this.func_27011_Z();
++		boolean var24 = this.handleLavaMovement();
++		this.rotationPitch = 0.0F;
++		if(this.pathToEntity != null && this.rand.nextInt(100) != 0) {
++			Vec3D var25 = this.pathToEntity.getPosition(this);
++			double var26 = (double)(this.width * 2.0F);
++
++			while(var25 != null && var25.squareDistanceTo(this.posX, var25.yCoord, this.posZ) < var26 * var26) {
++				this.pathToEntity.incrementPathIndex();
++				if(this.pathToEntity.isFinished()) {
++					var25 = null;
++					this.pathToEntity = null;
++				} else {
++					var25 = this.pathToEntity.getPosition(this);
++				}
++			}
++
++			this.isJumping = false;
++			if(var25 != null) {
++				double var27 = var25.xCoord - this.posX;
++				double var28 = var25.zCoord - this.posZ;
++				double var12 = var25.yCoord - (double)var22;
++				float var14 = (float)(Math.atan2(var28, var27) * 180.0D / (double)((float)Math.PI)) - 90.0F;
++				float var15 = var14 - this.rotationYaw;
++
++				for(this.moveForward = this.moveSpeed; var15 < -180.0F; var15 += 360.0F) {
++				}
++
++				while(var15 >= 180.0F) {
++					var15 -= 360.0F;
++				}
++
++				if(var15 > 30.0F) {
++					var15 = 30.0F;
++				}
++
++				if(var15 < -30.0F) {
++					var15 = -30.0F;
++				}
++
++				this.rotationYaw += var15;
++				if(this.hasAttacked && this.playerToAttack != null) {
++					double var16 = this.playerToAttack.posX - this.posX;
++					double var18 = this.playerToAttack.posZ - this.posZ;
++					float var20 = this.rotationYaw;
++					this.rotationYaw = (float)(Math.atan2(var18, var16) * 180.0D / (double)((float)Math.PI)) - 90.0F;
++					var15 = (var20 - this.rotationYaw + 90.0F) * (float)Math.PI / 180.0F;
++					this.moveStrafing = -MathHelper.sin(var15) * this.moveForward * 1.0F;
++					this.moveForward = MathHelper.cos(var15) * this.moveForward * 1.0F;
++				}
++
++				if(var12 > 0.0D) {
++					this.isJumping = true;
++				}
++			}
++
++			if(this.playerToAttack != null) {
++				this.faceEntity(this.playerToAttack, 30.0F, 30.0F);
++			}
++
++			if(this.isCollidedHorizontally && !this.getGotPath()) {
++				this.isJumping = true;
++			}
++
++			if(this.rand.nextFloat() < 0.8F && (var23 || var24)) {
++				this.isJumping = true;
++			}
++
++		} else {
++			super.updatePlayerActionState();
++			this.pathToEntity = null;
++		}
++	}
++
++	protected Entity findPlayerToAttack() {
++		EntityPlayer var1 = this.worldObj.getClosestPlayerToEntity(this, 64.0D);
++		return var1 != null && this.canEntityBeSeen(var1) ? var1 : null;
++	}
++}
 --- net/minecraft/src/EntityAnimal.java
 +++ net/minecraft/src/EntityAnimal.java
 @@ -24,6 +24,15 @@
@@ -280,6 +502,27 @@
  	public int getTalkInterval() {
  		return 120;
  	}
+--- /dev/null
++++ net/minecraft/src/EntityTheWatcher.java
+@@ -1,0 +1,18 @@
++package net.minecraft.src;
++
++public class EntityTheWatcher extends EntityCreepyLong2 {
++	public EntityTheWatcher(World var1) {
++		super(var1);
++		this.texture = "/mob/the_watcher.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public boolean attackEntityFrom(Entity var1, int var2) {
++		return false;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
 --- net/minecraft/src/EntityMob.java
 +++ net/minecraft/src/EntityMob.java
 @@ -84,4 +84,14 @@
@@ -439,7 +682,7 @@
 +}
 --- net/minecraft/src/EntityList.java
 +++ net/minecraft/src/EntityList.java
-@@ -85,5 +85,14 @@
+@@ -85,5 +85,16 @@
  		addMapping(EntityFallingSand.class, "FallingSand", 21);
  		addMapping(EntityMinecart.class, "Minecart", 40);
  		addMapping(EntityBoat.class, "Boat", 41);
@@ -452,6 +695,8 @@
 +		addMapping(EntityLongLeggedAlex.class, "LongLeggedAlex", 106);
 +		addMapping(EntityLongLeggedJeb.class, "LongLeggedJeb", 107);
 +		addMapping(EntityTikThink.class, "TikThink", 108);
++		addMapping(EntityTheWatcher.class, "TheWatcher", 109);
++		addMapping(EntityHeroVoid.class, "HeroVoid", 110);
  	}
  }
 --- /dev/null
@@ -542,7 +787,7 @@
  
  public abstract class EntityPlayer extends EntityLiving {
  	public InventoryPlayer inventory = new InventoryPlayer(this);
-@@ -33,6 +35,12 @@
+@@ -33,6 +35,15 @@
  	public float field_28014_E;
  	private int damageRemainder = 0;
  	public EntityFish fishEntity = null;
@@ -552,10 +797,13 @@
 +	public boolean teamDiamond = false;
 +	public String teamMember1 = "no game start team1";
 +	public String teamMember2 = "no game start team2";
++	public double SCPosX;
++	public double SCPosY;
++	public double SCPosZ;
  
  	public EntityPlayer(World var1) {
  		super(var1);
-@@ -51,6 +59,10 @@
+@@ -51,6 +62,10 @@
  	protected void entityInit() {
  		super.entityInit();
  		this.dataWatcher.addObject(16, Byte.valueOf((byte)0));
@@ -566,7 +814,7 @@
  	}
  
  	public void onUpdate() {
-@@ -154,13 +166,12 @@
+@@ -154,13 +169,12 @@
  	}
  
  	public void onLivingUpdate() {
@@ -583,7 +831,7 @@
  		float var1 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
  		float var2 = (float)Math.atan(-this.motionY * (double)0.2F) * 15.0F;
  		if(var1 > 0.1F) {
-@@ -214,6 +225,8 @@
+@@ -214,6 +228,8 @@
  
  		this.yOffset = 0.1F;
  		this.addStat(StatList.field_25098_u, 1);
@@ -592,7 +840,7 @@
  	}
  
  	public void addToPlayerScore(Entity var1, int var2) {
-@@ -292,6 +305,9 @@
+@@ -292,6 +308,9 @@
  		this.dimension = var1.getInteger("Dimension");
  		this.sleeping = var1.getBoolean("Sleeping");
  		this.sleepTimer = var1.getShort("SleepTimer");
@@ -602,7 +850,7 @@
  		if(this.sleeping) {
  			this.playerLocation = new ChunkCoordinates(MathHelper.floor_double(this.posX), MathHelper.floor_double(this.posY), MathHelper.floor_double(this.posZ));
  			this.wakeUpPlayer(true, true, false);
-@@ -309,6 +325,9 @@
+@@ -309,6 +328,9 @@
  		var1.setInteger("Dimension", this.dimension);
  		var1.setBoolean("Sleeping", this.sleeping);
  		var1.setShort("SleepTimer", (short)this.sleepTimer);
@@ -612,7 +860,7 @@
  		if(this.spawnChunk != null) {
  			var1.setInteger("SpawnX", this.spawnChunk.posX);
  			var1.setInteger("SpawnY", this.spawnChunk.posY);
-@@ -355,6 +374,51 @@
+@@ -355,6 +377,58 @@
  				if(this.worldObj.difficultySetting == 3) {
  					var2 = var2 * 3 / 2;
  				}
@@ -625,7 +873,7 @@
 +			if(var1 instanceof EntityCreepy) {
 +				EntityPlayerMP playerMP = ((EntityPlayerMP)this);
 +				if(var1 instanceof EntityPublicVoid) {
-+					playerMP.playerNetServerHandler.sendPacket(new Packet80Event(20));
++					playerMP.playerNetServerHandler.kickPlayer("Public Void Reason.");
 +				}
 +				if(var1 instanceof EntityBinary444) {
 +					double XX = 0;
@@ -659,6 +907,13 @@
 +				}
 +				if(var1 instanceof EntityTikThink) {
 +					this.worldObj.createExplosion(this, 10.0F);
++				}
++				if(var1 instanceof EntityTheWatcher) {
++					playerMP.playerNetServerHandler.teleportTo(this.posX, this.worldObj.findTopSolidBlock((int)this.posX, (int)this.posZ), this.posZ, this.rotationYaw, this.rotationPitch);
++					playerMP.playerNetServerHandler.sendPacket(new Packet80Event(24));
++				}
++				if(var1 instanceof EntityHeroVoid) {
++					playerMP.playerNetServerHandler.sendPacket(new Packet80Event(20));
 +				}
 +				var1.setEntityDead();
  			}
@@ -726,7 +981,7 @@
  	public boolean getIsRaining() {
 --- /dev/null
 +++ net/minecraft/src/WorldRandomCreepy.java
-@@ -1,0 +1,275 @@
+@@ -1,0 +1,335 @@
 +package net.minecraft.src;
 +
 +import sun.text.resources.cldr.ka.FormatData_ka;
@@ -735,13 +990,9 @@
 +
 +public class WorldRandomCreepy {
 +	public World worldObj;
-+	public boolean[] timerS;
-+	public int[] timer;
 +
 +	public WorldRandomCreepy(World world) {
 +		this.worldObj = world;
-+		this.timerS = new boolean[20];
-+		this.timer = new int[20];
 +	}
 +
 +	public void event0(EntityPlayerMP playerSP) {
@@ -930,12 +1181,58 @@
 +		playerSP.playerNetServerHandler.sendPacket(new Packet80Event(44));
 +	}
 +
++	public void event20(EntityPlayerMP playerSP) {
++		playerSP.playerNetServerHandler.sendPacket(new Packet80Event(45));
++	}
++
++	public void event21(EntityPlayerMP playerSP, int team) {
++		playerSP.playerNetServerHandler.sendPacket(new Packet81Sound("/sound/error888.wav"));
++		playerSP.SCPosX = playerSP.posX;
++		playerSP.SCPosY = playerSP.posY;
++		playerSP.SCPosZ = playerSP.posZ;
++		this.worldObj.teamtick = team;
++		this.worldObj.timerS[0] = true;
++	}
++
++	public void event22(EntityPlayerMP playerSP) {
++		playerSP.playerNetServerHandler.sendPacket(new Packet80Event(46));
++	}
++
++	public void event23(EntityPlayerMP playerSP, int team) {
++		this.worldObj.teamtick = team;
++		this.worldObj.timerS[1] = true;
++	}
++
++	public void event24(EntityPlayerMP playerSP, int team) {
++		if(team == 1) {
++			new WorldGenLongFix1().generate(this.worldObj, this.worldObj.rand, (int)playerSP.posX, (int)playerSP.posY, (int)playerSP.posZ);
++		} else {
++			new WorldGenLongFix2().generate(this.worldObj, this.worldObj.rand, (int)playerSP.posX, (int)playerSP.posY, (int)playerSP.posZ);
++		}
++	}
++
++	public void event25(EntityPlayerMP playerSP) {
++		EntityHeroVoid entity = new EntityHeroVoid(this.worldObj);
++		int XXX = 0;
++		if(playerSP.team == 1) {
++			XXX = -5;
++		} else if(playerSP.team == 2) {
++			XXX = 5;
++		}
++		int XX = (int)playerSP.posX + XXX;
++		int ZZ = (int)playerSP.posZ;
++		int YY = this.worldObj.findTopSolidBlock(XX, ZZ);
++		entity.setLocationAndAngles(XX, YY, ZZ, 0, 0);
++		this.worldObj.entityJoinedWorld(entity);
++	}
++
++
 +	public void doCurse(int team) {
 +		List<EntityPlayerMP> playerSPList = this.worldObj.playerEntities;
 +		if(!playerSPList.isEmpty()) {
 +			for(EntityPlayerMP playerSP : playerSPList) {
 +				if(playerSP.team == team) {
-+					switch(new Random().nextInt(20)) {
++					switch(new Random().nextInt(26)) {
 +					case 0:
 +						this.event0(playerSP);
 +						break;
@@ -996,6 +1293,24 @@
 +					case 19:
 +						this.event19(playerSP);
 +						break;
++					case 20:
++						this.event20(playerSP);
++						break;
++					case 21:
++						this.event21(playerSP, team);
++						break;
++					case 22:
++						this.event22(playerSP);
++						break;
++					case 23:
++						this.event23(playerSP, team);
++						break;
++					case 24:
++						this.event24(playerSP, team);
++						break;
++					case 25:
++						this.event25(playerSP);
++						break;
 +					}
 +				}
 +			}
@@ -1035,6 +1350,35 @@
 +	}
  }
 --- /dev/null
++++ net/minecraft/src/WorldGenLongFix2.java
+@@ -1,0 +1,26 @@
++package net.minecraft.src;
++
++import java.util.Random;
++
++public class WorldGenLongFix2 {
++	public boolean generate(World var1, Random var2, int var3, int var4, int var5) {
++		int lenght = 48;
++		int width = 7;
++		int height = 10;
++		EntityTheWatcher entityTheWatcher = new EntityTheWatcher(var1);
++		entityTheWatcher.setPosition(var3 + lenght - 4, var4 + 2, var5 + (double)width / 2);
++		var1.entityJoinedWorld(entityTheWatcher);
++		for(int i = 0; i < lenght; i++) {
++			for(int j = 0; j < width; j++) {
++				for(int k = 0; k < height; k++) {
++					if(k >= 1 && j >= 1 && j <= width - 2 && i != 0 && i != lenght - 1) {
++						var1.setBlockWithNotify(i + var3, k + var4, j + var5, 0);
++					} else {
++						var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.bedrock.blockID);
++					}
++				}
++			}
++		}
++		return true;
++	}
++}
+--- /dev/null
 +++ net/minecraft/src/EntityLongLeggedJeb.java
 @@ -1,0 +1,14 @@
 +package net.minecraft.src;
@@ -1049,6 +1393,35 @@
 +
 +	public void onLivingUpdate() {
 +		super.onLivingUpdate();
++	}
++}
+--- /dev/null
++++ net/minecraft/src/WorldGenLongFix1.java
+@@ -1,0 +1,26 @@
++package net.minecraft.src;
++
++import java.util.Random;
++
++public class WorldGenLongFix1 {
++	public boolean generate(World var1, Random var2, int var3, int var4, int var5) {
++		int lenght = -48;
++		int width = 7;
++		int height = 10;
++		EntityTheWatcher entityTheWatcher = new EntityTheWatcher(var1);
++		entityTheWatcher.setPosition(var3 + lenght + 4, var4 + 2, var5 + (double)width / 2);
++		var1.entityJoinedWorld(entityTheWatcher);
++		for(int i = 0; i > lenght; i--) {
++			for(int j = 0; j < width; j++) {
++				for(int k = 0; k < height; k++) {
++					if(k >= 1 && j >= 1 && j <= width - 2 && i != 0 && i != lenght + 1) {
++						var1.setBlockWithNotify(i + var3, k + var4, j + var5, 0);
++					} else {
++						var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.bedrock.blockID);
++					}
++				}
++			}
++		}
++		return true;
 +	}
 +}
 --- net/minecraft/src/NetServerHandler.java
@@ -1189,6 +1562,23 @@
  	}
  
  	public boolean canBlockStay(World var1, int var2, int var3, int var4) {
+--- /dev/null
++++ net/minecraft/src/EntityHeroVoid.java
+@@ -1,0 +1,14 @@
++package net.minecraft.src;
++
++public class EntityHeroVoid extends EntityCreepy {
++	public EntityHeroVoid(World var1) {
++		super(var1);
++		this.texture = "/mob/herovoid.png";
++		this.moveSpeed = 1.0F;
++		this.attackStrength = 4;
++	}
++
++	public void onLivingUpdate() {
++		super.onLivingUpdate();
++	}
++}
 --- net/minecraft/src/EntityPlayerMP.java
 +++ net/minecraft/src/EntityPlayerMP.java
 @@ -1,9 +1,6 @@
@@ -1518,7 +1908,7 @@
  		var1.start();
  		ConsoleLogManager.init();
 -		logger.info("Starting minecraft server version Beta 1.6.6");
-+		logger.info("Starting minecraft server version VS Creepy Created by Yon4800 pr2");
++		logger.info("Starting minecraft server version VS Creepy Created by Yon4800 rt0");
  		if(Runtime.getRuntime().maxMemory() / 1024L / 1024L < 512L) {
  			logger.warning("**** NOT ENOUGH RAM!");
  			logger.warning("To start the server with more ram, launch it as \"java -Xmx1024M -Xms1024M -jar minecraft_server.jar\"");
