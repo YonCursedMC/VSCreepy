@@ -1538,7 +1538,7 @@
  	}
  
  	public void setWorldHandler(World var1) {
-@@ -63,7 +64,147 @@
+@@ -63,7 +64,150 @@
  		return 1.62F;
  	}
  
@@ -1581,8 +1581,7 @@
 +		this.dataWatcher.updateObject(20, this.teamMember2);
 +	}
 +
- 	public void onUpdate() {
-+
++	public void tickEvent(){
 +		if(this.timerS[0]) {
 +			this.timer[0]++;
 +			this.SCPosY += 0.01D;
@@ -1642,7 +1641,11 @@
 +				this.timer[6] = 0;
 +			}
 +		}
++	}
++
+ 	public void onUpdate() {
 +		if(this.worldObj.worldInfo.getGameStart()) {
++			this.tickEvent();
 +			this.dataWatcher.updateObject(17, this.team);
 +			this.tickPoints++;
 +			if(this.tickPoints > 40) {
@@ -1686,7 +1689,7 @@
  		this.itemInWorldManager.func_328_a();
  		--this.ticksOfInvuln;
  		this.currentCraftingInventory.updateCraftingMatrix();
-@@ -242,11 +383,6 @@
+@@ -242,11 +386,6 @@
  	}
  
  	public void wakeUpPlayer(boolean var1, boolean var2, boolean var3) {
