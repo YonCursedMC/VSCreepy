@@ -95,6 +95,7 @@ mob討伐+5
 #### 効果音
 - 音人 https://on-jin.com/
 - pixabay https://pixabay.com/
+- freesound? https://freesound.org
 #### 利用ツール
 - Intelij IDEA
 - RetroMCP
@@ -223,6 +224,7 @@ If you have any questions or find bugs, please report them in the Issues section
 #### Sound Effects
 - On-jin https://on-jin.com/
 - pixabay https://pixabay.com/
+- freesound? https://freesound.org
 #### Tools Used
 - Intelij IDEA
 - RetroMCP
