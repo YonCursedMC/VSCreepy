@@ -15,28 +15,23 @@
  
  public class World implements IBlockAccess {
  	public boolean scheduledUpdatesAreImmediate = false;
-@@ -51,6 +46,10 @@
+@@ -51,6 +46,7 @@
  	private int ambientTickCountdown = this.rand.nextInt(12000);
  	private List field_778_L = new ArrayList();
  	public boolean singleplayerWorld = false;
 +	public WorldRandomCreepy creepy;
-+	public int teamtick = 0;
-+	public boolean[] timerS;
-+	public int[] timer;
  
  	public WorldChunkManager getWorldChunkManager() {
  		return this.worldProvider.worldChunkMgr;
-@@ -85,6 +84,9 @@
+@@ -85,6 +81,7 @@
  
  		this.calculateInitialSkylight();
  		this.func_27070_x();
 +		this.creepy = new WorldRandomCreepy(this);
-+		this.timerS = new boolean[20];
-+		this.timer = new int[20];
  	}
  
  	protected IChunkProvider func_22086_b() {
-@@ -102,7 +104,7 @@
+@@ -102,7 +99,7 @@
  			var1 += this.rand.nextInt(64) - this.rand.nextInt(64);
  		}
  
@@ -45,7 +40,7 @@
  		this.worldChunkLoadOverride = false;
  	}
  
-@@ -718,6 +720,29 @@
+@@ -718,6 +715,29 @@
  				EntityPlayer var5 = (EntityPlayer)var1;
  				this.playerEntities.add(var5);
  				this.updateAllPlayersSleepingFlag();
@@ -75,7 +70,7 @@
  			}
  
  			this.getChunkFromChunkCoords(var2, var3).addEntity(var1);
-@@ -1230,6 +1255,10 @@
+@@ -1230,6 +1250,10 @@
  		return this.newExplosion(var1, var2, var4, var6, var8, false);
  	}
  
@@ -86,7 +81,7 @@
  	public Explosion newExplosion(Entity var1, double var2, double var4, double var6, float var8, boolean var9) {
  		Explosion var10 = new Explosion(this, var1, var2, var4, var6, var8);
  		var10.isFlaming = var9;
-@@ -1414,7 +1443,190 @@
+@@ -1414,7 +1438,125 @@
  		this.spawnPeacefulMobs = var2;
  	}
  
@@ -159,71 +154,6 @@
 +
  	public void tick() {
 +		List<EntityPlayerMP> playerMPS = this.playerEntities;
-+		if(!playerMPS.isEmpty()) {
-+			for(EntityPlayerMP playerSP : playerMPS) {
-+				if(playerSP.team == this.teamtick) {
-+					if(this.timerS[0]) {
-+						this.timer[0]++;
-+						playerSP.SCPosY += 0.01D;
-+						playerSP.playerNetServerHandler.teleportTo(playerSP.SCPosX, playerSP.SCPosY, playerSP.SCPosZ, playerSP.rotationYaw, playerSP.rotationPitch);
-+						String[] text = {"I am you maybe...", "You are Hello.", "Hello is you", "Hello hell."};
-+						playerSP.playerNetServerHandler.sendPacket(new Packet3Chat(text[new Random().nextInt(text.length)]));
-+						if(this.timer[0] >= 20 * 60 * 6) {
-+							this.timerS[0] = false;
-+							this.timer[0] = 0;
-+						}
-+					}
-+					if(this.timerS[1]) {
-+						this.timer[1]++;
-+						ItemStack[] inv = playerSP.inventory.mainInventory;
-+						for(int i = 0; i < inv.length / 2; i++) {
-+							ItemStack temp = inv[i];
-+							inv[i] = inv[inv.length - 1 - i];
-+							inv[inv.length - 1 - i] = temp;
-+						}
-+						if(this.timer[1] >= 20 * 8) {
-+							this.timerS[1] = false;
-+							this.timer[1] = 0;
-+						}
-+					}
-+					if(this.timerS[2]) {
-+						this.timer[2]++;
-+						if(this.timer[2] >= 20 * 8) {
-+							this.timerS[2] = false;
-+							this.timer[2] = 0;
-+						}
-+					}
-+					if(this.timerS[3]) {
-+						this.timer[3]++;
-+						if(this.timer[3] >= 20 * 8) {
-+							this.timerS[3] = false;
-+							this.timer[3] = 0;
-+						}
-+					}
-+					if(this.timerS[4]) {
-+						this.timer[4]++;
-+						if(this.timer[4] >= 20 * 8) {
-+							this.timerS[4] = false;
-+							this.timer[4] = 0;
-+						}
-+					}
-+					if(this.timerS[5]) {
-+						this.timer[5]++;
-+						if(this.timer[5] >= 20 * 8) {
-+							this.timerS[5] = false;
-+							this.timer[5] = 0;
-+						}
-+					}
-+					if(this.timerS[6]) {
-+						this.timer[6]++;
-+						if(this.timer[6] >= 20 * 8) {
-+							this.timerS[6] = false;
-+							this.timer[6] = 0;
-+						}
-+					}
-+				}
-+			}
-+		}
 +		if(this.worldInfo.getGameStart()) {
 +			if(playerMPS.size() <= 1) {
 +				this.stopGame();
@@ -981,7 +911,7 @@
  	public boolean getIsRaining() {
 --- /dev/null
 +++ net/minecraft/src/WorldRandomCreepy.java
-@@ -1,0 +1,335 @@
+@@ -1,0 +1,333 @@
 +package net.minecraft.src;
 +
 +import sun.text.resources.cldr.ka.FormatData_ka;
@@ -1185,26 +1115,24 @@
 +		playerSP.playerNetServerHandler.sendPacket(new Packet80Event(45));
 +	}
 +
-+	public void event21(EntityPlayerMP playerSP, int team) {
++	public void event21(EntityPlayerMP playerSP) {
 +		playerSP.playerNetServerHandler.sendPacket(new Packet81Sound("/sound/error888.wav"));
 +		playerSP.SCPosX = playerSP.posX;
 +		playerSP.SCPosY = playerSP.posY;
 +		playerSP.SCPosZ = playerSP.posZ;
-+		this.worldObj.teamtick = team;
-+		this.worldObj.timerS[0] = true;
++		playerSP.timerS[0] = true;
 +	}
 +
 +	public void event22(EntityPlayerMP playerSP) {
 +		playerSP.playerNetServerHandler.sendPacket(new Packet80Event(46));
 +	}
 +
-+	public void event23(EntityPlayerMP playerSP, int team) {
-+		this.worldObj.teamtick = team;
-+		this.worldObj.timerS[1] = true;
++	public void event23(EntityPlayerMP playerSP) {
++		playerSP.timerS[1] = true;
 +	}
 +
-+	public void event24(EntityPlayerMP playerSP, int team) {
-+		if(team == 1) {
++	public void event24(EntityPlayerMP playerSP) {
++		if(playerSP.team == 1) {
 +			new WorldGenLongFix1().generate(this.worldObj, this.worldObj.rand, (int)playerSP.posX, (int)playerSP.posY, (int)playerSP.posZ);
 +		} else {
 +			new WorldGenLongFix2().generate(this.worldObj, this.worldObj.rand, (int)playerSP.posX, (int)playerSP.posY, (int)playerSP.posZ);
@@ -1297,16 +1225,16 @@
 +						this.event20(playerSP);
 +						break;
 +					case 21:
-+						this.event21(playerSP, team);
++						this.event21(playerSP);
 +						break;
 +					case 22:
 +						this.event22(playerSP);
 +						break;
 +					case 23:
-+						this.event23(playerSP, team);
++						this.event23(playerSP);
 +						break;
 +					case 24:
-+						this.event24(playerSP, team);
++						this.event24(playerSP);
 +						break;
 +					case 25:
 +						this.event25(playerSP);
@@ -1592,7 +1520,25 @@
  import net.minecraft.server.MinecraftServer;
  
  public class EntityPlayerMP extends EntityPlayer implements ICrafting {
-@@ -63,7 +60,87 @@
+@@ -19,6 +16,8 @@
+ 	private ItemStack[] playerInventory = new ItemStack[]{null, null, null, null, null};
+ 	private int currentWindowId = 0;
+ 	public boolean isChangingQuantityOnly;
++	public boolean[] timerS;
++	public int[] timer;
+ 
+ 	public EntityPlayerMP(MinecraftServer var1, World var2, String var3, ItemInWorldManager var4) {
+ 		super(var2);
+@@ -39,6 +38,8 @@
+ 		this.stepHeight = 0.0F;
+ 		this.username = var3;
+ 		this.yOffset = 0.0F;
++		this.timerS = new boolean[20];
++		this.timer = new int[20];
+ 	}
+ 
+ 	public void setWorldHandler(World var1) {
+@@ -63,7 +64,147 @@
  		return 1.62F;
  	}
  
@@ -1636,6 +1582,66 @@
 +	}
 +
  	public void onUpdate() {
++
++		if(this.timerS[0]) {
++			this.timer[0]++;
++			this.SCPosY += 0.01D;
++			this.playerNetServerHandler.teleportTo(this.SCPosX, this.SCPosY, this.SCPosZ, this.rotationYaw, this.rotationPitch);
++			String[] text = {"I am you maybe...", "You are Hello.", "Hello is you", "Hello hell."};
++			this.playerNetServerHandler.sendPacket(new Packet3Chat(text[new Random().nextInt(text.length)]));
++			if(this.timer[0] >= 20 * 60 * 6) {
++				this.timerS[0] = false;
++				this.timer[0] = 0;
++			}
++		}
++		if(this.timerS[1]) {
++			this.timer[1]++;
++			ItemStack[] inv = this.inventory.mainInventory;
++			for(int i = 0; i < inv.length / 2; i++) {
++				ItemStack temp = inv[i];
++				inv[i] = inv[inv.length - 1 - i];
++				inv[inv.length - 1 - i] = temp;
++			}
++			if(this.timer[1] >= 20 * 8) {
++				this.timerS[1] = false;
++				this.timer[1] = 0;
++			}
++		}
++		if(this.timerS[2]) {
++			this.timer[2]++;
++			if(this.timer[2] >= 20 * 8) {
++				this.timerS[2] = false;
++				this.timer[2] = 0;
++			}
++		}
++		if(this.timerS[3]) {
++			this.timer[3]++;
++			if(this.timer[3] >= 20 * 8) {
++				this.timerS[3] = false;
++				this.timer[3] = 0;
++			}
++		}
++		if(this.timerS[4]) {
++			this.timer[4]++;
++			if(this.timer[4] >= 20 * 8) {
++				this.timerS[4] = false;
++				this.timer[4] = 0;
++			}
++		}
++		if(this.timerS[5]) {
++			this.timer[5]++;
++			if(this.timer[5] >= 20 * 8) {
++				this.timerS[5] = false;
++				this.timer[5] = 0;
++			}
++		}
++		if(this.timerS[6]) {
++			this.timer[6]++;
++			if(this.timer[6] >= 20 * 8) {
++				this.timerS[6] = false;
++				this.timer[6] = 0;
++			}
++		}
 +		if(this.worldObj.worldInfo.getGameStart()) {
 +			this.dataWatcher.updateObject(17, this.team);
 +			this.tickPoints++;
@@ -1680,7 +1686,7 @@
  		this.itemInWorldManager.func_328_a();
  		--this.ticksOfInvuln;
  		this.currentCraftingInventory.updateCraftingMatrix();
-@@ -242,11 +319,6 @@
+@@ -242,11 +383,6 @@
  	}
  
  	public void wakeUpPlayer(boolean var1, boolean var2, boolean var3) {
