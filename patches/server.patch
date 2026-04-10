@@ -1275,7 +1275,7 @@
  }
 --- /dev/null
 +++ net/minecraft/src/WorldGenLongFix2.java
-@@ -1,0 +1,29 @@
+@@ -1,0 +1,30 @@
 +package net.minecraft.src;
 +
 +import java.util.Random;
@@ -1294,9 +1294,10 @@
 +					if(k >= 1 && k <= height - 2 && j >= 1 && j <= width - 2 && i != 0 && i != lenght - 1) {
 +						var1.setBlockWithNotify(i + var3, k + var4, j + var5, 0);
 +					} else {
-+						var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.bedrock.blockID);
 +						if(k == height - 1) {
 +							var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.lightStone.blockID);
++						}else {
++							var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.bedrock.blockID);
 +						}
 +					}
 +				}
@@ -1324,7 +1325,7 @@
 +}
 --- /dev/null
 +++ net/minecraft/src/WorldGenLongFix1.java
-@@ -1,0 +1,29 @@
+@@ -1,0 +1,30 @@
 +package net.minecraft.src;
 +
 +import java.util.Random;
@@ -1343,9 +1344,10 @@
 +					if(k >= 1 && k <= height - 2 && j >= 1 && j <= width - 2 && i != 0 && i != lenght + 1) {
 +						var1.setBlockWithNotify(i + var3, k + var4, j + var5, 0);
 +					} else {
-+						var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.bedrock.blockID);
 +						if(k == height - 1) {
 +							var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.lightStone.blockID);
++						} else {
++							var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.bedrock.blockID);
 +						}
 +					}
 +				}
