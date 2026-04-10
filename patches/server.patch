@@ -1129,9 +1129,9 @@
 +
 +	public void event24(EntityPlayerMP playerSP) {
 +		if(playerSP.team == 1) {
-+			new WorldGenLongFix1().generate(this.worldObj, this.worldObj.rand, (int)playerSP.posX - 3, (int)playerSP.posY - 2, (int)playerSP.posZ - 3);
++			new WorldGenLongFix1().generate(this.worldObj, this.worldObj.rand, (int)playerSP.posX + 3, (int)playerSP.posY - 2, (int)playerSP.posZ - 3);
 +		} else {
-+			new WorldGenLongFix2().generate(this.worldObj, this.worldObj.rand, (int)playerSP.posX + 3, (int)playerSP.posY - 2, (int)playerSP.posZ - 3);
++			new WorldGenLongFix2().generate(this.worldObj, this.worldObj.rand, (int)playerSP.posX - 3, (int)playerSP.posY - 2, (int)playerSP.posZ - 3);
 +		}
 +	}
 +
@@ -1275,7 +1275,7 @@
  }
 --- /dev/null
 +++ net/minecraft/src/WorldGenLongFix2.java
-@@ -1,0 +1,26 @@
+@@ -1,0 +1,28 @@
 +package net.minecraft.src;
 +
 +import java.util.Random;
@@ -1293,6 +1293,8 @@
 +				for(int k = 0; k < height; k++) {
 +					if(k >= 1 && j >= 1 && j <= width - 2 && i != 0 && i != lenght - 1) {
 +						var1.setBlockWithNotify(i + var3, k + var4, j + var5, 0);
++					} else if(k <= height - 2) {
++						var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.lightStone.blockID);
 +					} else {
 +						var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.bedrock.blockID);
 +					}
@@ -1321,7 +1323,7 @@
 +}
 --- /dev/null
 +++ net/minecraft/src/WorldGenLongFix1.java
-@@ -1,0 +1,26 @@
+@@ -1,0 +1,28 @@
 +package net.minecraft.src;
 +
 +import java.util.Random;
@@ -1339,6 +1341,8 @@
 +				for(int k = 0; k < height; k++) {
 +					if(k >= 1 && j >= 1 && j <= width - 2 && i != 0 && i != lenght + 1) {
 +						var1.setBlockWithNotify(i + var3, k + var4, j + var5, 0);
++					} else if(k <= height - 2) {
++						var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.lightStone.blockID);
 +					} else {
 +						var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.bedrock.blockID);
 +					}
@@ -1918,15 +1922,20 @@
  		if(Runtime.getRuntime().maxMemory() / 1024L / 1024L < 512L) {
  			logger.warning("**** NOT ENOUGH RAM!");
  			logger.warning("To start the server with more ram, launch it as \"java -Xmx1024M -Xms1024M -jar minecraft_server.jar\"");
-@@ -80,7 +80,7 @@
+@@ -80,10 +80,10 @@
  		logger.info("Loading properties");
  		this.propertyManagerObj = new PropertyManager(new File("server.properties"));
  		String var2 = this.propertyManagerObj.getStringProperty("server-ip", "");
 -		this.onlineMode = this.propertyManagerObj.getBooleanProperty("online-mode", true);
 +		this.onlineMode = this.propertyManagerObj.getBooleanProperty("online-mode", false);
  		this.spawnPeacefulMobs = this.propertyManagerObj.getBooleanProperty("spawn-animals", true);
- 		this.pvpOn = this.propertyManagerObj.getBooleanProperty("pvp", true);
- 		this.allowFlight = this.propertyManagerObj.getBooleanProperty("allow-flight", false);
+-		this.pvpOn = this.propertyManagerObj.getBooleanProperty("pvp", true);
+-		this.allowFlight = this.propertyManagerObj.getBooleanProperty("allow-flight", false);
++		this.pvpOn = this.propertyManagerObj.getBooleanProperty("pvp", false);
++		this.allowFlight = this.propertyManagerObj.getBooleanProperty("allow-flight", true);
+ 		InetAddress var3 = null;
+ 		if(var2.length() > 0) {
+ 			var3 = InetAddress.getByName(var2);
 @@ -160,8 +160,8 @@
  				WorldServer var10 = this.worldMngr[var9];
  				ChunkCoordinates var11 = var10.getSpawnPoint();
