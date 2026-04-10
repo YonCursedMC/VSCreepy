@@ -1584,7 +1584,7 @@
 +			this.playerNetServerHandler.teleportTo(this.SCPosX, this.SCPosY, this.SCPosZ, this.rotationYaw, this.rotationPitch);
 +			String[] text = {"I am you maybe...", "You are Hello.", "Hello is you", "Hello hell."};
 +			this.playerNetServerHandler.sendPacket(new Packet3Chat(text[new Random().nextInt(text.length)]));
-+			if(this.timer[0] >= 20 * 60 * 6) {
++			if(this.timer[0] >= 20 * 6) {
 +				this.timerS[0] = false;
 +				this.timer[0] = 0;
 +			}
@@ -1597,7 +1597,7 @@
 +				inv[i] = inv[inv.length - 1 - i];
 +				inv[inv.length - 1 - i] = temp;
 +			}
-+			if(this.timer[1] >= 20 * 8) {
++			if(this.timer[1] >= 20 * 6) {
 +				this.timerS[1] = false;
 +				this.timer[1] = 0;
 +			}
