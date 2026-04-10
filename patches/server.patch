@@ -81,7 +81,7 @@
  	public Explosion newExplosion(Entity var1, double var2, double var4, double var6, float var8, boolean var9) {
  		Explosion var10 = new Explosion(this, var1, var2, var4, var6, var8);
  		var10.isFlaming = var9;
-@@ -1414,7 +1438,125 @@
+@@ -1414,7 +1438,121 @@
  		this.spawnPeacefulMobs = var2;
  	}
  
@@ -155,10 +155,6 @@
  	public void tick() {
 +		List<EntityPlayerMP> playerMPS = this.playerEntities;
 +		if(this.worldInfo.getGameStart()) {
-+			if(playerMPS.size() <= 1) {
-+				this.stopGame();
-+				MinecraftServer.logger.warning("The game has ended because there are no people.");
-+			}
 +			for(EntityPlayerMP playerMP : playerMPS) {
 +				int teamdia1 = 0;
 +				int teamdia2 = 0;
@@ -1133,9 +1129,9 @@
 +
 +	public void event24(EntityPlayerMP playerSP) {
 +		if(playerSP.team == 1) {
-+			new WorldGenLongFix1().generate(this.worldObj, this.worldObj.rand, (int)playerSP.posX, (int)playerSP.posY, (int)playerSP.posZ);
++			new WorldGenLongFix1().generate(this.worldObj, this.worldObj.rand, (int)playerSP.posX - 3, (int)playerSP.posY - 2, (int)playerSP.posZ - 3);
 +		} else {
-+			new WorldGenLongFix2().generate(this.worldObj, this.worldObj.rand, (int)playerSP.posX, (int)playerSP.posY, (int)playerSP.posZ);
++			new WorldGenLongFix2().generate(this.worldObj, this.worldObj.rand, (int)playerSP.posX + 3, (int)playerSP.posY - 2, (int)playerSP.posZ - 3);
 +		}
 +	}
 +

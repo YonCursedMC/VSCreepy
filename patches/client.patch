@@ -587,7 +587,7 @@
 +			int centerX = (dm.getWidth() - width) / 2;
 +			int centerY = (dm.getHeight() - height) / 2;
 +			Display.setLocation(centerX + new Random().nextInt(40) - 20, centerY + new Random().nextInt(40) - 20);
-+			if(this.timer[3] >= 10) {
++			if(this.timer[3] >= 20 * 5) {
 +				this.timerS[3] = false;
 +				this.timer[3] = 0;
 +			}
@@ -1878,7 +1878,7 @@
  
  public class NetClientHandler extends NetHandler {
  	private boolean disconnected = false;
-@@ -619,6 +623,156 @@
+@@ -619,6 +623,155 @@
  
  	public void func_27245_a(Packet200Statistic var1) {
  		((EntityClientPlayerMP)this.mc.thePlayer).func_27027_b(StatList.func_27361_a(var1.field_27052_a), var1.field_27051_b);
@@ -2013,7 +2013,6 @@
 +			this.mc.tickEvents.timerS[2] = true;
 +			break;
 +		case 46:
-+			new Thread(()->WavPlaySound.playsound("/sound/error888.wav")).start();
 +			try {
 +				DisplayMode dm = Display.getDesktopDisplayMode();
 +				int windowWidth = 854;
