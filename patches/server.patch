@@ -1534,7 +1534,7 @@
  	}
  
  	public void setWorldHandler(World var1) {
-@@ -63,7 +64,150 @@
+@@ -63,7 +64,151 @@
  		return 1.62F;
  	}
  
@@ -1561,6 +1561,7 @@
 +		this.dataWatcher.updateObject(18, this.point);
 +		this.tickPoints = 0;
 +	}
++
 +	public void teamMemberX(List<EntityPlayerMP> playerMPS) {
 +		StringBuilder team1 = new StringBuilder();
 +		StringBuilder team2 = new StringBuilder();
@@ -1577,7 +1578,7 @@
 +		this.dataWatcher.updateObject(20, this.teamMember2);
 +	}
 +
-+	public void tickEvent(){
++	public void tickEvent() {
 +		if(this.timerS[0]) {
 +			this.timer[0]++;
 +			this.SCPosY += 0.01D;
@@ -1655,11 +1656,11 @@
 +			}
 +			if(this.team == 1) {
 +				if(this.posX > 0) {
-+					this.playerNetServerHandler.teleportTo(-20, this.worldObj.findTopSolidBlock(-20, 0), this.posZ, 0, 0);
++					this.playerNetServerHandler.teleportTo(-20, this.worldObj.findTopSolidBlock(-20, 0) + 4, this.posZ, 0, 0);
 +				}
 +			} else if(this.team == 2) {
 +				if(this.posX < 0) {
-+					this.playerNetServerHandler.teleportTo(20, this.worldObj.findTopSolidBlock(20, 0), this.posZ, 0, 0);
++					this.playerNetServerHandler.teleportTo(20, this.worldObj.findTopSolidBlock(20, 0) + 4, this.posZ, 0, 0);
 +				}
 +			}
 +			if(this.getCurrentEquippedItem() != null) {
@@ -1685,7 +1686,7 @@
  		this.itemInWorldManager.func_328_a();
  		--this.ticksOfInvuln;
  		this.currentCraftingInventory.updateCraftingMatrix();
-@@ -242,11 +386,6 @@
+@@ -242,11 +387,6 @@
  	}
  
  	public void wakeUpPlayer(boolean var1, boolean var2, boolean var3) {
