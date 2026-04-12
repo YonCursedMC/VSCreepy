@@ -180,7 +180,7 @@
 +			}
 +			if(teamdia1 >= 1 || teamdia2 >= 1) {
 +				int winner = (teamdia1 >= 1) ? 1 : 2;
-+				
++
 +				for(EntityPlayerMP mp : playerMPS) {
 +					if(mp.team == 1 || mp.team == 2) {
 +						boolean isWinner = (mp.team == winner);
@@ -194,7 +194,7 @@
 +		} else {
 +			for(int i = -16; i < 16; i++) {
 +				for(int j = -16; j < 16; j++) {
-+					this.setBlockWithNotify(i, 120, j, Block.glass.blockID);
++					this.setBlockWithNotify(i, 120, j, Block.nbglass.blockID);
 +				}
 +			}
 +		}
@@ -1368,7 +1368,7 @@
  import java.util.logging.Logger;
  import net.minecraft.server.MinecraftServer;
  
-@@ -410,6 +408,34 @@
+@@ -410,8 +408,38 @@
  			var1 = "* " + this.playerEntity.username + " " + var1.substring(var1.indexOf(" ")).trim();
  			logger.info(var1);
  			this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat(var1));
@@ -1401,8 +1401,13 @@
 +				this.playerEntity.playerNetServerHandler.sendPacket(new Packet3Chat("The game hasn't started yet."));
 +			}
  		} else if(var1.toLowerCase().startsWith("/kill")) {
- 			this.playerEntity.attackEntityFrom((Entity)null, 1000);
+-			this.playerEntity.attackEntityFrom((Entity)null, 1000);
++			if(this.playerEntity.worldObj.worldInfo.getGameStart()) {
++				this.playerEntity.attackEntityFrom((Entity)null, 1000);
++			}
  		} else if(var1.toLowerCase().startsWith("/tell ")) {
+ 			String[] var2 = var1.split(" ");
+ 			if(var2.length >= 3) {
 --- /dev/null
 +++ net/minecraft/src/WorldGenSign.java
 @@ -1,0 +1,15 @@
@@ -1482,7 +1487,15 @@
  
 --- net/minecraft/src/Block.java
 +++ net/minecraft/src/Block.java
-@@ -468,6 +468,11 @@
+@@ -117,6 +117,7 @@
+ 	public static final Block redstoneRepeaterActive = (new BlockRedstoneRepeater(94, true)).setHardness(0.0F).setLightValue(10.0F / 16.0F).setStepSound(soundWoodFootstep).setBlockName("diode").disableStats().func_28027_k();
+ 	public static final Block lockedChest = (new BlockLockedChest(95)).setHardness(0.0F).setLightValue(1.0F).setStepSound(soundWoodFootstep).setBlockName("lockedchest").setTickOnLoad(true).func_28027_k();
+ 	public static final Block field_28030_bl = (new BlockTrapDoor(96, Material.wood)).setHardness(3.0F).setStepSound(soundWoodFootstep).setBlockName("trapdoor").disableStats().func_28027_k();
++	public static final Block nbglass = (new BlockGlass(97, 49, Material.glass, false)).setHardness(-1.0F).setResistance(6000000.0F).setStepSound(soundGlassFootstep).setBlockName("NoBrokenGlass");
+ 	public int blockIndexInTexture;
+ 	public final int blockID;
+ 	protected float blockHardness;
+@@ -468,6 +469,11 @@
  	public void harvestBlock(World var1, EntityPlayer var2, int var3, int var4, int var5, int var6) {
  		var2.addStat(StatList.mineBlockStatArray[this.blockID], 1);
  		this.dropBlockAsItem(var1, var3, var4, var5, var6);
@@ -1542,7 +1555,7 @@
  	}
  
  	public void setWorldHandler(World var1) {
-@@ -63,7 +64,146 @@
+@@ -63,7 +64,150 @@
  		return 1.62F;
  	}
  
@@ -1664,15 +1677,19 @@
 +			}
 +			if(this.team == 1) {
 +				if(this.posX > 0) {
-+					this.playerNetServerHandler.teleportTo(-20, this.worldObj.findTopSolidBlock(-20, 0) + 4, this.posZ, 0, 0);
++					this.playerNetServerHandler.teleportTo(-20, this.worldObj.findTopSolidBlock(-20, (int)this.posZ) + 4, this.posZ, 0, 0);
 +				}
 +			} else if(this.team == 2) {
 +				if(this.posX < 0) {
-+					this.playerNetServerHandler.teleportTo(20, this.worldObj.findTopSolidBlock(20, 0) + 4, this.posZ, 0, 0);
++					this.playerNetServerHandler.teleportTo(20, this.worldObj.findTopSolidBlock(20, (int)this.posZ) + 4, this.posZ, 0, 0);
 +				}
 +			}
-+			ItemStack equipped = this.getCurrentEquippedItem();
-+			this.teamDiamond = equipped != null && equipped.equals(new ItemStack(Item.diamond));
++			this.teamDiamond = false;
++			for(ItemStack stack : this.inventory.mainInventory) {
++				if(stack != null && stack.getItem() == Item.diamond) {
++					this.teamDiamond = true;
++				}
++			}
 +		} else {
 +			this.dataWatcher.updateObject(19, "no game start team1");
 +			this.dataWatcher.updateObject(20, "no game start team2");
@@ -1689,7 +1706,7 @@
  		this.itemInWorldManager.func_328_a();
  		--this.ticksOfInvuln;
  		this.currentCraftingInventory.updateCraftingMatrix();
-@@ -242,11 +382,6 @@
+@@ -242,11 +386,6 @@
  	}
  
  	public void wakeUpPlayer(boolean var1, boolean var2, boolean var3) {
