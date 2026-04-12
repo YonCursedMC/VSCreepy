@@ -90,7 +90,7 @@
  	public Explosion newExplosion(Entity var1, double var2, double var4, double var6, float var8, boolean var9) {
  		Explosion var10 = new Explosion(this, var1, var2, var4, var6, var8);
  		var10.isFlaming = var9;
-@@ -1414,7 +1447,120 @@
+@@ -1414,7 +1447,122 @@
  		this.spawnPeacefulMobs = var2;
  	}
  
@@ -123,6 +123,7 @@
 +					int i = 0;
 +					for(EntityPlayerMP playerMP : playerMPS) {
 +						playerMP.team = labels.get(i);
++						savedTeams.put(playerMP.username, playerMP.team);
 +						i++;
 +					}
 +
@@ -156,6 +157,7 @@
 +				playerMP.dataWatcher.updateObject(17, playerMP.team);
 +				playerMP.dataWatcher.updateObject(18, playerMP.point);
 +				playerMP.inventory.clearAllItems();
++				savedTeams.remove(playerMP.username);
 +			}
 +			this.worldInfo.setGameStart(false);
 +		}
