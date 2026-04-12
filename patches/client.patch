@@ -2132,6 +2132,16 @@
 +        }
 +    }
 +}
+--- net/minecraft/src/Block.java
++++ net/minecraft/src/Block.java
+@@ -117,6 +117,7 @@
+ 	public static final Block redstoneRepeaterActive = (new BlockRedstoneRepeater(94, true)).setHardness(0.0F).setLightValue(10.0F / 16.0F).setStepSound(soundWoodFootstep).setBlockName("diode").disableStats().disableNeighborNotifyOnMetadataChange();
+ 	public static final Block lockedChest = (new BlockLockedChest(95)).setHardness(0.0F).setLightValue(1.0F).setStepSound(soundWoodFootstep).setBlockName("lockedchest").setTickOnLoad(true).disableNeighborNotifyOnMetadataChange();
+ 	public static final Block trapdoor = (new BlockTrapDoor(96, Material.wood)).setHardness(3.0F).setStepSound(soundWoodFootstep).setBlockName("trapdoor").disableStats().disableNeighborNotifyOnMetadataChange();
++	public static final Block nbglass = (new BlockGlass(97, 49, Material.glass, false)).setHardness(-1.0F).setResistance(6000000.0F).setStepSound(soundGlassFootstep).setBlockName("NoBrokenGlass");
+ 	public int blockIndexInTexture;
+ 	public final int blockID;
+ 	protected float blockHardness;
 --- /dev/null
 +++ net/minecraft/src/EntityHeroVoid.java
 @@ -1,0 +1,14 @@
