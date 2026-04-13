@@ -90,16 +90,15 @@
  	public Explosion newExplosion(Entity var1, double var2, double var4, double var6, float var8, boolean var9) {
  		Explosion var10 = new Explosion(this, var1, var2, var4, var6, var8);
  		var10.isFlaming = var9;
-@@ -1414,7 +1447,111 @@
+@@ -1414,7 +1447,155 @@
  		this.spawnPeacefulMobs = var2;
  	}
  
-+	public void startGame() {
++	public void startGame(boolean news) {
 +		List<EntityPlayerMP> playerMPS = this.playerEntities;
 +		if(!this.worldInfo.getGameStart()) {
 +			if(!playerMPS.isEmpty()) {
 +				if(playerMPS.size() >= 2) {
-+
 +					List<Integer> labels = new ArrayList<>();
 +					int half = playerMPS.size() / 2;
 +					int team1Count, team2Count;
@@ -136,7 +135,15 @@
 +					}
 +
 +					this.worldInfo.setGameStart(true);
-+					playerMPS.get(0).mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("Game Start"));
++					if(news) {
++						this.worldInfo.setGameStartnew(true);
++						this.worldInfo.setNewGameTimer(20 * 60 * 45);
++						this.worldInfo.setNewDiamond1(0);
++						this.worldInfo.setNewDiamond2(0);
++						playerMPS.get(0).mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("Game Start(Time Attack)"));
++					} else {
++						playerMPS.get(0).mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("Game Start"));
++					}
 +				} else {
 +					playerMPS.get(0).mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("There is only one player."));
 +				}
@@ -156,6 +163,10 @@
 +				playerMP.point = 0;
 +				playerMP.dataWatcher.updateObject(17, playerMP.team);
 +				playerMP.dataWatcher.updateObject(18, playerMP.point);
++				this.worldInfo.setGameStartnew(false);
++				this.worldInfo.setNewGameTimer(-1);
++				this.worldInfo.setNewDiamond1(0);
++				this.worldInfo.setNewDiamond2(0);
 +				playerMP.inventory.clearAllItems();
 +				savedTeams.remove(playerMP.username);
 +			}
@@ -166,30 +177,63 @@
  	public void tick() {
 +		List<EntityPlayerMP> playerMPS = this.playerEntities;
 +		if(this.worldInfo.getGameStart()) {
-+			int teamdia1 = 0;
-+			int teamdia2 = 0;
++			if(this.worldInfo.getGameStartnew()) {
++				this.worldInfo.setNewGameTimer(this.worldInfo.getNewGameTimer() - 1);
++				if(this.worldInfo.getNewGameTimer() == 0) {
++					int diamond1 = this.worldInfo.getNewDiamond1();
++					int diamond2 = this.worldInfo.getNewDiamond2();
 +
-+			for(EntityPlayerMP playerMP : playerMPS) {
-+				if(playerMP.teamDiamond) {
-+					if(playerMP.team == 1) {
-+						teamdia1++;
-+					} else if(playerMP.team == 2) {
-+						teamdia2++;
++					int team1Packet, team2Packet;
++					String resultMessage;
++
++					if(diamond1 > diamond2) {
++						team1Packet = 0;
++						team2Packet = 1;
++						resultMessage = "Team 1 Won!";
++					} else if(diamond2 > diamond1) {
++						team1Packet = 1;
++						team2Packet = 0;
++						resultMessage = "Team 2 Won!";
++					} else {
++						team1Packet = 2;
++						team2Packet = 2;
++						resultMessage = "Draw!";
++					}
++
++					for(EntityPlayerMP playerMP : playerMPS) {
++						int packetId = (playerMP.team == 1) ? team1Packet : team2Packet;
++						playerMP.playerNetServerHandler.sendPacket(new Packet80Event(packetId));
++					}
++
++					MinecraftServer.logger.info(resultMessage + " Please remake the world and restart.");
++					this.stopGame();
++				}
++			} else {
++				int teamdia1 = 0;
++				int teamdia2 = 0;
++
++				for(EntityPlayerMP playerMP : playerMPS) {
++					if(playerMP.teamDiamond) {
++						if(playerMP.team == 1) {
++							teamdia1++;
++						} else if(playerMP.team == 2) {
++							teamdia2++;
++						}
 +					}
 +				}
-+			}
-+			if(teamdia1 >= 1 || teamdia2 >= 1) {
-+				int winner = (teamdia1 >= 1) ? 1 : 2;
++				if(teamdia1 >= 1 || teamdia2 >= 1) {
++					int winner = (teamdia1 >= 1) ? 1 : 2;
 +
-+				for(EntityPlayerMP mp : playerMPS) {
-+					if(mp.team == 1 || mp.team == 2) {
-+						boolean isWinner = (mp.team == winner);
-+						mp.playerNetServerHandler.sendPacket(new Packet80Event(isWinner ? 0 : 1));
++					for(EntityPlayerMP mp : playerMPS) {
++						if(mp.team == 1 || mp.team == 2) {
++							boolean isWinner = (mp.team == winner);
++							mp.playerNetServerHandler.sendPacket(new Packet80Event(isWinner ? 0 : 1));
++						}
 +					}
-+				}
 +
-+				this.stopGame();
-+				MinecraftServer.logger.info("Team " + winner + " Won! Please remake the world and restart.");
++					this.stopGame();
++					MinecraftServer.logger.info("Team " + winner + " Won! Please remake the world and restart.");
++				}
 +			}
 +		} else {
 +			for(int i = -16; i < 16; i++) {
@@ -728,7 +772,7 @@
  
  	public EntityPlayer(World var1) {
  		super(var1);
-@@ -51,6 +62,10 @@
+@@ -51,6 +62,13 @@
  	protected void entityInit() {
  		super.entityInit();
  		this.dataWatcher.addObject(16, Byte.valueOf((byte)0));
@@ -736,10 +780,13 @@
 +		this.dataWatcher.addObject(18, this.point);
 +		this.dataWatcher.addObject(19, "no game start team1");
 +		this.dataWatcher.addObject(20, "no game start team2");
++		this.dataWatcher.addObject(21, "Time: -1");
++		this.dataWatcher.addObject(22, "Team1 Diamond: ");
++		this.dataWatcher.addObject(23, "Team2 Diamond: ");
  	}
  
  	public void onUpdate() {
-@@ -154,13 +169,12 @@
+@@ -154,13 +172,12 @@
  	}
  
  	public void onLivingUpdate() {
@@ -756,7 +803,7 @@
  		float var1 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
  		float var2 = (float)Math.atan(-this.motionY * (double)0.2F) * 15.0F;
  		if(var1 > 0.1F) {
-@@ -214,6 +228,8 @@
+@@ -214,6 +231,8 @@
  
  		this.yOffset = 0.1F;
  		this.addStat(StatList.field_25098_u, 1);
@@ -765,7 +812,7 @@
  	}
  
  	public void addToPlayerScore(Entity var1, int var2) {
-@@ -292,6 +308,9 @@
+@@ -292,6 +311,9 @@
  		this.dimension = var1.getInteger("Dimension");
  		this.sleeping = var1.getBoolean("Sleeping");
  		this.sleepTimer = var1.getShort("SleepTimer");
@@ -775,7 +822,7 @@
  		if(this.sleeping) {
  			this.playerLocation = new ChunkCoordinates(MathHelper.floor_double(this.posX), MathHelper.floor_double(this.posY), MathHelper.floor_double(this.posZ));
  			this.wakeUpPlayer(true, true, false);
-@@ -309,6 +328,9 @@
+@@ -309,6 +331,9 @@
  		var1.setInteger("Dimension", this.dimension);
  		var1.setBoolean("Sleeping", this.sleeping);
  		var1.setShort("SleepTimer", (short)this.sleepTimer);
@@ -785,7 +832,7 @@
  		if(this.spawnChunk != null) {
  			var1.setInteger("SpawnX", this.spawnChunk.posX);
  			var1.setInteger("SpawnY", this.spawnChunk.posY);
-@@ -355,6 +377,59 @@
+@@ -355,6 +380,59 @@
  				if(this.worldObj.difficultySetting == 3) {
  					var2 = var2 * 3 / 2;
  				}
@@ -858,43 +905,59 @@
  		addIdClassMapping(102, false, true, Packet102WindowClick.class);
 --- net/minecraft/src/WorldInfo.java
 +++ net/minecraft/src/WorldInfo.java
-@@ -18,6 +18,7 @@
+@@ -18,6 +18,11 @@
  	private int rainTime;
  	private boolean isThundering;
  	private int thunderTime;
 +	private boolean gamestart = false;
++	private boolean gamestartnew = false;
++	private int newGameTimer = -1;
++	private int newDiamond1 = 0;
++	private int newDiamond2 = 0;
  
  	public WorldInfo(NBTTagCompound var1) {
  		this.randomSeed = var1.getLong("RandomSeed");
-@@ -33,6 +34,7 @@
+@@ -33,6 +38,11 @@
  		this.isRaining = var1.getBoolean("raining");
  		this.thunderTime = var1.getInteger("thunderTime");
  		this.isThundering = var1.getBoolean("thundering");
 +		this.gamestart = var1.getBoolean("gamestart");
++		this.gamestartnew = var1.getBoolean("gamestartnew");
++		this.newGameTimer = var1.getInteger("newGameTimer");
++		this.newDiamond1 = var1.getInteger("newDiamond1");
++		this.newDiamond2 = var1.getInteger("newDiamond2");
  		if(var1.hasKey("Player")) {
  			this.field_22195_h = var1.getCompoundTag("Player");
  			this.field_22194_i = this.field_22195_h.getInteger("Dimension");
-@@ -61,6 +63,7 @@
+@@ -61,6 +71,11 @@
  		this.isRaining = var1.isRaining;
  		this.thunderTime = var1.thunderTime;
  		this.isThundering = var1.isThundering;
 +		this.gamestart = var1.gamestart;
++		this.gamestartnew = var1.gamestartnew;
++		this.newGameTimer = var1.newGameTimer;
++		this.newDiamond1 = var1.newDiamond1;
++		this.newDiamond2 = var1.newDiamond2;
  	}
  
  	public NBTTagCompound func_22185_a() {
-@@ -100,6 +103,7 @@
+@@ -100,6 +115,12 @@
  		var1.setBoolean("raining", this.isRaining);
  		var1.setInteger("thunderTime", this.thunderTime);
  		var1.setBoolean("thundering", this.isThundering);
 +		var1.setBoolean("gamestart", this.gamestart);
++		var1.setBoolean("gamestartnew", this.gamestartnew);
++		var1.setInteger("newGameTimer", this.newGameTimer);
++		var1.setInteger("newDiamond1", this.newDiamond1);
++		var1.setInteger("newDiamond2", this.newDiamond2);
++		var1.setInteger("newGameTimer", this.newGameTimer);
  		if(var2 != null) {
  			var1.setCompoundTag("Player", var2);
  		}
-@@ -174,6 +178,14 @@
- 
+@@ -175,6 +196,47 @@
  	public void setThunderTime(int var1) {
  		this.thunderTime = var1;
-+	}
+ 	}
 +
 +	public boolean getGameStart() {
 +		return this.gamestart;
@@ -902,9 +965,43 @@
 +
 +	public void setGameStart(boolean var1) {
 +		this.gamestart = var1;
- 	}
++	}
++
++	public boolean getGameStartnew() {
++		return this.gamestartnew;
++	}
++
++	public int getNewGameTimer() {
++		return this.newGameTimer;
++	}
++
++	public void setNewGameTimer(int var1) {
++		this.newGameTimer = var1;
++	}
++
++	public int getNewDiamond1() {
++		return this.newDiamond1;
++	}
++
++	public void setNewDiamond1(int var1) {
++		this.newDiamond1 = var1;
++	}
++
++	public int getNewDiamond2() {
++		return this.newDiamond2;
++	}
++
++	public void setNewDiamond2(int var1) {
++		this.newDiamond2 = var1;
++	}
++
++	public void setGameStartnew(boolean var1) {
++		this.gamestartnew = var1;
++	}
++
  
  	public boolean getIsRaining() {
+ 		return this.isRaining;
 --- /dev/null
 +++ net/minecraft/src/WorldRandomCreepy.java
 @@ -1,0 +1,333 @@
@@ -979,14 +1076,14 @@
 +		for(int i = -16; i < 16; i++) {
 +			for(int j = 0; j > -16; j--) {
 +				for(int k = -16; k < 16; k++) {
-+					this.worldObj.setBlockWithNotify(i, j, k, 0);
++					this.worldObj.setBlockWithNotify((int)playerSP.posX + i, (int)playerSP.posY + j, (int)playerSP.posZ + k, 0);
 +				}
 +			}
 +		}
 +	}
 +
 +	public void event6(EntityPlayerMP playerSP) {
-+		playerSP.moveForward *= -0.98F;
++		playerSP.timerS[2] = true;
 +	}
 +
 +	public void event7(EntityPlayerMP playerSP) {
@@ -1368,13 +1465,19 @@
  import java.util.logging.Logger;
  import net.minecraft.server.MinecraftServer;
  
-@@ -410,8 +408,38 @@
+@@ -410,8 +408,44 @@
  			var1 = "* " + this.playerEntity.username + " " + var1.substring(var1.indexOf(" ")).trim();
  			logger.info(var1);
  			this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat(var1));
++		} else if(var1.equalsIgnoreCase("/startGame classic") || var1.equalsIgnoreCase("/startGame c")) {
++			if(this.mcServer.configManager.isOp(this.playerEntity.username)) {
++				this.playerEntity.worldObj.startGame(false);
++			} else {
++				this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("You are not an OP."));
++			}
 +		} else if(var1.equalsIgnoreCase("/startGame")) {
 +			if(this.mcServer.configManager.isOp(this.playerEntity.username)) {
-+				this.playerEntity.worldObj.startGame();
++				this.playerEntity.worldObj.startGame(true);
 +			} else {
 +				this.mcServer.configManager.sendPacketToAllPlayers(new Packet3Chat("You are not an OP."));
 +			}
@@ -1495,13 +1598,24 @@
  	public int blockIndexInTexture;
  	public final int blockID;
  	protected float blockHardness;
-@@ -468,6 +469,11 @@
+@@ -468,6 +469,22 @@
  	public void harvestBlock(World var1, EntityPlayer var2, int var3, int var4, int var5, int var6) {
  		var2.addStat(StatList.mineBlockStatArray[this.blockID], 1);
  		this.dropBlockAsItem(var1, var3, var4, var5, var6);
 +		if(this instanceof BlockOre || this instanceof BlockOreStorage || this instanceof BlockRedstoneOre) {
 +			var2.point += 5;
 +			var2.dataWatcher.updateObject(18, var2.point);
++			if(var1.worldInfo.getGameStartnew()) {
++				if(this.equals(oreDiamond)) {
++					if(var2.team == 1) {
++						var1.worldInfo.setNewDiamond1(var1.worldInfo.getNewDiamond1() + 1);
++					} else {
++						var1.worldInfo.setNewDiamond2(var1.worldInfo.getNewDiamond2() + 1);
++					}
++					var2.dataWatcher.updateObject(22, "Team1 Diamond: " + var1.worldInfo.getNewDiamond1());
++					var2.dataWatcher.updateObject(23, "Team2 Diamond: " + var1.worldInfo.getNewDiamond2());
++				}
++			}
 +			((EntityPlayerMP)var2).playerNetServerHandler.sendPacket(new Packet81Sound("/sound/point2_onjin.wav"));
 +		}
  	}
@@ -1555,7 +1669,7 @@
  	}
  
  	public void setWorldHandler(World var1) {
-@@ -63,7 +64,150 @@
+@@ -63,7 +64,161 @@
  		return 1.62F;
  	}
  
@@ -1626,7 +1740,8 @@
 +		}
 +		if(this.timerS[2]) {
 +			this.timer[2]++;
-+			if(this.timer[2] >= 20 * 8) {
++			this.moveForward *= -0.98F;
++			if(this.timer[2] >= 20 * 5) {
 +				this.timerS[2] = false;
 +				this.timer[2] = 0;
 +			}
@@ -1665,6 +1780,15 @@
 +		if(this.worldObj.worldInfo.getGameStart()) {
 +			this.tickEvent();
 +			this.dataWatcher.updateObject(17, this.team);
++			if(this.worldObj.worldInfo.getGameStartnew()) {
++				this.dataWatcher.updateObject(21, "Time: " + this.worldObj.worldInfo.getNewGameTimer() / 20);
++				this.dataWatcher.updateObject(22, "Team1 Diamond: " + this.worldObj.worldInfo.getNewDiamond1());
++				this.dataWatcher.updateObject(23, "Team2 Diamond: " + this.worldObj.worldInfo.getNewDiamond2());
++			} else {
++				this.dataWatcher.updateObject(21, "");
++				this.dataWatcher.updateObject(22, "");
++				this.dataWatcher.updateObject(23, "");
++			}
 +			this.tickPoints++;
 +			if(this.tickPoints > 40) {
 +				List<EntityPlayerMP> playerMPS = this.worldObj.playerEntities;
@@ -1699,6 +1823,7 @@
 +			}
 +			if(this.posZ > 16 || this.posZ < -16) {
 +				this.playerNetServerHandler.teleportTo(0, this.worldObj.findTopSolidBlock(0, 0), 0, 0, 0);
++				this.playerNetServerHandler.sendPacket(new Packet3Chat("The game hasn't started yet."));
 +			}
 +			this.health = 20;
 +			this.point = 0;
@@ -1706,7 +1831,7 @@
  		this.itemInWorldManager.func_328_a();
  		--this.ticksOfInvuln;
  		this.currentCraftingInventory.updateCraftingMatrix();
-@@ -242,11 +386,6 @@
+@@ -242,11 +397,6 @@
  	}
  
  	public void wakeUpPlayer(boolean var1, boolean var2, boolean var3) {
@@ -1899,13 +2024,15 @@
  import java.util.logging.Logger;
  import net.minecraft.server.MinecraftServer;
  
-@@ -65,6 +64,10 @@
+@@ -65,6 +64,12 @@
  						var5.deopPlayer(var13);
  						var5.sendChatMessageToPlayer(var13, "\u00a7eYou are no longer op!");
  						this.sendNoticeToOps(var4, "De-opping " + var13);
++					} else if(var2.equalsIgnoreCase("/startGame classic") || var2.equalsIgnoreCase("/startGame c")) {
++						this.minecraftServer.worldMngr[0].startGame(false);
 +					} else if(var2.equalsIgnoreCase("/startGame")) {
-+						this.minecraftServer.worldMngr[0].startGame();
-+					} else if(var2.equalsIgnoreCase("/stopGame")) {
++						this.minecraftServer.worldMngr[0].startGame(true);
++					}  else if(var2.equalsIgnoreCase("/stopGame")) {
 +						this.minecraftServer.worldMngr[0].stopGame();
  					} else if(var2.toLowerCase().startsWith("ban-ip ")) {
  						var13 = var2.substring(var2.indexOf(" ")).trim();
@@ -1934,7 +2061,7 @@
  		var1.start();
  		ConsoleLogManager.init();
 -		logger.info("Starting minecraft server version Beta 1.6.6");
-+		logger.info("Starting minecraft server version VS Creepy Created by Yon4800 ra1");
++		logger.info("Starting minecraft server version VS Creepy Created by Yon4800 rb0");
  		if(Runtime.getRuntime().maxMemory() / 1024L / 1024L < 512L) {
  			logger.warning("**** NOT ENOUGH RAM!");
  			logger.warning("To start the server with more ram, launch it as \"java -Xmx1024M -Xms1024M -jar minecraft_server.jar\"");
