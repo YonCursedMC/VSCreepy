@@ -1,233 +1,316 @@
 <img alt="GitHub Downloads (all releases)" src="https://img.shields.io/github/downloads/YonCursedMC/VSCreepy/total?style=for-the-badge">
 
-# JP
+---
+
+# 🇯🇵
 
 ## VSCreepy
-Creepyバトル どちらが最初にダイヤモンドを手にする事ができるのか？！
 
-### これは？
-* ダイヤモンドを最初に手に入れることが目的の対戦型ゲームです。
-* 怪奇現象で妨害しよう
-* サーバー限定です
-* 実質Creepy Minecraft Versionではありません。
+Creepyバトル — 最初にダイヤモンドを手に入れるのはどっちだ？！
 
-### 注意事項
-- このバージョンはMojang公式から実際に出されたものではなく、また公式に認定されたものでもありません。
-- このバージョンをプレイして発生した損害に関しては製作者は一切の責任を負いません。
-- 無断転載は禁止です。もし発見したら報告します。
-- MCPのライセンスによりコードは公開しません。
-- 点滅やドッキリ要素、ホラー音が多いです。やる際は十分注意してください。
-- かなり重いです。やる際はそれなりのCPUやビデオボード、RAMを搭載したPCをご用意ください。
-- 実況などで使う場合は、このバージョンのURLのクレジット表記をしてくれると嬉しいです。
-- クラッシュすることがありますが仕様です。
-- WindowsPC推奨です。Androidなどだと一部怪奇が起こらないかもしれません
-- 結構な頻度でとんでもない挙動をすることがあります。自己責任で実行して下さい。
+---
 
-### プレイ方法(起動)
-* クライアントの方は、MultiMC or PrismLauncher(PrismLauncher推薦)で起動します。
-* [こちら](https://github.com/YonCursedMC/VSCreepy/releases)からダウンロードできます。「VSCreepy.zip」というものをダウンロードしてください。
-* (サーバー管理者のみ) サーバーは、「VSCreepy_server.jar」というものをダウンロードしてください。起動方法は普通のサーバーと同じです。
-* (サーバー管理者のみ) 勝利したらワールドリセットする必要がある(再起動する必要がある)ので注意です。(エラーが出てサーバーが停止します。)
-* サーバーに入れたら、OPがチャットに```/startgame```と打ってください。
+## 概要
 
-### プレイ方法(ルール、操作方法)
-<img width="600" height="300" alt="GameGui" src="https://github.com/user-attachments/assets/423fc59c-f6d2-4887-8c93-da58e3577e63" />
+ダイヤモンドを最初に入手することを目指す、対戦型のMinecraftゲームです。
+ただし普通のサバイバルでは終わりません。**怪奇現象による妨害**が発生します。
 
-* OPがチャットに```/startgame```とチャットに打つとゲームが始まります。
-* チームの誰かが**ダイヤモンドをインベントリに入れる**ことが目的です。
-* チームはランダムで、1チーム、2チームに分かれます。
-* 1チームは-X座標、2チームは+X座標です。そちら以降はいけません。もし座標が不平等(隣が海だったり)であれば、ワールドを作成し直すと良いでしょう。
-* 時間が立つとポイントが溜まります。40Tick(2秒)ごとに1たまります。
-* 奇数などでチームメンバーが少ない場合は、少ないチームが+2になります。
-```
-鉱石採掘+5
-動物討伐+3
-mob討伐+5
-呪いエンティティ討伐+10
-ダメージを受ける+3
-```
-みたいな感じで貯める事もできます。
-* ポイントはプレイヤーごとで、チーム共有ではありません。
-* ポイントが100まで溜まったら、```/creepy```と打ちましょう。相手のチームに怪奇現象が起き妨害できます。
-* 怪奇現象はランダムに起きます。何が起こるかはお楽しみです。
-* 時間は1000固定です。その代わり、ベットを右クリックすることによりリスポーン地点を固定できます。
-* OPが、```/stopgame```コマンドを打つとゲームを中断することができます。
+※ サーバー専用です
+※ 通常のCreepy Minecraftとは別物です
 
-<details>
-<summary>怪奇現象の種類(ネタバレ注意)</summary>
-  
-  * Public Voidが出てくる、攻撃されるとキックされて消える
-  * Binary444が出てくる、攻撃されると別の場所にテレポートしてしまい消える
-  * That Whiteが出てきて、攻撃されるとアイテムをばらまかれる
-  * 雷が大量に落ちる
-  * 画面に文字が大量に出てくる
-  * 床が抜ける
-  * 勝手に移動する
-  * LagMobが出てきて、攻撃されるとFPSが下がる
-  * LongFixが出てきて、攻撃されると持ってるアイテムをすべて消される
-  * LengthFlagが出てきて、攻撃されるとポイントが0になる
-  * LongleggedAlexが出てきて、攻撃されるとPCがブルスクもどきを出してクラッシュする
-  * LongleggedJebが出てきて、攻撃されると消すのがめんどくさいウィンドウが出てくる
-  * Tikthinkが出てきて、攻撃されると大爆発する
-  * 急に爆発する
-  * 岩盤の十字架が出てくる
-  * 看板が出てくる
-  * 謎のソフトが起動する
-  * ディスクが勝手に開く
-  * プッシュ通知が出る
-  * 電卓とかメモ帳とかが勝手に開く
-  * GUIがバグり、変な音がなる
-  * 動けなくなり、チャットが大量に出てくる
-  * 岩盤部屋が出てきて、TheWatcherに...
-  * HeroVoidが出てくる、攻撃されるとモーダルウィンドウが大量に出てきて消える
-  * ウィンドウが小さくなり、突然震えだす
-  * アイテムがシャッフルされる
+---
 
-</details>
+## 注意事項
 
-わからないことや、バグなどがあればissueなどに書いてください。
+* これはMojang公式のものではありません（非公認）
+* このバージョンによるトラブルについて、作者は責任を負いません
+* 無断転載は禁止です（見つけた場合は対応します）
+* MCPのライセンスにより、コードは非公開です
+* 点滅・ホラー音・ドッキリ要素が多く含まれます
+* 動作が重めです（高スペックPC推奨）
+* クラッシュすることがあります（仕様です）
+* Windows PC推奨（他環境では一部演出が動作しない可能性あり）
+* 予期しない挙動が発生することがあります（自己責任でプレイしてください）
+* 実況で使用する場合は、ダウンロードURLのクレジット表記をお願いします
 
-### クレジット
+---
 
-#### テクスチャ
-- Test_Alpha
-- Tei
-#### 効果音
-- 音人 https://on-jin.com/
-- pixabay https://pixabay.com/
-- freesound? https://freesound.org
-#### 利用ツール
-- Intelij IDEA
-- RetroMCP
-- Gemini Nano Banana
-- Perplexity
-- Claude
+## 起動方法
 
-# EN
+### クライアント
+
+* MultiMC または PrismLauncher（推奨）を使用
+* 以下からダウンロード
+  [https://github.com/YonCursedMC/VSCreepy/releases](https://github.com/YonCursedMC/VSCreepy/releases)
+  → 「VSCreepy.zip」を使用
+
+### サーバー（管理者向け）
+
+* 「VSCreepy_server.jar」をダウンロード
+* 通常のMinecraftサーバーと同様に起動
+* 勝利後はワールドリセット（再起動）が必要
+
+---
+
+## ゲーム開始コマンド
+
+* クラシックモード
+  `/startgame c` または `/startgame classic`
+
+* タイムアタックモード（New）
+  `/startgame`
+
+* ゲーム中断
+  `/stopgame`
+
+---
+
+## ゲームルール
+
+### ■ Classicモード
+
+チームの誰かが**ダイヤモンドをインベントリに入れた時点で勝利**。
+
+---
+
+### ■ Newモード（タイムアタック）
+
+45分以内にどれだけダイヤモンドを集められるかを競います。
+
+#### チーム
+
+* ランダムで2チームに分かれる
+* 1チーム：-X側 / 2チーム：+X側
+* エリア外には進めない
+* 地形が不公平な場合はワールド再生成推奨
+
+#### ポイントシステム
+
+* 2秒ごとに +1ポイント
+
+* 行動によって加算：
+
+  * 鉱石採掘 +5
+  * 動物討伐 +3
+  * モブ討伐 +5
+  * 呪いエンティティ討伐 +10
+  * ダメージを受ける +3
+
+* ポイントは**個人単位（チーム共有なし）**
+
+#### 特殊能力
+
+* 100ポイントで `/creepy` を使用可能
+* 相手チームにランダムな怪奇現象を発生させる
+
+#### その他
+
+* 時間は常に1000固定
+* ベッド右クリックでリスポーン地点設定可能
+* 人数差がある場合、少ないチームに+2補正
+
+---
+
+## 怪奇現象（一部）
+
+※ネタバレ注意
+
+* 雷が大量に落ちる
+* 床が抜ける
+* 強制移動
+* 大爆発
+* GUIバグ・異音
+* アイテムシャッフル
+* 特殊エンティティ出現（攻撃で様々な異常発生）
+* PCへの影響っぽい演出（クラッシュ風など）
+
+※何が起こるかはランダムです
+
+---
+
+## サポート
+
+バグ報告・質問はIssueへお願いします。
+
+---
+
+## クレジット
+
+**テクスチャ**
+
+* Test_Alpha
+* Tei
+
+**効果音**
+
+* 音人 [https://on-jin.com/](https://on-jin.com/)
+* Pixabay [https://pixabay.com/](https://pixabay.com/)
+* Freesound [https://freesound.org](https://freesound.org)
+
+**使用ツール**
+
+* IntelliJ IDEA
+* RetroMCP
+* Gemini Nano Banana
+* Perplexity
+* Claude
+
+---
+
+# 🇺🇸 English Version
+
 ## VSCreepy
 
-### Creepy Battle
-
-Who will be the first to get a diamond?!
+Creepy Battle — Who will get the diamond first?!
 
 ---
 
-### What is this?
+## Overview
 
-* This is a competitive game where the goal is for **holding a diamond first**.
-* Use paranormal phenomena to interfere with your opponents.
-* Server-only.
-* Not exactly the Creepy Minecraft Version.
+A competitive Minecraft game where the goal is simple:
+**Be the first to obtain a diamond.**
 
----
+But there’s a twist — **paranormal events will interfere with players.**
 
-### How to Play (Setup)
-
-* Clients should launch the game using **MultiMC** or **PrismLauncher** (PrismLauncher recommended).
-* Download from here: [https://github.com/YonCursedMC/VSCreepy/releases](https://github.com/YonCursedMC/VSCreepy/releases)
-  → Download **“VSCreepy.zip”**
-* (Server admins only) Download **“VSCreepy_server.jar”** The startup method is the same as for a regular server.
-* (Server admins only) After a win, the world must be reset (server restart required).
-  Note: The server will stop due to an error.
-* Once everyone has joined the server, the OP should type ```/startgame``` in chat.
+* Server-only
+* Not a standard Creepy Minecraft version
 
 ---
 
-### Important Notes
-- This version is not officially released by Mojang, nor is it officially certified.
-- The creator assumes no responsibility for any damage caused by playing this version.
-- Unauthorized reproduction is prohibited. We will report any instances of this being discovered.
-- Due to the MCP license, the code will not be released.
-- Contains many flashing lights, jump scares, and horror sounds. Please play with caution.
-- This is quite resource-intensive. Please ensure you have a PC with a decent CPU, video card, and RAM before playing.
-- If you use this in a live stream or similar, we would appreciate it if you credit the URL of this version.
-- Crashes may occur, but this is by design.
-- Windows PC is recommended. Some strange occurrences may not happen on Android, etc.
-- This game may behave very frequently and unexpectedly. Please proceed at your own risk.
+## Disclaimer
+
+* Not an official Mojang product
+* The developer is not responsible for any damage or issues
+* Redistribution is prohibited
+* Source code is not 공개 (due to MCP license)
+* Contains flashing, jump scares, and horror sounds
+* Performance-heavy (high-spec PC recommended)
+* Crashes may occur (intended behavior)
+* Windows recommended (some effects may not work elsewhere)
+* Unexpected behavior may occur — play at your own risk
+* Please credit the download URL when using in videos/streams
 
 ---
 
-### How to Play (Rules & Controls)
-<img width="600" height="300" alt="GameGui" src="https://github.com/user-attachments/assets/423fc59c-f6d2-4887-8c93-da58e3577e63" />
+## How to Launch
 
-* When OP types ```/startgame``` in the chat, the game starts.
-* The goal is for someone on the team to **put a diamond into their inventory**.
-* Teams are assigned randomly into Team 1 and Team 2.
-* Team 1 stays on the **-X side**, Team 2 on the **+X side**.
-  Do not cross beyond your side.
-  If the terrain is unfair (e.g., ocean nearby), regenerate the world.
-* Points accumulate over time:
-  +1 point every 40 ticks (2 seconds)
-* If the number of team members is small due to an odd number, etc., the smaller team gets +2.
+### Client
 
-You can also earn points like this:
+* Use MultiMC or PrismLauncher (recommended)
+* Download from:
+  [https://github.com/YonCursedMC/VSCreepy/releases](https://github.com/YonCursedMC/VSCreepy/releases)
+  → Use `VSCreepy.zip`
 
-```
-+5 for Ore mining
-+3 for killing animals
-+5 for killing mobs
-+10 for killing cursed entities
-+3 for taking damage
-```
+### Server (Admin only)
 
-* Points are **per player**, not shared with the team.
-* When you reach 100 points, type `/creepy` to trigger a paranormal event on the opposing team.
-* Events occur randomly—you won’t know what happens!
-* Time is fixed at 1000. Alternatively, you can fix your respawn point by right-clicking on the bed.
-* OP can interrupt the game by entering the `/stopgame` command.
+* Download `VSCreepy_server.jar`
+* Launch like a normal Minecraft server
+* World reset (restart) is required after a match
 
 ---
 
-<details>
-<summary>Types of Paranormal Events (Spoilers)</summary>
+## Commands
 
-* Public Void appears, and when attacked, it kicks and disappears
-* Binary444 appears, and when attacked, it teleports to another location and disappears
-* That White appears, and when attacked, it scatters items
-* A massive amount of lightning strikes
-* A massive amount of text appears on the screen
-* The floor collapses
-* It moves on its own
-* LagMob appears, and when attacked, FPS drops
-* LongFix appears, and when attacked, all held items disappear
-* LengthFlag appears, and when attacked, points become 0
-* LongleggedAlex appears, and when attacked, the PC displays a fake BSOD and crashes
-* LongleggedJeb appears, and when attacked, an annoying window that's hard to close appears
-* Tikthink appears, and when attacked, it causes a massive explosion
-* Suddenly explodes
-* A bedrock cross appears
-* Signs appear
-* A mysterious program launches
-* The disk drive opens on its own
-* Push notifications appear
-* Calculator, notepad, etc., open on their own
-* GUI glitches, strange sounds play
-* Become unable to move, massive chat messages appear
-* A bedrock room appears, leading to TheWatcher...
-* HeroVoid appears, and when attacked, a massive number of modal windows appear and it disappears
-* The window shrinks and suddenly starts shaking
-* Items get shuffled
+* Classic Mode
+  `/startgame c` or `/startgame classic`
 
-</details>
+* New Mode (Time Attack)
+  `/startgame`
+
+* Stop Game
+  `/stopgame`
 
 ---
 
-If you have any questions or find bugs, please report them in the Issues section.
+## Game Modes
+
+### ■ Classic Mode
+
+First team to have a player **put a diamond in their inventory wins**.
 
 ---
 
-### Credits
+### ■ New Mode (Time Attack)
 
-#### Textures
-- Test_Alpha
-- Tei
-#### Sound Effects
-- On-jin https://on-jin.com/
-- pixabay https://pixabay.com/
-- freesound? https://freesound.org
-#### Tools Used
-- Intelij IDEA
-- RetroMCP
-- Gemini Nano Banana
-- Perplexity
-- Claude
+Collect as many diamonds as possible within 45 minutes.
+
+#### Teams
+
+* Randomly split into 2 teams
+* Team 1: -X side / Team 2: +X side
+* Cannot cross boundaries
+* If terrain is unfair, regenerate the world
+
+#### Points
+
+* +1 point every 2 seconds
+
+* Additional points:
+
+  * Mining ores +5
+  * Killing animals +3
+  * Killing mobs +5
+  * Killing cursed entities +10
+  * Taking damage +3
+
+* Points are **individual (not shared)**
+
+#### Ability
+
+* At 100 points, use `/creepy`
+* Triggers a random paranormal event on the enemy team
+
+#### Other
+
+* Time is fixed at 1000
+* Right-click bed to set spawn point
+* Smaller team gets +2 bonus
+
+---
+
+## Paranormal Events (Examples)
+
+* Lightning storms
+* Floor collapsing
+* Forced movement
+* Explosions
+* GUI glitches & strange sounds
+* Item shuffling
+* Special entities causing unique effects
+* Fake system crashes and weird behaviors
+
+*Events are random.*
+
+---
+
+## Support
+
+Report bugs or issues via GitHub Issues.
+
+---
+
+## Credits
+
+**Textures**
+
+* Test_Alpha
+* Tei
+
+**Sounds**
+
+* On-Jin [https://on-jin.com/](https://on-jin.com/)
+* Pixabay [https://pixabay.com/](https://pixabay.com/)
+* Freesound [https://freesound.org](https://freesound.org)
+
+**Tools**
+
+* IntelliJ IDEA
+* RetroMCP
+* Gemini Nano Banana
+* Perplexity
+* Claude
+
+---
+
+Proofread with AI.
+If the evaluation is bad, I will revert the text.
