@@ -1,3 +1,179 @@
+--- net/minecraft/src/ChunkProviderServer.java
++++ net/minecraft/src/ChunkProviderServer.java
+@@ -40,45 +40,62 @@
+ 
+ 	}
+ 
+-	public Chunk loadChunk(int var1, int var2) {
+-		int var3 = ChunkCoordIntPair.chunkXZ2Int(var1, var2);
+-		this.field_725_a.remove(Integer.valueOf(var3));
+-		Chunk var4 = (Chunk)this.id2ChunkMap.get(Integer.valueOf(var3));
+-		if(var4 == null) {
+-			var4 = this.func_4063_e(var1, var2);
+-			if(var4 == null) {
++	public Chunk loadChunk(int x, int z) {
++		int chunkKey = ChunkCoordIntPair.chunkXZ2Int(x, z);
++		Integer wrappedKey = Integer.valueOf(chunkKey);
++
++		this.field_725_a.remove(wrappedKey);
++		Chunk chunk = (Chunk)this.id2ChunkMap.get(wrappedKey);
++
++		if(chunk == null) {
++			chunk = this.func_4063_e(x, z);
++
++			if(chunk == null) {
+ 				if(this.serverChunkGenerator == null) {
+-					var4 = this.dummyChunk;
++					chunk = this.dummyChunk;
+ 				} else {
+-					var4 = this.serverChunkGenerator.provideChunk(var1, var2);
+-				}
+-			}
+-
+-			this.id2ChunkMap.put(Integer.valueOf(var3), var4);
+-			this.field_727_f.add(var4);
+-			if(var4 != null) {
+-				var4.func_4053_c();
+-				var4.onChunkLoad();
+-			}
+-
+-			if(!var4.isTerrainPopulated && this.chunkExists(var1 + 1, var2 + 1) && this.chunkExists(var1, var2 + 1) && this.chunkExists(var1 + 1, var2)) {
+-				this.populate(this, var1, var2);
+-			}
+-
+-			if(this.chunkExists(var1 - 1, var2) && !this.provideChunk(var1 - 1, var2).isTerrainPopulated && this.chunkExists(var1 - 1, var2 + 1) && this.chunkExists(var1, var2 + 1) && this.chunkExists(var1 - 1, var2)) {
+-				this.populate(this, var1 - 1, var2);
+-			}
+-
+-			if(this.chunkExists(var1, var2 - 1) && !this.provideChunk(var1, var2 - 1).isTerrainPopulated && this.chunkExists(var1 + 1, var2 - 1) && this.chunkExists(var1, var2 - 1) && this.chunkExists(var1 + 1, var2)) {
+-				this.populate(this, var1, var2 - 1);
+-			}
+-
+-			if(this.chunkExists(var1 - 1, var2 - 1) && !this.provideChunk(var1 - 1, var2 - 1).isTerrainPopulated && this.chunkExists(var1 - 1, var2 - 1) && this.chunkExists(var1, var2 - 1) && this.chunkExists(var1 - 1, var2)) {
+-				this.populate(this, var1 - 1, var2 - 1);
++					chunk = this.serverChunkGenerator.provideChunk(x, z);
++				}
++			}
++
++			this.id2ChunkMap.put(wrappedKey, chunk);
++			this.field_727_f.add(chunk);
++
++			if(chunk != null) {
++				chunk.func_4053_c();
++				chunk.onChunkLoad();
++			}
++
++
++			boolean canPopulate = !chunk.isTerrainPopulated;
++
++			if(canPopulate && this.chunkExists(x + 1, z + 1) && this.chunkExists(x, z + 1) && this.chunkExists(x + 1, z)) {
++				this.populate(this, x, z);
++			}
++
++			if(this.chunkExists(x - 1, z)) {
++				Chunk west = this.provideChunk(x - 1, z);
++				if(!west.isTerrainPopulated && this.chunkExists(x - 1, z + 1) && this.chunkExists(x, z + 1)) {
++					this.populate(this, x - 1, z);
++				}
++			}
++
++			if(this.chunkExists(x, z - 1)) {
++				Chunk north = this.provideChunk(x, z - 1);
++				if(!north.isTerrainPopulated && this.chunkExists(x + 1, z - 1) && this.chunkExists(x + 1, z)) {
++					this.populate(this, x, z - 1);
++				}
++			}
++
++			if(this.chunkExists(x - 1, z - 1)) {
++				Chunk northWest = this.provideChunk(x - 1, z - 1);
++				if(!northWest.isTerrainPopulated && this.chunkExists(x - 1, z) && this.chunkExists(x, z - 1)) {
++					this.populate(this, x - 1, z - 1);
++				}
+ 			}
+ 		}
+ 
+-		return var4;
++		return chunk;
+ 	}
+ 
+ 	public Chunk provideChunk(int var1, int var2) {
+@@ -117,13 +134,7 @@
+ 
+ 	private void func_373_b(Chunk var1) {
+ 		if(this.field_729_d != null) {
+-			try {
+-				var1.lastSaveTime = this.world.getWorldTime();
+-				this.field_729_d.saveChunk(this.world, var1);
+-			} catch (IOException var3) {
+-				var3.printStackTrace();
+-			}
+-
++			ChunkSaveQueue.queueChunkSave(this.world, var1, this.field_729_d);
+ 		}
+ 	}
+ 
+@@ -149,9 +160,11 @@
+ 			}
+ 
+ 			if(var5.needsSaving(var1)) {
+-				this.func_373_b(var5);
+-				var5.isModified = false;
++				this.queueChunkSave(var5);
++
++				var5.isModified.set(false);
+ 				++var3;
++
+ 				if(var3 == 24 && !var1) {
+ 					return false;
+ 				}
+@@ -162,25 +175,43 @@
+ 			if(this.field_729_d == null) {
+ 				return true;
+ 			}
+-
+ 			this.field_729_d.saveExtraData();
+ 		}
+ 
+ 		return true;
+ 	}
+ 
++	private void queueChunkSave(Chunk var1) {
++		if(this.field_729_d != null) {
++			try {
++				ChunkSaveQueue.queueChunkSave(this.world, var1, this.field_729_d);
++			} catch (Exception var3) {
++				var3.printStackTrace();
++			}
++		}
++	}
++
++
+ 	public boolean func_361_a() {
+ 		if(!this.world.levelSaving) {
+ 			for(int var1 = 0; var1 < 100; ++var1) {
+-				if(!this.field_725_a.isEmpty()) {
+-					Integer var2 = (Integer)this.field_725_a.iterator().next();
+-					Chunk var3 = (Chunk)this.id2ChunkMap.get(var2);
++				if(this.field_725_a.isEmpty()) break;
++
++				Integer var2 = (Integer)this.field_725_a.iterator().next();
++				Chunk var3 = (Chunk)this.id2ChunkMap.get(var2);
++
++				if(var3 != null) {
+ 					var3.onChunkUnload();
++
+ 					this.func_373_b(var3);
+ 					this.func_375_a(var3);
++
+ 					this.field_725_a.remove(var2);
+ 					this.id2ChunkMap.remove(var2);
++
+ 					this.field_727_f.remove(var3);
++				} else {
++					this.field_725_a.remove(var2);
+ 				}
+ 			}
+ 
 --- net/minecraft/src/World.java
 +++ net/minecraft/src/World.java
 @@ -1,12 +1,7 @@
@@ -15,16 +191,17 @@
  
  public class World implements IBlockAccess {
  	public boolean scheduledUpdatesAreImmediate = false;
-@@ -51,6 +46,8 @@
+@@ -51,6 +46,9 @@
  	private int ambientTickCountdown = this.rand.nextInt(12000);
  	private List field_778_L = new ArrayList();
  	public boolean singleplayerWorld = false;
 +	public WorldRandomCreepy creepy;
 +	public final Map<String, Integer> savedTeams = new HashMap<>();
++	private boolean glassPlaced = false;
  
  	public WorldChunkManager getWorldChunkManager() {
  		return this.worldProvider.worldChunkMgr;
-@@ -85,6 +82,7 @@
+@@ -85,6 +83,7 @@
  
  		this.calculateInitialSkylight();
  		this.func_27070_x();
@@ -32,7 +209,7 @@
  	}
  
  	protected IChunkProvider func_22086_b() {
-@@ -102,7 +100,7 @@
+@@ -102,7 +101,7 @@
  			var1 += this.rand.nextInt(64) - this.rand.nextInt(64);
  		}
  
@@ -41,7 +218,7 @@
  		this.worldChunkLoadOverride = false;
  	}
  
-@@ -718,6 +716,37 @@
+@@ -718,6 +717,37 @@
  				EntityPlayer var5 = (EntityPlayer)var1;
  				this.playerEntities.add(var5);
  				this.updateAllPlayersSleepingFlag();
@@ -79,7 +256,47 @@
  			}
  
  			this.getChunkFromChunkCoords(var2, var3).addEntity(var1);
-@@ -1230,6 +1259,10 @@
+@@ -928,13 +958,14 @@
+ 
+ 		this.unloadedEntityList.clear();
+ 
++		List<Entity> toRemove = new ArrayList<>();
++
+ 		for(var1 = 0; var1 < this.loadedEntityList.size(); ++var1) {
+ 			var2 = (Entity)this.loadedEntityList.get(var1);
+ 			if(var2.ridingEntity != null) {
+ 				if(!var2.ridingEntity.isDead && var2.ridingEntity.riddenByEntity == var2) {
+ 					continue;
+ 				}
+-
+ 				var2.ridingEntity.riddenByEntity = null;
+ 				var2.ridingEntity = null;
+ 			}
+@@ -944,16 +975,17 @@
+ 			}
+ 
+ 			if(var2.isDead) {
+-				var3 = var2.chunkCoordX;
+-				var4 = var2.chunkCoordZ;
+-				if(var2.addedToChunk && this.chunkExists(var3, var4)) {
+-					this.getChunkFromChunkCoords(var3, var4).removeEntity(var2);
++				int cx = var2.chunkCoordX;
++				int cz = var2.chunkCoordZ;
++				if(var2.addedToChunk && this.chunkExists(cx, cz)) {
++					this.getChunkFromChunkCoords(cx, cz).removeEntity(var2);
+ 				}
+-
+-				this.loadedEntityList.remove(var1--);
++				toRemove.add(var2);
+ 				this.releaseEntitySkin(var2);
+ 			}
+ 		}
++		this.loadedEntityList.removeAll(toRemove);
++		toRemove.clear();
+ 
+ 		for(var1 = 0; var1 < this.loadedTileEntityList.size(); ++var1) {
+ 			TileEntity var5 = (TileEntity)this.loadedTileEntityList.get(var1);
+@@ -1230,6 +1262,10 @@
  		return this.newExplosion(var1, var2, var4, var6, var8, false);
  	}
  
@@ -90,7 +307,7 @@
  	public Explosion newExplosion(Entity var1, double var2, double var4, double var6, float var8, boolean var9) {
  		Explosion var10 = new Explosion(this, var1, var2, var4, var6, var8);
  		var10.isFlaming = var9;
-@@ -1414,7 +1447,155 @@
+@@ -1414,7 +1450,158 @@
  		this.spawnPeacefulMobs = var2;
  	}
  
@@ -236,16 +453,152 @@
 +				}
 +			}
 +		} else {
-+			for(int i = -16; i < 16; i++) {
-+				for(int j = -16; j < 16; j++) {
-+					this.setBlockWithNotify(i, 120, j, Block.nbglass.blockID);
++			if(!this.glassPlaced) {
++				for(int i = -16; i < 16; i++) {
++					for(int j = -16; j < 16; j++) {
++						this.setBlockWithNotify(i, 120, j, Block.nbglass.blockID);
++					}
 +				}
++				this.glassPlaced = true;
 +			}
 +		}
 +		this.worldInfo.setWorldTime(1000);
  		this.func_27066_i();
  		long var2;
  		if(this.isAllPlayersFullyAsleep()) {
+@@ -1620,50 +1807,97 @@
+ 					}
+ 				}
+ 			}
++			int[] batchX = new int[80];
++			int[] batchY = new int[80];
++			int[] batchZ = new int[80];
++			int[] batchBlock = new int[80];
++			int batchCount = 0;
+ 
+ 			for(var6 = 0; var6 < 80; ++var6) {
+ 				this.distHashCounter = this.distHashCounter * 3 + this.DIST_HASH_MAGIC;
+-				var7 = this.distHashCounter >> 2;
+-				var8 = var7 & 15;
+-				var9 = var7 >> 8 & 15;
+-				var10 = var7 >> 16 & 127;
+-				var15 = var14.blocks[var8 << 11 | var9 << 7 | var10] & 255;
+-				if(Block.tickOnLoad[var15]) {
+-					Block.blocksList[var15].updateTick(this, var8 + var3, var10, var9 + var4, this.rand);
++				int hash = this.distHashCounter >> 2;
++				int bx = hash & 15;
++				int bz = (hash >> 8) & 15;
++				int by = (hash >> 16) & 127;
++				int blockId = var14.blocks[bx << 11 | bz << 7 | by] & 255;
++				if(Block.tickOnLoad[blockId]) {
++					batchX[batchCount] = bx + var3;
++					batchY[batchCount] = by;
++					batchZ[batchCount] = bz + var4;
++					batchBlock[batchCount] = blockId;
++					batchCount++;
+ 				}
++			}
++			for(int b = 0; b < batchCount; b++) {
++				Block.blocksList[batchBlock[b]].updateTick(this, batchX[b], batchY[b], batchZ[b], this.rand);
+ 			}
+ 		}
+ 
+ 	}
+ 
+-	public boolean TickUpdates(boolean var1) {
+-		int var2 = this.scheduledTickTreeSet.size();
+-		if(var2 != this.scheduledTickSet.size()) {
+-			throw new IllegalStateException("TickNextTick list out of synch");
+-		} else {
+-			if(var2 > 1000) {
+-				var2 = 1000;
+-			}
+-
+-			for(int var3 = 0; var3 < var2; ++var3) {
+-				NextTickListEntry var4 = (NextTickListEntry)this.scheduledTickTreeSet.first();
+-				if(!var1 && var4.scheduledTime > this.worldInfo.getWorldTime()) {
+-					break;
+-				}
+-
+-				this.scheduledTickTreeSet.remove(var4);
+-				this.scheduledTickSet.remove(var4);
+-				byte var5 = 8;
+-				if(this.checkChunksExist(var4.xCoord - var5, var4.yCoord - var5, var4.zCoord - var5, var4.xCoord + var5, var4.yCoord + var5, var4.zCoord + var5)) {
+-					int var6 = this.getBlockId(var4.xCoord, var4.yCoord, var4.zCoord);
+-					if(var6 == var4.blockID && var6 > 0) {
+-						Block.blocksList[var6].updateTick(this, var4.xCoord, var4.yCoord, var4.zCoord, this.rand);
+-					}
+-				}
+-			}
+-
+-			return this.scheduledTickTreeSet.size() != 0;
+-		}
++	/**
++	 public boolean TickUpdates(boolean var1) {
++	 int var2 = this.scheduledTickTreeSet.size();
++	 if(var2 != this.scheduledTickSet.size()) {
++	 throw new IllegalStateException("TickNextTick list out of synch");
++	 } else {
++	 if(var2 > 1000) {
++	 var2 = 1000;
++	 }
++
++	 for(int var3 = 0; var3 < var2; ++var3) {
++	 NextTickListEntry var4 = (NextTickListEntry)this.scheduledTickTreeSet.first();
++	 if(!var1 && var4.scheduledTime > this.worldInfo.getWorldTime()) {
++	 break;
++	 }
++
++	 this.scheduledTickTreeSet.remove(var4);
++	 this.scheduledTickSet.remove(var4);
++	 byte var5 = 8;
++	 if(this.checkChunksExist(var4.xCoord - var5, var4.yCoord - var5, var4.zCoord - var5, var4.xCoord + var5, var4.yCoord + var5, var4.zCoord + var5)) {
++	 int var6 = this.getBlockId(var4.xCoord, var4.yCoord, var4.zCoord);
++	 if(var6 == var4.blockID && var6 > 0) {
++	 Block.blocksList[var6].updateTick(this, var4.xCoord, var4.yCoord, var4.zCoord, this.rand);
++	 }
++	 }
++	 }
++
++	 return this.scheduledTickTreeSet.size() != 0;
++	 }
++	 }
++	 */
++
++	public boolean TickUpdates(boolean forceUpdate) {
++		int count = this.scheduledTickTreeSet.size();
++		int limit = Math.min(count, 1000);
++		NextTickListEntry[] toProcess = new NextTickListEntry[limit];
++		Iterator<NextTickListEntry> it = this.scheduledTickTreeSet.iterator();
++		int actualCount = 0;
++
++		while(it.hasNext() && actualCount < limit) {
++			NextTickListEntry entry = it.next();
++			if(!forceUpdate && entry.scheduledTime > this.worldInfo.getWorldTime()) {
++				break;
++			}
++			toProcess[actualCount++] = entry;
++			it.remove();
++		}
++
++		for(int i = 0; i < actualCount; i++) {
++			NextTickListEntry entry = toProcess[i];
++
++			if(this.checkChunksExist(
++					entry.xCoord - 8, entry.yCoord - 8, entry.zCoord - 8,
++					entry.xCoord + 8, entry.yCoord + 8, entry.zCoord + 8)) {
++
++				int blockId = this.getBlockId(entry.xCoord, entry.yCoord, entry.zCoord);
++				if(blockId == entry.blockID && blockId > 0) {
++					Block.blocksList[blockId].updateTick(this, entry.xCoord, entry.yCoord, entry.zCoord, this.rand);
++				}
++			}
++		}
++
++		return !this.scheduledTickTreeSet.isEmpty();
+ 	}
+ 
+ 	public List getEntitiesWithinAABBExcludingEntity(Entity var1, AxisAlignedBB var2) {
 --- /dev/null
 +++ net/minecraft/src/EntityTikThink.java
 @@ -1,0 +1,14 @@
@@ -301,6 +654,17 @@
  	}
  
  	public int quantityDropped(Random var1) {
+--- net/minecraft/src/ChunkProvider.java
++++ net/minecraft/src/ChunkProvider.java
+@@ -138,7 +138,7 @@
+ 
+ 			if(var5.needsSaving(var1)) {
+ 				this.func_28059_b(var5);
+-				var5.isModified = false;
++				var5.isModified.set(false);
+ 				++var3;
+ 				if(var3 == 24 && !var1) {
+ 					return false;
 --- /dev/null
 +++ net/minecraft/src/EntityCreepyLong2.java
 @@ -1,0 +1,149 @@
@@ -668,6 +1032,119 @@
 +		addMapping(EntityHeroVoid.class, "HeroVoid", 110);
  	}
  }
+--- net/minecraft/src/Chunk.java
++++ net/minecraft/src/Chunk.java
+@@ -5,6 +5,7 @@
+ import java.util.List;
+ import java.util.Map;
+ import java.util.Random;
++import java.util.concurrent.atomic.AtomicBoolean;
+ 
+ public class Chunk {
+ 	public static boolean isLit;
+@@ -21,7 +22,7 @@
+ 	public Map chunkTileEntityMap;
+ 	public List[] entities;
+ 	public boolean isTerrainPopulated;
+-	public boolean isModified;
++	public AtomicBoolean isModified = new AtomicBoolean(false);
+ 	public boolean neverSave;
+ 	public boolean hasEntities;
+ 	public long lastSaveTime;
+@@ -30,7 +31,7 @@
+ 		this.chunkTileEntityMap = new HashMap();
+ 		this.entities = new List[8];
+ 		this.isTerrainPopulated = false;
+-		this.isModified = false;
++		this.isModified.set(false);
+ 		this.hasEntities = false;
+ 		this.lastSaveTime = 0L;
+ 		this.worldObj = var1;
+@@ -105,7 +106,7 @@
+ 			}
+ 		}
+ 
+-		this.isModified = true;
++		this.isModified.set(true);
+ 	}
+ 
+ 	public void func_4053_c() {
+@@ -125,10 +126,10 @@
+ 		int var4 = this.worldObj.getHeightValue(var1, var2);
+ 		if(var4 > var3) {
+ 			this.worldObj.func_483_a(EnumSkyBlock.Sky, var1, var3, var2, var1, var4, var2);
+-			this.isModified = true;
++			this.isModified.set(true);
+ 		} else if(var4 < var3) {
+ 			this.worldObj.func_483_a(EnumSkyBlock.Sky, var1, var4, var2, var1, var3, var2);
+-			this.isModified = true;
++			this.isModified.set(true);
+ 		}
+ 
+ 	}
+@@ -203,7 +204,7 @@
+ 				this.worldObj.func_483_a(EnumSkyBlock.Sky, var7 - 1, var5, var8 - 1, var7 + 1, var10, var8 + 1);
+ 			}
+ 
+-			this.isModified = true;
++			this.isModified.set(true);
+ 		}
+ 	}
+ 
+@@ -245,7 +246,7 @@
+ 				Block.blocksList[var4].onBlockAdded(this.worldObj, var9, var2, var10);
+ 			}
+ 
+-			this.isModified = true;
++			this.isModified.set(true);
+ 			return true;
+ 		}
+ 	}
+@@ -280,7 +281,7 @@
+ 				Block.blocksList[var4].onBlockAdded(this.worldObj, var8, var2, var9);
+ 			}
+ 
+-			this.isModified = true;
++			this.isModified.set(true);
+ 			return true;
+ 		}
+ 	}
+@@ -290,7 +291,7 @@
+ 	}
+ 
+ 	public void setBlockMetadata(int var1, int var2, int var3, int var4) {
+-		this.isModified = true;
++		this.isModified.set(true);
+ 		this.data.setNibble(var1, var2, var3, var4);
+ 	}
+ 
+@@ -299,7 +300,7 @@
+ 	}
+ 
+ 	public void setLightValue(EnumSkyBlock var1, int var2, int var3, int var4, int var5) {
+-		this.isModified = true;
++		this.isModified.set(true);
+ 		if(var1 == EnumSkyBlock.Sky) {
+ 			this.skylightMap.setNibble(var2, var3, var4, var5);
+ 		} else {
+@@ -446,7 +447,7 @@
+ 	}
+ 
+ 	public void setChunkModified() {
+-		this.isModified = true;
++		this.isModified.set(true);
+ 	}
+ 
+ 	public void getEntitiesWithinAABBForEntity(Entity var1, AxisAlignedBB var2, List var3) {
+@@ -509,7 +510,7 @@
+ 				return true;
+ 			}
+ 
+-			return this.isModified;
++			return this.isModified.get();
+ 		}
+ 	}
+ 
 --- /dev/null
 +++ net/minecraft/src/EntityLengthFlag.java
 @@ -1,0 +1,14 @@
@@ -905,7 +1382,7 @@
  		addIdClassMapping(102, false, true, Packet102WindowClick.class);
 --- net/minecraft/src/WorldInfo.java
 +++ net/minecraft/src/WorldInfo.java
-@@ -18,6 +18,11 @@
+@@ -18,6 +18,12 @@
  	private int rainTime;
  	private boolean isThundering;
  	private int thunderTime;
@@ -914,10 +1391,11 @@
 +	private int newGameTimer = -1;
 +	private int newDiamond1 = 0;
 +	private int newDiamond2 = 0;
++	private boolean glassPlaced = false;
  
  	public WorldInfo(NBTTagCompound var1) {
  		this.randomSeed = var1.getLong("RandomSeed");
-@@ -33,6 +38,11 @@
+@@ -33,6 +39,11 @@
  		this.isRaining = var1.getBoolean("raining");
  		this.thunderTime = var1.getInteger("thunderTime");
  		this.isThundering = var1.getBoolean("thundering");
@@ -929,7 +1407,7 @@
  		if(var1.hasKey("Player")) {
  			this.field_22195_h = var1.getCompoundTag("Player");
  			this.field_22194_i = this.field_22195_h.getInteger("Dimension");
-@@ -61,6 +71,11 @@
+@@ -61,6 +72,11 @@
  		this.isRaining = var1.isRaining;
  		this.thunderTime = var1.thunderTime;
  		this.isThundering = var1.isThundering;
@@ -941,7 +1419,7 @@
  	}
  
  	public NBTTagCompound func_22185_a() {
-@@ -100,6 +115,12 @@
+@@ -100,6 +116,12 @@
  		var1.setBoolean("raining", this.isRaining);
  		var1.setInteger("thunderTime", this.thunderTime);
  		var1.setBoolean("thundering", this.isThundering);
@@ -954,10 +1432,11 @@
  		if(var2 != null) {
  			var1.setCompoundTag("Player", var2);
  		}
-@@ -175,6 +196,47 @@
+@@ -174,6 +196,54 @@
+ 
  	public void setThunderTime(int var1) {
  		this.thunderTime = var1;
- 	}
++	}
 +
 +	public boolean getGameStart() {
 +		return this.gamestart;
@@ -999,9 +1478,15 @@
 +		this.gamestartnew = var1;
 +	}
 +
++	public boolean isGlassPlaced() {
++		return this.glassPlaced;
++	}
++
++	public void setGlassPlaced(boolean placed) {
++		this.glassPlaced = placed;
+ 	}
  
  	public boolean getIsRaining() {
- 		return this.isRaining;
 --- /dev/null
 +++ net/minecraft/src/WorldRandomCreepy.java
 @@ -1,0 +1,333 @@
@@ -2054,9 +2539,121 @@
 +		super.onLivingUpdate();
 +	}
 +}
+--- /dev/null
++++ net/minecraft/src/ChunkSaveQueue.java
+@@ -1,0 +1,55 @@
++package net.minecraft.src;
++
++import java.io.IOException;
++import java.util.concurrent.LinkedBlockingQueue;
++import java.util.concurrent.TimeUnit;
++
++public class ChunkSaveQueue implements Runnable {
++	private static final LinkedBlockingQueue<SaveTask> queue = new LinkedBlockingQueue<>();
++	private static volatile boolean running = true;
++
++	private static class SaveTask {
++		World world;
++		Chunk chunk;
++		IChunkLoader loader;
++
++		SaveTask(World w, Chunk c, IChunkLoader l) {
++			this.world = w;
++			this.chunk = c;
++			this.loader = l;
++		}
++	}
++
++	public static void queueChunkSave(World world, Chunk chunk, IChunkLoader loader) {
++		chunk.lastSaveTime = world.getWorldTime();
++
++		queue.add(new SaveTask(world, chunk, loader));
++	}
++
++	public static void finishAndStop() {
++		running = false;
++		while (!queue.isEmpty()) {
++			try {
++				Thread.sleep(100L); // 残りがある間は待機
++			} catch (InterruptedException e) {}
++		}
++	}
++
++	@Override
++	public void run() {
++		while (running || !queue.isEmpty()) {
++			try {
++				SaveTask task = queue.poll(500, TimeUnit.MILLISECONDS);
++
++				if (task != null && task.loader != null) {
++					task.loader.saveChunk(task.world, task.chunk);
++				}
++			} catch (IOException e) {
++				System.err.println("Failed to save chunk asynchronously!");
++				e.printStackTrace();
++			} catch (InterruptedException e) {
++			}
++		}
++		System.out.println("Chunk Save Thread stopped safely.");
++	}
++}
 --- net/minecraft/server/MinecraftServer.java
 +++ net/minecraft/server/MinecraftServer.java
-@@ -71,7 +71,7 @@
+@@ -11,34 +11,10 @@
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.Random;
++import java.util.concurrent.atomic.AtomicBoolean;
+ import java.util.logging.Level;
+ import java.util.logging.Logger;
+-import net.minecraft.src.AxisAlignedBB;
+-import net.minecraft.src.ChunkCoordinates;
+-import net.minecraft.src.ConsoleCommandHandler;
+-import net.minecraft.src.ConsoleLogManager;
+-import net.minecraft.src.ConvertProgressUpdater;
+-import net.minecraft.src.EntityTracker;
+-import net.minecraft.src.ICommandListener;
+-import net.minecraft.src.IProgressUpdate;
+-import net.minecraft.src.ISaveFormat;
+-import net.minecraft.src.IUpdatePlayerListBox;
+-import net.minecraft.src.NetworkListenThread;
+-import net.minecraft.src.Packet4UpdateTime;
+-import net.minecraft.src.PropertyManager;
+-import net.minecraft.src.SaveConverterMcRegion;
+-import net.minecraft.src.SaveOldDir;
+-import net.minecraft.src.ServerCommand;
+-import net.minecraft.src.ServerConfigurationManager;
+-import net.minecraft.src.ServerGUI;
+-import net.minecraft.src.StatList;
+-import net.minecraft.src.ThreadCommandReader;
+-import net.minecraft.src.ThreadServerApplication;
+-import net.minecraft.src.ThreadSleepForever;
+-import net.minecraft.src.Vec3D;
+-import net.minecraft.src.WorldManager;
+-import net.minecraft.src.WorldServer;
+-import net.minecraft.src.WorldServerMulti;
++import net.minecraft.src.*;
+ 
+ public class MinecraftServer implements Runnable, ICommandListener {
+ 	public static Logger logger = Logger.getLogger("Minecraft");
+@@ -48,7 +24,7 @@
+ 	public WorldServer[] worldMngr;
+ 	public ServerConfigurationManager configManager;
+ 	private ConsoleCommandHandler commandHandler;
+-	private boolean serverRunning = true;
++	private AtomicBoolean serverRunning = new AtomicBoolean(true);
+ 	public boolean serverStopped = false;
+ 	int deathTime = 0;
+ 	public String currentTask;
+@@ -60,6 +36,7 @@
+ 	public boolean spawnPeacefulMobs;
+ 	public boolean pvpOn;
+ 	public boolean allowFlight;
++	public int loadChunkFirst;
+ 
+ 	public MinecraftServer() {
+ 		new ThreadSleepForever(this);
+@@ -71,7 +48,7 @@
  		var1.setDaemon(true);
  		var1.start();
  		ConsoleLogManager.init();
@@ -2065,7 +2662,7 @@
  		if(Runtime.getRuntime().maxMemory() / 1024L / 1024L < 512L) {
  			logger.warning("**** NOT ENOUGH RAM!");
  			logger.warning("To start the server with more ram, launch it as \"java -Xmx1024M -Xms1024M -jar minecraft_server.jar\"");
-@@ -80,10 +80,10 @@
+@@ -80,10 +57,11 @@
  		logger.info("Loading properties");
  		this.propertyManagerObj = new PropertyManager(new File("server.properties"));
  		String var2 = this.propertyManagerObj.getStringProperty("server-ip", "");
@@ -2076,33 +2673,116 @@
 -		this.allowFlight = this.propertyManagerObj.getBooleanProperty("allow-flight", false);
 +		this.pvpOn = this.propertyManagerObj.getBooleanProperty("pvp", false);
 +		this.allowFlight = this.propertyManagerObj.getBooleanProperty("allow-flight", true);
++		this.loadChunkFirst = this.propertyManagerObj.getIntProperty("loadChunkFirst", 192);
  		InetAddress var3 = null;
  		if(var2.length() > 0) {
  			var3 = InetAddress.getByName(var2);
-@@ -160,8 +160,8 @@
+@@ -135,7 +113,7 @@
+ 			var1.converMapToMCRegion(var2, new ConvertProgressUpdater(this));
+ 		}
+ 
+-		this.worldMngr = new WorldServer[2];
++		this.worldMngr = new WorldServer[1];
+ 		SaveOldDir var5 = new SaveOldDir(new File("."), var2, true);
+ 
+ 		for(int var6 = 0; var6 < this.worldMngr.length; ++var6) {
+@@ -151,7 +129,7 @@
+ 			this.configManager.setPlayerManager(this.worldMngr);
+ 		}
+ 
+-		short var18 = 196;
++		int var18 = this.loadChunkFirst;
+ 		long var7 = System.currentTimeMillis();
+ 
+ 		for(int var9 = 0; var9 < this.worldMngr.length; ++var9) {
+@@ -160,8 +138,8 @@
  				WorldServer var10 = this.worldMngr[var9];
  				ChunkCoordinates var11 = var10.getSpawnPoint();
  
 -				for(int var12 = -var18; var12 <= var18 && this.serverRunning; var12 += 16) {
 -					for(int var13 = -var18; var13 <= var18 && this.serverRunning; var13 += 16) {
-+				for(int var12 = -var18; var12 <= var18/* && this.serverRunning*/; var12 += 16) {
-+					for(int var13 = -var18; var13 <= var18/* && this.serverRunning*/; var13 += 16) {
++				for(int var12 = -var18; var12 <= var18 && this.serverRunning.get(); var12 += 16) {
++					for(int var13 = -var18; var13 <= var18 && this.serverRunning.get(); var13 += 16) {
  						long var14 = System.currentTimeMillis();
  						if(var14 < var7) {
  							var7 = var14;
-@@ -176,8 +176,10 @@
+@@ -176,7 +154,7 @@
  
  						var10.chunkProviderServer.loadChunk(var11.posX + var12 >> 4, var11.posZ + var13 >> 4);
  
 -						while(var10.func_6156_d() && this.serverRunning) {
--						}
-+						/**
-+						 while(var10.func_6156_d() && this.serverRunning) {
-+						 }
-+						 */
++						while(var10.func_6156_d() && this.serverRunning.get()) {
+ 						}
  					}
  				}
+@@ -224,15 +202,21 @@
+ 	}
+ 
+ 	public void initiateShutdown() {
+-		this.serverRunning = false;
++		this.serverRunning.set(false);
+ 	}
+ 
+ 	public void run() {
+ 		try {
+ 			if(this.startServer()) {
++				Thread saveThread = new Thread(new ChunkSaveQueue());
++				saveThread.setName("Chunk Save Thread");
++				saveThread.setPriority(Thread.MIN_PRIORITY);
++				saveThread.start();
++				logger.info("Async Save Thread started.");
++
+ 				long var1 = System.currentTimeMillis();
+ 
+-				for(long var3 = 0L; this.serverRunning; Thread.sleep(1L)) {
++				for(long var3 = 0L; this.serverRunning.get(); Thread.sleep(1L)) {
+ 					long var5 = System.currentTimeMillis();
+ 					long var7 = var5 - var1;
+ 					if(var7 > 2000L) {
+@@ -258,7 +242,7 @@
+ 					}
+ 				}
+ 			} else {
+-				while(this.serverRunning) {
++				while(this.serverRunning.get()) {
+ 					this.commandLineParser();
+ 
+ 					try {
+@@ -272,7 +256,7 @@
+ 			var58.printStackTrace();
+ 			logger.log(Level.SEVERE, "Unexpected exception", var58);
+ 
+-			while(this.serverRunning) {
++			while(this.serverRunning.get()) {
+ 				this.commandLineParser();
+ 
+ 				try {
+@@ -283,6 +267,9 @@
  			}
+ 		} finally {
+ 			try {
++				logger.info("Saving pending chunks before shutdown...");
++				ChunkSaveQueue.finishAndStop();
++
+ 				this.stopServer();
+ 				this.serverStopped = true;
+ 			} catch (Throwable var54) {
+@@ -290,7 +277,6 @@
+ 			} finally {
+ 				System.exit(0);
+ 			}
+-
+ 		}
+ 
+ 	}
+@@ -410,6 +396,6 @@
+ 	}
+ 
+ 	public static boolean isServerRunning(MinecraftServer var0) {
+-		return var0.serverRunning;
++		return var0.serverRunning.get();
+ 	}
+ }
 --- /dev/null
 +++ net/minecraft/src/EntityLongLeggedAlex.java
 @@ -1,0 +1,14 @@
