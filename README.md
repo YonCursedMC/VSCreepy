@@ -81,7 +81,7 @@ Creepyバトル — 最初にダイヤモンドを手に入れるのはどっち
 
 * ランダムで2チームに分かれる
 * 1チーム：-X側 / 2チーム：+X側
-* エリア外には進めない
+* エリア外には進めない(Team1: X > -20 || Team2: X < 20)
 * 地形が不公平な場合はワールド再生成推奨
 
 #### ポイントシステム
@@ -116,7 +116,6 @@ Creepyバトル — 最初にダイヤモンドを手に入れるのはどっち
 ※ネタバレ注意
 
 * 雷が大量に落ちる
-* 床が抜ける
 * 強制移動
 * 大爆発
 * GUIバグ・異音
@@ -238,7 +237,7 @@ Collect as many diamonds as possible within 45 minutes.
 
 * Randomly split into 2 teams
 * Team 1: -X side / Team 2: +X side
-* Cannot cross boundaries
+* Cannot cross boundaries(Team1: X > -20 || Team2: X < 20)
 * If terrain is unfair, regenerate the world
 
 #### Points
@@ -271,7 +270,6 @@ Collect as many diamonds as possible within 45 minutes.
 ## Paranormal Events (Examples)
 
 * Lightning storms
-* Floor collapsing
 * Forced movement
 * Explosions
 * GUI glitches & strange sounds
