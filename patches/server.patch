@@ -1741,7 +1741,7 @@
 +		if(!playerSPList.isEmpty()) {
 +			for(EntityPlayerMP playerSP : playerSPList) {
 +				if(playerSP.team == team) {
-+					switch(new Random().nextInt(26)) {
++					switch(new Random().nextInt(25)) {
 +					case 0:
 +						this.event0(playerSP);
 +						break;
