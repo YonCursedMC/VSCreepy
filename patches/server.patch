@@ -345,9 +345,9 @@
 +
 +					for(EntityPlayerMP playerMP : playerMPS) {
 +						if(playerMP.team == 1) {
-+							playerMP.playerNetServerHandler.teleportTo(-20, this.findTopSolidBlock(-20, 0), 0, 0, 0);
++							playerMP.playerNetServerHandler.teleportTo(-60, this.findTopSolidBlock(-60, 0), 0, 0, 0);
 +						} else if(playerMP.team == 2) {
-+							playerMP.playerNetServerHandler.teleportTo(20, this.findTopSolidBlock(20, 0), 0, 0, 0);
++							playerMP.playerNetServerHandler.teleportTo(60, this.findTopSolidBlock(60, 0), 0, 0, 0);
 +						}
 +					}
 +
@@ -599,6 +599,19 @@
  	}
  
  	public List getEntitiesWithinAABBExcludingEntity(Entity var1, AxisAlignedBB var2) {
+@@ -1751,8 +1985,10 @@
+ 		if(var10 != null && !this.checkIfAABBIsClear(var10)) {
+ 			return false;
+ 		} else {
+-			if(var8 == Block.waterMoving || var8 == Block.waterStill || var8 == Block.lavaMoving || var8 == Block.lavaStill || var8 == Block.fire || var8 == Block.snow) {
+-				var8 = null;
++			if(var8 != Block.breakbedrock){
++				if(var8 == Block.waterMoving || var8 == Block.waterStill || var8 == Block.lavaMoving || var8 == Block.lavaStill || var8 == Block.fire || var8 == Block.snow) {
++					var8 = null;
++				}
+ 			}
+ 
+ 			return var1 > 0 && var8 == null && var9.func_28026_e(this, var2, var3, var4, var6);
 --- /dev/null
 +++ net/minecraft/src/EntityTikThink.java
 @@ -1,0 +1,14 @@
@@ -1489,7 +1502,7 @@
  	public boolean getIsRaining() {
 --- /dev/null
 +++ net/minecraft/src/WorldRandomCreepy.java
-@@ -1,0 +1,333 @@
+@@ -1,0 +1,320 @@
 +package net.minecraft.src;
 +
 +import sun.text.resources.cldr.ka.FormatData_ka;
@@ -1558,20 +1571,10 @@
 +	}
 +
 +	public void event5(EntityPlayerMP playerSP) {
-+		for(int i = -16; i < 16; i++) {
-+			for(int j = 0; j > -16; j--) {
-+				for(int k = -16; k < 16; k++) {
-+					this.worldObj.setBlockWithNotify((int)playerSP.posX + i, (int)playerSP.posY + j, (int)playerSP.posZ + k, 0);
-+				}
-+			}
-+		}
-+	}
-+
-+	public void event6(EntityPlayerMP playerSP) {
 +		playerSP.timerS[2] = true;
 +	}
 +
-+	public void event7(EntityPlayerMP playerSP) {
++	public void event6(EntityPlayerMP playerSP) {
 +		EntityLagMob entity = new EntityLagMob(this.worldObj);
 +		int XXX = 0;
 +		if(playerSP.team == 1) {
@@ -1586,7 +1589,7 @@
 +		this.worldObj.entityJoinedWorld(entity);
 +	}
 +
-+	public void event8(EntityPlayerMP playerSP) {
++	public void event7(EntityPlayerMP playerSP) {
 +		EntityLongFix entity = new EntityLongFix(this.worldObj);
 +		int XXX = 0;
 +		if(playerSP.team == 1) {
@@ -1601,7 +1604,7 @@
 +		this.worldObj.entityJoinedWorld(entity);
 +	}
 +
-+	public void event9(EntityPlayerMP playerSP) {
++	public void event8(EntityPlayerMP playerSP) {
 +		EntityLengthFlag entity = new EntityLengthFlag(this.worldObj);
 +		int XXX = 0;
 +		if(playerSP.team == 1) {
@@ -1616,7 +1619,7 @@
 +		this.worldObj.entityJoinedWorld(entity);
 +	}
 +
-+	public void event10(EntityPlayerMP playerSP) {
++	public void event9(EntityPlayerMP playerSP) {
 +		EntityLongLeggedAlex entity = new EntityLongLeggedAlex(this.worldObj);
 +		int XXX = 0;
 +		if(playerSP.team == 1) {
@@ -1631,7 +1634,7 @@
 +		this.worldObj.entityJoinedWorld(entity);
 +	}
 +
-+	public void event11(EntityPlayerMP playerSP) {
++	public void event10(EntityPlayerMP playerSP) {
 +		EntityLongLeggedJeb entity = new EntityLongLeggedJeb(this.worldObj);
 +		int XXX = 0;
 +		if(playerSP.team == 1) {
@@ -1646,7 +1649,7 @@
 +		this.worldObj.entityJoinedWorld(entity);
 +	}
 +
-+	public void event12(EntityPlayerMP playerSP) {
++	public void event11(EntityPlayerMP playerSP) {
 +		EntityTikThink entity = new EntityTikThink(this.worldObj);
 +		int XXX = 0;
 +		if(playerSP.team == 1) {
@@ -1661,39 +1664,39 @@
 +		this.worldObj.entityJoinedWorld(entity);
 +	}
 +
-+	public void event13(EntityPlayerMP playerSP) {
++	public void event12(EntityPlayerMP playerSP) {
 +		this.worldObj.createExplosion(playerSP, playerSP.posX, playerSP.posY, playerSP.posZ, 8.0F);
 +	}
 +
-+	public void event14(EntityPlayerMP playerSP) {
++	public void event13(EntityPlayerMP playerSP) {
 +		new WorldGenTen().generate(this.worldObj, this.worldObj.rand, (int)playerSP.posX, (int)playerSP.posY, (int)playerSP.posZ);
 +	}
 +
-+	public void event15(EntityPlayerMP playerSP) {
++	public void event14(EntityPlayerMP playerSP) {
 +		new WorldGenSign().generate(this.worldObj, (int)playerSP.posX, (int)playerSP.posY, (int)playerSP.posZ, "So Creepy", "Are you Alex?", "Creepy?", "Pasta is");
 +	}
 +
-+	public void event16(EntityPlayerMP playerSP) {
++	public void event15(EntityPlayerMP playerSP) {
 +		playerSP.playerNetServerHandler.sendPacket(new Packet80Event(41));
 +	}
 +
-+	public void event17(EntityPlayerMP playerSP) {
++	public void event16(EntityPlayerMP playerSP) {
 +		playerSP.playerNetServerHandler.sendPacket(new Packet80Event(42));
 +	}
 +
-+	public void event18(EntityPlayerMP playerSP) {
++	public void event17(EntityPlayerMP playerSP) {
 +		playerSP.playerNetServerHandler.sendPacket(new Packet80Event(43));
 +	}
 +
-+	public void event19(EntityPlayerMP playerSP) {
++	public void event18(EntityPlayerMP playerSP) {
 +		playerSP.playerNetServerHandler.sendPacket(new Packet80Event(44));
 +	}
 +
-+	public void event20(EntityPlayerMP playerSP) {
++	public void event19(EntityPlayerMP playerSP) {
 +		playerSP.playerNetServerHandler.sendPacket(new Packet80Event(45));
 +	}
 +
-+	public void event21(EntityPlayerMP playerSP) {
++	public void event20(EntityPlayerMP playerSP) {
 +		playerSP.playerNetServerHandler.sendPacket(new Packet81Sound("/sound/error888.wav"));
 +		playerSP.SCPosX = playerSP.posX;
 +		playerSP.SCPosY = playerSP.posY;
@@ -1701,15 +1704,15 @@
 +		playerSP.timerS[0] = true;
 +	}
 +
-+	public void event22(EntityPlayerMP playerSP) {
++	public void event21(EntityPlayerMP playerSP) {
 +		playerSP.playerNetServerHandler.sendPacket(new Packet80Event(46));
 +	}
 +
-+	public void event23(EntityPlayerMP playerSP) {
++	public void event22(EntityPlayerMP playerSP) {
 +		playerSP.timerS[1] = true;
 +	}
 +
-+	public void event24(EntityPlayerMP playerSP) {
++	public void event23(EntityPlayerMP playerSP) {
 +		if(playerSP.team == 1) {
 +			new WorldGenLongFix1().generate(this.worldObj, this.worldObj.rand, (int)playerSP.posX + 3, (int)playerSP.posY - 2, (int)playerSP.posZ - 3);
 +		} else {
@@ -1717,7 +1720,7 @@
 +		}
 +	}
 +
-+	public void event25(EntityPlayerMP playerSP) {
++	public void event24(EntityPlayerMP playerSP) {
 +		EntityHeroVoid entity = new EntityHeroVoid(this.worldObj);
 +		int XXX = 0;
 +		if(playerSP.team == 1) {
@@ -1814,9 +1817,6 @@
 +					case 24:
 +						this.event24(playerSP);
 +						break;
-+					case 25:
-+						this.event25(playerSP);
-+						break;
 +					}
 +				}
 +			}
@@ -1878,8 +1878,8 @@
 +					} else {
 +						if(k == height - 1) {
 +							var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.lightStone.blockID);
-+						}else {
-+							var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.bedrock.blockID);
++						} else {
++							var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.breakbedrock.blockID);
 +						}
 +					}
 +				}
@@ -1929,7 +1929,7 @@
 +						if(k == height - 1) {
 +							var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.lightStone.blockID);
 +						} else {
-+							var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.bedrock.blockID);
++							var1.setBlockWithNotify(i + var3, k + var4, j + var5, Block.breakbedrock.blockID);
 +						}
 +					}
 +				}
@@ -2075,15 +2075,26 @@
  
 --- net/minecraft/src/Block.java
 +++ net/minecraft/src/Block.java
-@@ -117,6 +117,7 @@
+@@ -117,6 +117,8 @@
  	public static final Block redstoneRepeaterActive = (new BlockRedstoneRepeater(94, true)).setHardness(0.0F).setLightValue(10.0F / 16.0F).setStepSound(soundWoodFootstep).setBlockName("diode").disableStats().func_28027_k();
  	public static final Block lockedChest = (new BlockLockedChest(95)).setHardness(0.0F).setLightValue(1.0F).setStepSound(soundWoodFootstep).setBlockName("lockedchest").setTickOnLoad(true).func_28027_k();
  	public static final Block field_28030_bl = (new BlockTrapDoor(96, Material.wood)).setHardness(3.0F).setStepSound(soundWoodFootstep).setBlockName("trapdoor").disableStats().func_28027_k();
 +	public static final Block nbglass = (new BlockGlass(97, 49, Material.glass, false)).setHardness(-1.0F).setResistance(6000000.0F).setStepSound(soundGlassFootstep).setBlockName("NoBrokenGlass");
++	public static final Block breakbedrock = (new Block(98, 17, Material.rock)).setHardness(3.0F).setResistance(6000000.0F).setStepSound(soundStoneFootstep).setBlockName("breakbedrock").disableStats();
  	public int blockIndexInTexture;
  	public final int blockID;
  	protected float blockHardness;
-@@ -468,6 +469,22 @@
+@@ -275,6 +277,9 @@
+ 	}
+ 
+ 	public int idDropped(int var1, Random var2) {
++		if(this.blockID == breakbedrock.blockID) {
++			return 0;
++		}
+ 		return this.blockID;
+ 	}
+ 
+@@ -468,6 +473,22 @@
  	public void harvestBlock(World var1, EntityPlayer var2, int var3, int var4, int var5, int var6) {
  		var2.addStat(StatList.mineBlockStatArray[this.blockID], 1);
  		this.dropBlockAsItem(var1, var3, var4, var5, var6);
@@ -2136,7 +2147,7 @@
  import net.minecraft.server.MinecraftServer;
  
  public class EntityPlayerMP extends EntityPlayer implements ICrafting {
-@@ -19,6 +16,8 @@
+@@ -19,19 +16,29 @@
  	private ItemStack[] playerInventory = new ItemStack[]{null, null, null, null, null};
  	private int currentWindowId = 0;
  	public boolean isChangingQuantityOnly;
@@ -2145,7 +2156,35 @@
  
  	public EntityPlayerMP(MinecraftServer var1, World var2, String var3, ItemInWorldManager var4) {
  		super(var2);
-@@ -39,6 +38,8 @@
+ 		var4.thisPlayer = this;
+ 		this.itemInWorldManager = var4;
+-		ChunkCoordinates var5 = var2.getSpawnPoint();
+-		int var6 = var5.posX;
+-		int var7 = var5.posZ;
+-		int var8 = var5.posY;
++		int var6 = 0;
++		int var7 = 0;
++		int var8 = 0;
+ 		if(!var2.worldProvider.field_4306_c) {
+-			var6 += this.rand.nextInt(20) - 10;
+-			var8 = var2.findTopSolidBlock(var6, var7);
+-			var7 += this.rand.nextInt(20) - 10;
++			if(this.team == 1) {
++				var6 = -new Random().nextInt(60) - 40;
++				var7 = -new Random().nextInt(60) - 40;
++				var8 = var2.findTopSolidBlock(var6, var7);
++
++			} else if(this.team == 2) {
++				var6 = new Random().nextInt(60) + 40;
++				var7 = new Random().nextInt(60) + 40;
++				var8 = var2.findTopSolidBlock(var6, var7);
++			} else {
++				var8 = var2.findTopSolidBlock(var6, var7);
++			}
+ 		}
+ 
+ 		this.setLocationAndAngles((double)var6 + 0.5D, (double)var8, (double)var7 + 0.5D, 0.0F, 0.0F);
+@@ -39,6 +46,8 @@
  		this.stepHeight = 0.0F;
  		this.username = var3;
  		this.yOffset = 0.0F;
@@ -2154,7 +2193,7 @@
  	}
  
  	public void setWorldHandler(World var1) {
-@@ -63,7 +64,161 @@
+@@ -63,7 +72,163 @@
  		return 1.62F;
  	}
  
@@ -2285,18 +2324,20 @@
 +				this.dataWatcher.updateObject(18, this.point);
 +			}
 +			if(this.team == 1) {
-+				if(this.posX > 0) {
-+					this.playerNetServerHandler.teleportTo(-20, this.worldObj.findTopSolidBlock(-20, (int)this.posZ) + 4, this.posZ, 0, 0);
++				if(this.posX > -20) {
++					this.playerNetServerHandler.teleportTo(-40, this.worldObj.findTopSolidBlock(-40, (int)this.posZ) + 2, this.posZ, 0, 0);
 +				}
 +			} else if(this.team == 2) {
-+				if(this.posX < 0) {
-+					this.playerNetServerHandler.teleportTo(20, this.worldObj.findTopSolidBlock(20, (int)this.posZ) + 4, this.posZ, 0, 0);
++				if(this.posX < 20) {
++					this.playerNetServerHandler.teleportTo(40, this.worldObj.findTopSolidBlock(40, (int)this.posZ) + 2, this.posZ, 0, 0);
 +				}
 +			}
-+			this.teamDiamond = false;
-+			for(ItemStack stack : this.inventory.mainInventory) {
-+				if(stack != null && stack.getItem() == Item.diamond) {
-+					this.teamDiamond = true;
++			if(!this.worldObj.worldInfo.getGameStartnew()) {
++				this.teamDiamond = false;
++				for(ItemStack stack : this.inventory.mainInventory) {
++					if(stack != null && stack.getItem() == Item.diamond) {
++						this.teamDiamond = true;
++					}
 +				}
 +			}
 +		} else {
@@ -2316,7 +2357,7 @@
  		this.itemInWorldManager.func_328_a();
  		--this.ticksOfInvuln;
  		this.currentCraftingInventory.updateCraftingMatrix();
-@@ -242,11 +397,6 @@
+@@ -242,11 +407,6 @@
  	}
  
  	public void wakeUpPlayer(boolean var1, boolean var2, boolean var3) {
@@ -2658,7 +2699,7 @@
  		var1.start();
  		ConsoleLogManager.init();
 -		logger.info("Starting minecraft server version Beta 1.6.6");
-+		logger.info("Starting minecraft server version VS Creepy Created by Yon4800 rb0");
++		logger.info("Starting minecraft server version VS Creepy Created by Yon4800 rb1");
  		if(Runtime.getRuntime().maxMemory() / 1024L / 1024L < 512L) {
  			logger.warning("**** NOT ENOUGH RAM!");
  			logger.warning("To start the server with more ram, launch it as \"java -Xmx1024M -Xms1024M -jar minecraft_server.jar\"");
