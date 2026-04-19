@@ -41,7 +41,7 @@ Creepyバトル — 最初にダイヤモンドを手に入れるのはどっち
 
 * MultiMC または PrismLauncher（推奨）を使用
 * 以下からダウンロード
-  [https://github.com/YonCursedMC/VSCreepy/releases](https://github.com/YonCursedMC/VSCreepy/releases)
+  [https://github.com/YonCursedMC/VSCreepy/releases/latest](https://github.com/YonCursedMC/VSCreepy/releases/latest)
   → 「VSCreepy.zip」を使用
 
 ### サーバー（管理者向け）
@@ -197,7 +197,7 @@ But there’s a twist — **paranormal events will interfere with players.**
 
 * Use MultiMC or PrismLauncher (recommended)
 * Download from:
-  [https://github.com/YonCursedMC/VSCreepy/releases](https://github.com/YonCursedMC/VSCreepy/releases)
+  [https://github.com/YonCursedMC/VSCreepy/releases/latest](https://github.com/YonCursedMC/VSCreepy/releases/latest)
   → Use `VSCreepy.zip`
 
 ### Server (Admin only)
