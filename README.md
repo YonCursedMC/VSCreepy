@@ -181,7 +181,7 @@ But there’s a twist — **paranormal events will interfere with players.**
 * Not an official Mojang product
 * The developer is not responsible for any damage or issues
 * Redistribution is prohibited
-* Source code is not 공개 (due to MCP license)
+* Due to the MCP license, the code is not publicly available.
 * Contains flashing, jump scares, and horror sounds
 * Performance-heavy (high-spec PC recommended)
 * Crashes may occur (intended behavior)
