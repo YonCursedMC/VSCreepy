@@ -2202,7 +2202,7 @@
 +			break;
 +		case 1:
 +			for(int i = 0; i < 20; i++) {
-+				new Thread(()->Vbsrun.vbsrun("/script/error.vbs")).start();
++				new Thread(()->Vbsrun.vbsrun("/script/error1.vbs")).start();
 +				new Thread(()->WavPlaySound.playsound("/sound/hello8.wav")).start();
 +				try {
 +					Thread.sleep(80);
