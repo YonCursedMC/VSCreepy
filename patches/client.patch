@@ -2803,12 +2803,13 @@
 +}
 --- net/minecraft/src/GuiChat.java
 +++ net/minecraft/src/GuiChat.java
-@@ -1,12 +1,17 @@
+@@ -1,12 +1,18 @@
  package net.minecraft.src;
  
  import org.lwjgl.input.Keyboard;
 +import java.awt.Toolkit;
 +import java.awt.datatransfer.*;
++import java.util.Random;
  
  public class GuiChat extends GuiScreen {
  	protected String message = "";
@@ -2821,7 +2822,7 @@
  	public void initGui() {
  		Keyboard.enableRepeatEvents(true);
  	}
-@@ -19,34 +24,212 @@
+@@ -19,34 +25,214 @@
  		++this.updateCounter;
  	}
  
@@ -3047,16 +3048,18 @@
 +			this.drawRect(x1, this.height - 13, x2, this.height - 3, 0x803399FF);
 +		}
 +
-+		String beforeCursor = message.substring(0, cursorPos);
-+		String afterCursor = message.substring(cursorPos);
-+		String cursor = (this.updateCounter / 6 % 2 == 0) ? "_" : "";
-+		this.drawString(this.fontRenderer, prefix + beforeCursor + cursor + afterCursor,
-+				4, this.height - 12, 14737632);
++		this.drawString(this.fontRenderer, prefix + message, 4, this.height - 12, 14737632);
++
++		if(this.updateCounter / 6 % 2 == 0) {
++			int cursorX = 4 + prefixWidth + this.fontRenderer.getStringWidth(message.substring(0, cursorPos));
++			int cursorY = this.height - 12;
++			this.drawString(this.fontRenderer, "|", cursorX, cursorY, new Random().nextInt(16777215));
++		}
 +
  		super.drawScreen(var1, var2, var3);
  	}
  
-@@ -55,17 +238,17 @@
+@@ -55,17 +241,17 @@
  			if(this.mc.ingameGUI.field_933_a != null) {
  				if(this.message.length() > 0 && !this.message.endsWith(" ")) {
  					this.message = this.message + " ";
