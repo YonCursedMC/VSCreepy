@@ -1045,14 +1045,6 @@
  	}
  
  	private void renderPumpkinBlur(int var1, int var2) {
-@@ -378,6 +402,7 @@
- 	}
- 
- 	public void addChatMessage(String var1) {
-+		System.out.println(var1);
- 		while(this.mc.fontRenderer.getStringWidth(var1) > 320) {
- 			int var2;
- 			for(var2 = 1; var2 < var1.length() && this.mc.fontRenderer.getStringWidth(var1.substring(0, var2 + 1)) <= 320; ++var2) {
 --- /dev/null
 +++ net/minecraft/src/EntityThatWhite.java
 @@ -1,0 +1,14 @@
@@ -1562,6 +1554,51 @@
  		if(this.ticksRan == 6000) {
  			this.func_28001_B();
  		}
+--- net/minecraft/src/GuiOptions.java
++++ net/minecraft/src/GuiOptions.java
+@@ -29,6 +29,7 @@
+ 			++var2;
+ 		}
+ 
++		this.controlList.add(new GuiButton(102, this.width / 2 - 100, this.height / 6 + 96 - 24 + 12, "How to play"));
+ 		this.controlList.add(new GuiButton(101, this.width / 2 - 100, this.height / 6 + 96 + 12, var1.translateKey("options.video")));
+ 		this.controlList.add(new GuiButton(100, this.width / 2 - 100, this.height / 6 + 120 + 12, var1.translateKey("options.controls")));
+ 		this.controlList.add(new GuiButton(200, this.width / 2 - 100, this.height / 6 + 168, var1.translateKey("gui.done")));
+@@ -40,6 +41,34 @@
+ 				this.options.setOptionValue(((GuiSmallButton)var1).returnEnumOptions(), 1);
+ 				var1.displayString = this.options.getKeyBinding(EnumOptions.getEnumOptions(var1.id));
+ 			}
++
++			if(var1.id == 102) {
++				try {
++					java.io.InputStream in = GuiOptions.class.getResourceAsStream("/html/rule.html");
++					java.util.Scanner scanner = new java.util.Scanner(in, "UTF-8").useDelimiter("\\A");
++					String html = scanner.hasNext() ? scanner.next() : "";
++					scanner.close();
++
++					javax.swing.JEditorPane editorPane = new javax.swing.JEditorPane("text/html", html);
++					editorPane.setEditable(false);
++
++					javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(editorPane);
++
++					javax.swing.JFrame frame = new javax.swing.JFrame("How to play");
++					frame.setSize(800, 600);
++					frame.setDefaultCloseOperation(javax.swing.JFrame.DISPOSE_ON_CLOSE);
++					frame.add(scrollPane);
++
++					frame.setLocationRelativeTo(null);
++					frame.setVisible(true);
++
++					editorPane.setCaretPosition(0);
++
++				} catch (Exception e) {
++					e.printStackTrace();
++				}
++			}
++
+ 
+ 			if(var1.id == 101) {
+ 				this.mc.gameSettings.saveOptions();
 --- /dev/null
 +++ net/minecraft/src/Packet80Event.java
 @@ -1,0 +1,32 @@
@@ -1708,7 +1745,7 @@
  	}
  
  	public String getText() {
-@@ -35,62 +43,217 @@
+@@ -35,64 +43,223 @@
  		++this.cursorCounter;
  	}
  
@@ -1933,10 +1970,6 @@
 -		if(this.isEnabled) {
 -			boolean var1 = this.isFocused && this.cursorCounter / 6 % 2 == 0;
 -			this.drawString(this.fontRenderer, this.text + (var1 ? "_" : ""), this.xPos + 4, this.yPos + (this.height - 8) / 2, 14737632);
--		} else {
--			this.drawString(this.fontRenderer, this.text, this.xPos + 4, this.yPos + (this.height - 8) / 2, 7368816);
--		}
--
 +		this.drawRect(this.xPos - 1, this.yPos - 1,
 +				this.xPos + this.width + 1, this.yPos + this.height + 1, -6250336);
 +		this.drawRect(this.xPos, this.yPos,
@@ -1953,24 +1986,32 @@
 +
 +		if(selectionStart >= 0) {
 +			int l = getSelLeft(), r = getSelRight();
-+			int x1 = baseX + this.fontRenderer.getStringWidth(text.substring(0, l));
-+			int x2 = baseX + this.fontRenderer.getStringWidth(text.substring(0, r));
-+			x1 = Math.max(x1, this.xPos + 4);
-+			x2 = Math.min(x2, this.xPos + this.width - 4);
-+			if(x1 < x2) {
-+				this.drawRect(x1, textY - 1, x2, textY + 9, 0x803399FF);
-+			}
-+		}
++			String beforeSel = text.substring(0, l);
++			String selected  = text.substring(l, r);
++			String afterSel  = text.substring(r);
 +
-+		boolean showCursor = this.isFocused && this.cursorCounter / 6 % 2 == 0;
-+		String beforeCursor = text.substring(0, cursorPos);
-+		String afterCursor = text.substring(cursorPos);
-+		String cursorStr = showCursor ? "_" : "";
-+		this.drawString(this.fontRenderer, beforeCursor + cursorStr + afterCursor,
-+				baseX, textY, 14737632);
- 	}
++			int beforeW = this.fontRenderer.getStringWidth(beforeSel);
++			int selW    = this.fontRenderer.getStringWidth(selected);
++
++			this.drawString(this.fontRenderer, beforeSel, baseX, textY, 14737632);
++			this.drawRect(baseX + beforeW, textY - 1,
++					baseX + beforeW + selW, textY + 9, 0xFFFFFFFF);
++			this.drawString(this.fontRenderer, selected, baseX + beforeW, textY, 0xFF000000);
++			this.drawString(this.fontRenderer, afterSel, baseX + beforeW + selW, textY, 14737632);
+ 		} else {
+-			this.drawString(this.fontRenderer, this.text, this.xPos + 4, this.yPos + (this.height - 8) / 2, 7368816);
++			this.drawString(this.fontRenderer, text, baseX, textY, 14737632);
+ 		}
  
++		if(this.isFocused && this.cursorCounter / 6 % 2 == 0 && selectionStart < 0) {
++			int cursorX = baseX + this.fontRenderer.getStringWidth(text.substring(0, cursorPos));
++			this.drawString(this.fontRenderer, "_", cursorX, textY, 14737632);
++		}
+ 	}
+-
  	public void setMaxStringLength(int var1) {
+ 		this.maxStringLength = var1;
+ 	}
 --- /dev/null
 +++ net/minecraft/src/RandomErrorModal.java
 @@ -1,0 +1,26 @@
@@ -2822,7 +2863,7 @@
  	public void initGui() {
  		Keyboard.enableRepeatEvents(true);
  	}
-@@ -19,34 +25,214 @@
+@@ -19,34 +25,227 @@
  		++this.updateCounter;
  	}
  
@@ -3039,27 +3080,40 @@
 +
 +		String prefix = "> ";
 +		int prefixWidth = this.fontRenderer.getStringWidth(prefix);
++		int xBase = 4 + prefixWidth;
++
++		this.drawString(this.fontRenderer, prefix, 4, this.height - 12, 14737632);
 +
 +		if(selectionStart >= 0) {
 +			int left = getSelStart();
 +			int right = getSelEnd();
-+			int x1 = prefixWidth + 4 + this.fontRenderer.getStringWidth(message.substring(0, left));
-+			int x2 = prefixWidth + 4 + this.fontRenderer.getStringWidth(message.substring(0, right));
-+			this.drawRect(x1, this.height - 13, x2, this.height - 3, 0x803399FF);
-+		}
 +
-+		this.drawString(this.fontRenderer, prefix + message, 4, this.height - 12, 14737632);
++			String beforeSel = message.substring(0, left);
++			String selected = message.substring(left, right);
++			String afterSel = message.substring(right);
++
++			int beforeW = this.fontRenderer.getStringWidth(beforeSel);
++			int selW = this.fontRenderer.getStringWidth(selected);
++
++			this.drawString(this.fontRenderer, beforeSel, xBase, this.height - 12, 14737632);
++			this.drawRect(xBase + beforeW, this.height - 13,
++					xBase + beforeW + selW, this.height - 3, 0xFFFFFFFF);
++			this.drawString(this.fontRenderer, selected, xBase + beforeW, this.height - 12, 0xFF000000);
++			this.drawString(this.fontRenderer, afterSel, xBase + beforeW + selW, this.height - 12, 14737632);
++		} else {
++			this.drawString(this.fontRenderer, message, xBase, this.height - 12, 14737632);
++		}
 +
 +		if(this.updateCounter / 6 % 2 == 0) {
 +			int cursorX = 4 + prefixWidth + this.fontRenderer.getStringWidth(message.substring(0, cursorPos));
 +			int cursorY = this.height - 12;
-+			this.drawString(this.fontRenderer, "|", cursorX, cursorY, new Random().nextInt(16777215));
++			this.drawString(this.fontRenderer, "_", cursorX, cursorY, 14737632);
 +		}
 +
  		super.drawScreen(var1, var2, var3);
  	}
  
-@@ -55,17 +241,17 @@
+@@ -55,17 +254,17 @@
  			if(this.mc.ingameGUI.field_933_a != null) {
  				if(this.message.length() > 0 && !this.message.endsWith(" ")) {
  					this.message = this.message + " ";
